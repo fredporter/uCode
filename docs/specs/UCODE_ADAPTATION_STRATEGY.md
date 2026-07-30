@@ -1,203 +1,118 @@
-# uCode Classic Game Adaptation Strategy
+# uCode Classic Program Adaptation Strategy
 
-**Status:** 🔒 LOCKED — Canonical Reference
-**Version:** 1.0
-**Date:** 2026-07-06
+Status: LOCKED - Canonical Reference
+Version: 2.0
+Date: 2026-07-31
 
-## Platform Architecture
+## Platform Naming Clarification
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  uCode Platform                       │
-├─────────────────────────────────────────────────────┤
-│  Core Runtime: BBC BASIC for SDL 2.0                │
-│  Add-on:       AMOS Runtime (sprites, BOBs, AMAL)   │
-│  Foundation:   LENS, SKIN, MCP, Spool, Feed         │
-│  Display:      GridCore UI (Teletext + Terminal)     │
-│  Container:    Program (.ucode bundle)               │
-└─────────────────────────────────────────────────────┘
-```
+uCode is one platform with profile modes, not separate product stacks.
 
-## Adaptation Strategies by Game Type
+1. uCode1 = teletext-first profile (MODE 7 foundation)
+2. uCode2 = sprite/BOB-capable profile enabled through AMOS shim compatibility
 
-### 1. Native BBC BASIC (Zero Effort)
+In GridCore-era architecture, both run inside the same uCode runtime boundary.
 
-| Game | Platform | Strategy |
-|------|----------|----------|
-| BBC Micro teletext games | BBC Micro | Run unchanged in uCode BBC BASIC runtime |
-| Modern BBC BASIC programs | uCode | Already native |
+## Final Program Adaptation Strategy
 
-**Key:** Every uCode1 (teletext-only) program runs unchanged on uCode2 (with sprites/BOBs). The teletext layer is always the base.
+| Program | Approach | Why This Approach | uCode Integration |
+| ------- | -------- | ----------------- | ----------------- |
+| ACS | Rewrite (uCode inspired-by) | Original source unavailable; design is iconic | Native GridCore UI + LENS + SKIN + MCP with Inspire-Engine |
+| Eamon | Adapt original source (port) | Applesoft source available and modular | LENS for stats/state, SKIN themes, MCP save/load tooling |
+| Apple Panic | Rewrite (uCode inspired-by) | Original source unavailable | Native GridCore character objects, LENS level state, MCP control |
+| Elite | Adapt original source | 6502 source available and documented | LENS ship/cargo/location, SKIN wireframe themes, MCP control hooks |
+| NetHack | Adapt original source | Open source code available | LENS dungeon/inventory state, teletext/GridCore display bridge |
+| Repton | Adapt original source | Source available and documented | LENS map/level state, SKIN teletext/sprite render options |
+| Knight Orc | Rewrite (uCode inspired-by) | Original KAOS engine source not readily available | Text parser with GridCore teletext, LENS time/NPC state, MCP time controls |
 
-### 2. Assembly Preservation (Low-Medium Effort)
+## Inspired-By Rewrite Specs
 
-| Original Game | Platform | Adaptation Method | LENS Extraction |
-|---------------|----------|-------------------|-----------------|
-| **Elite** | BBC Micro (6502 ASM) | Re-assemble with BeebAsm → BBC BASIC runtime | Ship status, location, inventory |
-| **Apple Panic** | Apple II (6502 ASM) | Cycle-accurate 6502 emulation (Rust component) | Screen state, score |
-| **Repton** | BBC Micro (6502 ASM + Reptol) | Emulation + asset extraction | Reptol scripts, maps, sprites |
+### ACS-Inspired Builder
 
-### 3. Text Adventure Migration (Low Effort)
+Suggested title: uConstruct (Adventure Forge)
 
-| Original Game | Platform | Adaptation Method |
-|---------------|----------|-------------------|
-| **Adventure Construction Set** | Apple II | 6502 emulation → LENS extracts maps/rooms/items → SKIN exports |
-| **Eamon** | Apple II | BBC BASIC interpreter + disk images → Teletext display |
-| **NetHack** | Various (ASCII) | BBC BASIC port → teletext display |
+Core behavior:
 
-### 4. AMOS-Style Sprite/BOB System
+1. Tile/world builder inspired by ACS, implemented natively in uCode.
+2. GridCore map editing and traversal rules.
+3. LENS exports map/room/item/creature state.
+4. SKIN supports teletext_classic plus modern alternates.
+5. MCP supports SAVE/LOAD/EXPORT/DEBUG flows.
 
-| AMOS Concept | uCode Implementation | Storage |
-|--------------|---------------------|---------|
-| **Sprite** (8 max, 16px wide) | GridCore UI Character (grid-aligned) | Character Set (YAML + glyph assets) |
-| **BOB** (unlimited, any size) | GridCore UI Object (GIF animation) | `.gif` repository with metadata |
-| **AMAL script** (independent movement) | MCP command sequence | JSON command definitions |
-| **Sprite Bank** | Character Collection | YAML manifest + sprite sheets |
-
-### 5. AMAL → MCP Bridge
-
-| AMAL Script | uCode MCP Equivalent |
-|-------------|----------------------|
-| `MOVE(100,200,10,SIN)` | `MCP > sprite:1 command:animate path=wave x=100 y=200 speed=10` |
-| `AUTO=1` | `MCP > sprite:1 command:set_property auto_animate=1` |
-| `BOUNCE=1` | `MCP > sprite:1 command:set_property bounce=1` |
-
-### 6. GIF-Based BOB Animations
-
-| BOB Feature | uCode Implementation |
-|-------------|----------------------|
-| Multi-frame animation | GIF decoder (Rust) with frame timing |
-| Transparency | Pixel-perfect collision masks from alpha channel |
-| Palette remapping | SKIN applies new colour palettes to GIF frames |
-| Loop control | `LoopMode` (Infinite, Once, Count) |
-
-### 7. Modern BBC BASIC (Line Numbers Optional)
-
-| Classic BBC BASIC | Modern uCode BBC BASIC |
-|-------------------|------------------------|
-| Line numbers required | **Optional** (use `PROC`/`FN` instead of `GOTO`/`GOSUB`) |
-| Teletext Mode 7 | Full support via GridCore UI |
-| VDU command stream | Routed to CEETEX teletext renderer |
-| No sprite/BOB support | **Add-on:** AMOS Runtime enables sprites/BOBs |
-
-### 8. Teletext Rendering (CEETEX Integration)
-
-| CEETEX Feature | uCode Adaptation |
-|----------------|------------------|
-| Mode 7 teletext engine | VDU stream from BBC BASIC → GridCore UI teletext layer |
-| 3-digit page navigation | MCP commands (`PAGE 101`, `NEXT`, `PREV`) |
-| RSS feeds as pages | BBC BASIC programs generate teletext content |
-| Textual terminal output | Spool export to ANSI, HTML, PNG via SKIN |
-
-## Program Container Format
-
-Programs replace the former "Snack/Snackpack" terminology for game/adventure bundles:
+Example program manifest:
 
 ```yaml
-# programs/adventure_demo/program.yaml
 program:
-  name: "Teletext Adventure"
+  name: "My uConstruct Adventure"
   version: "1.0"
-  type: "ucode"  # unified
-  
-  entry: "game.bbc"
-  runtime: "bbc_basic_sdl"  # or "amos_addon"
-  
-  assets:
-    teletext:
-      - "text/title_page.ttx"
-    sprites:      # optional (AMOS add-on)
-      - "sprites/player_*.png"
-    bobs:         # optional (AMOS add-on)
-      - "bobs/explosion.gif"
-    sounds:       # optional
-      - "sounds/jump.wav"
-  
+  type: "ucode"
+  entry: "adventure.ucon"
+
   lens:
-    capture:
-      - screen    # 40x25 grid
-      - variables # HP, gold, position
-  
+    capture: [map, rooms, inventory, creatures]
+
   skin:
     default: "teletext_classic"
-    alternates: ["paper_retro", "dark_mode"]
-  
+    alternates: ["pixel_art", "paper_retro"]
+
   mcp:
-    commands: ["PAGE", "NEXT", "PREV", "SAVE", "LOAD"]
+    commands: ["SAVE", "LOAD", "EXPORT_TAILWIND", "DEBUG"]
 ```
 
-## Game-Specific Adaptation Details
+### Apple Panic-Inspired Rewrite
 
-### Elite (BBC Micro)
+Suggested title: Block Panic (Ladder Panic)
 
-```
-Adaptation: Re-assemble 6502 source with BeebAsm → binary runs in BBC BASIC runtime
-LENS extracts: ship_status, location, inventory
-SKIN themes: elite_classic (green wireframe on black), paper_retro, dark_mode
-MCP commands: PAUSE, SAVE, LOAD, JUMP, DOCK
-Entry: elite.ssd (disc image)
-```
+Core behavior:
 
-### NetHack (ASCII)
+1. GridCore-driven ladders/platforms/enemies.
+2. Character objects for player/enemy blocks.
+3. LENS extracts level/score/lives/enemy state.
+4. SKIN profiles for teletext and modern high-contrast modes.
+5. MCP reset/skip/pause commands.
 
-```
-Adaptation: Port to BBC BASIC, run in uCode runtime
-LENS extracts: dungeon state, inventory, monster positions
-Display: Teletext layer (ASCII → MODE 7)
-```
+### Knight Orc-Inspired Rewrite
 
-### Apple Panic (Apple II 6502)
+Suggested title: Orc Quest (Grindleguts Tale)
 
-```
-Adaptation: Cycle-accurate 6502 emulation (Rust component)
-LENS extracts: screen state, score, level
-MCP commands: SPEED, INJECT, PAUSE, RESUME
-```
+Core behavior:
 
-### Repton (BBC Micro)
+1. BBC BASIC runtime parser with schedule-driven NPC loops.
+2. GridCore teletext presentation for narrative and context cues.
+3. LENS extracts location/inventory/NPC/time state.
+4. SKIN teletext theme sets.
+5. MCP save/load/time-control commands.
 
-```
-Adaptation: Emulation + asset extraction
-LENS extracts: Reptol scripts, maps (M files), sprites (S files)
-SKIN: Generate new levels or export to modern formats
-```
+## Skills Framework for Rewrite Paths
 
-## Migration Path Summary
+| Skill | Purpose |
+| ----- | ------- |
+| Inspire-Engine | Generate GDD from known gameplay references when source is missing |
+| uCode-Weaver | Generate skeleton code and integration hooks |
+| LENS-Craft | Define extractable runtime/game state contracts |
+| MCP-Scribe | Define command/control interfaces |
+| Skin-Weaver | Build profile-aligned visual themes |
 
-| Classic System | uCode Adaptation | Effort |
-|----------------|------------------|--------|
-| BBC Micro teletext game | Run unchanged in BBC BASIC | **Zero** |
-| AMOS game (sprites/BOBs) | Port sprite/BOB calls to BBC BASIC + AMOS add-on | Low |
-| Apple II ACS adventure | Emulate 6502, LENS extracts data | Medium |
-| Amiga AMAL scripts | Convert to MCP commands | Medium |
-| GIF animations | Load via AMOS add-on, render via GridCore UI | Low |
+## Revised Effort Estimates
 
-## Example: Teletext + Sprites Hybrid
+| Program | Approach | Estimated Effort | Key Risk | Mitigation |
+| ------- | -------- | ---------------- | -------- | ---------- |
+| ACS (uConstruct) | Rewrite | Large (8-12 weeks) | Builder complexity | Start with map editor core, then interactions |
+| Eamon | Adapt source | Medium (2-4 weeks) | Applesoft syntax shifts | Use BBC BASIC parity adapters |
+| Apple Panic (Block Panic) | Rewrite | Small (1-2 weeks) | Minimal | Generate skeleton via uCode-Weaver |
+| Elite | Adapt source | Medium (2-4 weeks) | 6502 complexity | Use existing source/build docs |
+| NetHack | Adapt source | Medium (2-4 weeks) | Large codebase | Prioritize display/control bridge |
+| Repton | Adapt source | Small (1-2 weeks) | Data format transforms | Leverage known clone/reference datasets |
+| Knight Orc (Orc Quest) | Rewrite | Large (8-12 weeks) | NPC/system complexity | Begin with one-NPC simulation slice |
 
-```bbcbasic
-   10 REM uCode Program: Teletext + Sprites
-   20 
-   30 MODE 7                     REM Teletext background
-   40 PROC_init_graphics         REM AMOS add-on for sprites
-   50 
-   60 REM Load sprite (becomes GridCore UI Character)
-   70 player = FN_load_sprite("player.png", 24, 24)
-   80 PROC_sprite_place(player, 10, 12)
-   90 
-  100 REM Teletext overlay
-  110 COLOUR 2                   REM Green text
-  120 PRINT TAB(5,22) "Score: "; score
-  130 
-  140 REM MCP command (control from outside)
-  150 cmd$ = FN_MCP_Poll()
-  160 IF cmd$ = "SAVE" THEN PROC_save_game
-  170 IF cmd$ = "QUIT" THEN END
-```
+## Locked Delivery Model
 
-## Immediate Implementation Priorities
+| Source Availability | Approach | Tooling |
+| ------------------- | -------- | ------- |
+| Original source available | Adapt original source | Source-Miner, LENS-Craft, MCP-Scribe |
+| Original source unavailable | Inspired-by rewrite | Inspire-Engine, uCode-Weaver, LENS-Craft, MCP-Scribe |
+| Source unclear/complex | Inspired-by rewrite | Inspire-Engine, uCode-Weaver, LENS-Craft, MCP-Scribe |
 
-1. BBC BASIC for SDL 2.0 as the core runtime
-2. Port the AMOS Runtime add-on (sprites, BOBs, AMAL)
-3. Build the GIF decoder (Rust) for BOB animations
-4. Create example Programs (teletext-only and teletext+sprites)
-5. Document MCP commands for sprite/BOB control
+This strategy preserves authenticity where feasible and uses inspired-by
+rewrites where source constraints require new implementation, while keeping all
+paths unified under the uCode runtime and GridCore-era integration model.

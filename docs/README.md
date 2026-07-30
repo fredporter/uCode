@@ -14,6 +14,7 @@
 |------|---------|
 | [SKILLS_FRAMEWORK.md](specs/SKILLS_FRAMEWORK.md) | 6 Skills Framework skills (all built) |
 | [UCODE_ADAPTATION_STRATEGY.md](specs/UCODE_ADAPTATION_STRATEGY.md) | Classic game adaptation strategy |
+| [UCODE_USER_MANUAL_DEV_AGENT_PROMPT.md](specs/UCODE_USER_MANUAL_DEV_AGENT_PROMPT.md) | Dev-agent prompt for full uCode user manual generation |
 
 ## learning-pathway/ — Skills and Tutorials
 | File | Content |

@@ -10,12 +10,12 @@
 
 ### What is uCode?
 
-uCode is a modern programming environment built on **BBC BASIC for SDL 2.0 (BBCSDL)** — an open-source re-implementation of the language that ran on the legendary BBC Micro. It gives you two layers of creative power:
+uCode is a modern programming environment built on **BBC BASIC for SDL 2.0 (BBCSDL)** — an open-source re-implementation of the language that ran on the legendary BBC Micro. It gives you two capability profiles:
 
-- **uCode1** — Classic teletext graphics with MODE 7's 40×25 character grid, colours, flashing text, and the warm glow of Ceefax-style displays
-- **uCode2** — AMOS-inspired sprite and BOB commands for games, animations, and interactive programs
+- **uCode1 profile** — Classic teletext graphics with MODE 7's 40×25 character grid, colours, flashing text, and the warm glow of Ceefax-style displays
+- **uCode2 profile** — AMOS-inspired sprite and BOB commands for games, animations, and interactive programs
 
-Both layers work together. You can start with a colourful text display and add animated sprites without learning a new language. The AMOS shim translates AMOS-style commands into BBCSDL's built-in libraries, so you get the best of both worlds.
+Both profiles run inside the same uCode runtime. You can start with a colourful text display and add animated sprites without learning a new language. The AMOS shim translates AMOS-style commands into BBCSDL's built-in libraries, so you get the best of both worlds.
 
 ### The BBC Micro Legacy
 
