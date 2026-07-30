@@ -1,13 +1,21 @@
 # uCode — uDosGo Runtime and Code Delivery
 
-uCode is a self-contained runtime, grid algebra, and code-delivery repo for
+uCode is the base runtime, grid algebra, and code-delivery repo for
 uDosGo code surfaces. It is designed to be consumed by host applications such as
 [uCore](https://github.com/uDosGo/uCore) without requiring those hosts to own
 uCode internals.
 
-**uCode is not a full application GUI.** It provides runtime packages, grid/code
-algebra, import/export tooling, CLI/MCP surfaces, and inspectable render targets
-such as terminal and teletext widgets.
+**uCode is not a full application GUI.** It provides the foundational runtime
+packages, grid/code algebra, import/export tooling, CLI/MCP surfaces, and
+inspectable render targets such as terminal and teletext widgets.
+
+The advanced runtime layer is now tracked as **uCode2**. uCode2 is reserved for
+more advanced spatial or immersive capabilities and should be treated as a later
+extension layer, not a current priority while the base uCode stack is still being
+stabilized.
+
+Application-specific runtime concerns that belong to HomeNest should live in
+**HomeRuntime** rather than in uCode.
 
 ---
 
@@ -59,8 +67,9 @@ uCode/
 └── README.md                 This file
 ```
 
-Note: `homeauto` and `multimedia` runtimes have been moved to the
-[HomeNest](https://github.com/uDosGo/HomeNest) repository.
+Note: Home-specific runtime concerns and application-layer integrations have been
+moved to the [HomeNest](https://github.com/uDosGo/HomeNest) repository and its
+associated HomeRuntime package.
 
 ---
 
