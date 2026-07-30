@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ucode-runtime"
+version = "0.1.0"
+description = "uCode runtime route provider package for uCore host integration"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "aiohttp>=3.9",
+]
+
+[tool.setuptools]
+packages = ["ucode_runtime"]
