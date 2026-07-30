@@ -37,23 +37,23 @@ approach and exercises at the end of each chapter.
 
 ### Manual Structure
 
-| Section | Content |
-| ------- | ------- |
-| 1. Introduction | What is uCode? BBC Micro legacy + modern profile model |
-| 2. Getting Started | Install, first run, first program |
-| 3. The Vault | Programs, snacks, assets, variables |
-| 4. BASIC Fundamentals | Variables, loops, conditionals, procedures/functions |
-| 5. Teletext Graphics (uCode1 profile) | MODE 7, colors, attributes |
-| 6. Sprites (uCode2 profile) | Sprite banks, placement, animation, collision |
-| 7. BOBs (uCode2 profile) | GIF animation, transparency, layered objects |
-| 8. The AMOS Shim | Compatibility layer commands and mapping |
-| 9. Working with Assets | Loading sprites/GIF/sound from Vault |
-| 10. LENS and SKIN | State extraction and theme application |
-| 11. Snacks | Self-contained program bundles |
-| 12. Advanced Features | Physics/networking/3D (optional profile modules) |
-| 13. Reference | Command reference and library registry |
-| Appendix A | BBC BASIC vs AMOS command comparison |
-| Appendix B | uCode cheat sheet |
+| Section                               | Content                                                |
+| ------------------------------------- | ------------------------------------------------------ |
+| 1. Introduction                       | What is uCode? BBC Micro legacy + modern profile model |
+| 2. Getting Started                    | Install, first run, first program                      |
+| 3. The Vault                          | Programs, snacks, assets, variables                    |
+| 4. BASIC Fundamentals                 | Variables, loops, conditionals, procedures/functions   |
+| 5. Teletext Graphics (uCode1 profile) | MODE 7, colors, attributes                             |
+| 6. Sprites (uCode2 profile)           | Sprite banks, placement, animation, collision          |
+| 7. BOBs (uCode2 profile)              | GIF animation, transparency, layered objects           |
+| 8. The AMOS Shim                      | Compatibility layer commands and mapping               |
+| 9. Working with Assets                | Loading sprites/GIF/sound from Vault                   |
+| 10. LENS and SKIN                     | State extraction and theme application                 |
+| 11. Snacks                            | Self-contained program bundles                         |
+| 12. Advanced Features                 | Physics/networking/3D (optional profile modules)       |
+| 13. Reference                         | Command reference and library registry                 |
+| Appendix A                            | BBC BASIC vs AMOS command comparison                   |
+| Appendix B                            | uCode cheat sheet                                      |
 
 ### Example Style Requirement
 

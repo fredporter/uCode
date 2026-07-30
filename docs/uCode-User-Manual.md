@@ -29,23 +29,23 @@ This manual is for **everyone**. If you have never programmed before, start at S
 
 ### How This Manual is Organised
 
-| Section | What You'll Learn |
-|---------|-------------------|
-| 1. Introduction | What uCode is and why it matters |
-| 2. Getting Started | Install, run your first program |
-| 3. The Vault | Where everything lives |
-| 4. BASIC Fundamentals | Variables, loops, conditionals, procedures |
-| 5. Teletext Graphics | MODE 7, colours, attributes |
-| 6. Sprites | Placing and animating sprites |
-| 7. BOBs | Animated GIF objects |
-| 8. The AMOS Shim | AMOS-style commands |
-| 9. Working with Assets | Loading graphics and sound |
-| 10. LENS & SKIN | Capturing and theming your output |
-| 11. Snacks | Self-contained programs with assets |
-| 12. Advanced Features | Physics, networking, 3D |
-| 13. Reference | Command reference, library registry |
-| Appendix A | BBC BASIC vs AMOS comparison |
-| Appendix B | Cheat sheet |
+| Section                | What You'll Learn                          |
+| ---------------------- | ------------------------------------------ |
+| 1. Introduction        | What uCode is and why it matters           |
+| 2. Getting Started     | Install, run your first program            |
+| 3. The Vault           | Where everything lives                     |
+| 4. BASIC Fundamentals  | Variables, loops, conditionals, procedures |
+| 5. Teletext Graphics   | MODE 7, colours, attributes                |
+| 6. Sprites             | Placing and animating sprites              |
+| 7. BOBs                | Animated GIF objects                       |
+| 8. The AMOS Shim       | AMOS-style commands                        |
+| 9. Working with Assets | Loading graphics and sound                 |
+| 10. LENS & SKIN        | Capturing and theming your output          |
+| 11. Snacks             | Self-contained programs with assets        |
+| 12. Advanced Features  | Physics, networking, 3D                    |
+| 13. Reference          | Command reference, library registry        |
+| Appendix A             | BBC BASIC vs AMOS comparison               |
+| Appendix B             | Cheat sheet                                |
 
 ---
 
@@ -60,6 +60,7 @@ curl -fsSL https://raw.githubusercontent.com/uDosGo/uCode/main/runtimes/basic/in
 ```
 
 This installs:
+
 - The BBCSDL engine (`bbcsdl`)
 - The Python bridge that connects BBC BASIC to modern tools
 - The AMOS shim for sprite and BOB compatibility
@@ -349,16 +350,16 @@ PRINT TAB(5,10); "WELCOME TO uCode"
 
 BBC BASIC MODE 7 uses 8 colours:
 
-| Number | Colour   | Use |
-|--------|----------|-----|
-| 0 | Black | Background |
-| 1 | Red | Alerts, enemies |
-| 2 | Green | Success, health |
-| 3 | Yellow | Warnings, gold |
-| 4 | Blue | Water, sky |
-| 5 | Magenta | Magic, power-ups |
-| 6 | Cyan | Information, water |
-| 7 | White | Default text |
+| Number | Colour  | Use                |
+| ------ | ------- | ------------------ |
+| 0      | Black   | Background         |
+| 1      | Red     | Alerts, enemies    |
+| 2      | Green   | Success, health    |
+| 3      | Yellow  | Warnings, gold     |
+| 4      | Blue    | Water, sky         |
+| 5      | Magenta | Magic, power-ups   |
+| 6      | Cyan    | Information, water |
+| 7      | White   | Default text       |
 
 You can set both the foreground (text) colour and the background colour:
 
@@ -591,6 +592,7 @@ END
 ```
 
 The parameters for `PROC_bob_animate` are:
+
 - `bob%` — The bob identifier
 - `0` — Start frame (0 = first frame)
 - `-1` — End frame (-1 = loop forever)
@@ -733,13 +735,13 @@ END
 
 Both styles work in uCode. The table below shows equivalent commands:
 
-| AMOS Shim | Native BBCSDL |
-|-----------|---------------|
-| `SPRITE n, x, y, img` | `FN_load_sprite + PROC_sprite_place` |
-| `BOB n, x, y, "file"` | `FN_load_gif + PROC_bob_create` |
-| `MOVE n, x, y, steps` | Manual loop with position updates |
-| `COLL(a, b)` | `FN_sprite_bob_collide` |
-| `SOUND ch, fq, dur, vol` | `SOUND` built-in |
+| AMOS Shim                | Native BBCSDL                        |
+| ------------------------ | ------------------------------------ |
+| `SPRITE n, x, y, img`    | `FN_load_sprite + PROC_sprite_place` |
+| `BOB n, x, y, "file"`    | `FN_load_gif + PROC_bob_create`      |
+| `MOVE n, x, y, steps`    | Manual loop with position updates    |
+| `COLL(a, b)`             | `FN_sprite_bob_collide`              |
+| `SOUND ch, fq, dur, vol` | `SOUND` built-in                     |
 
 Choose whichever style you find more natural. The AMOS shim is great for quick prototyping and for programmers coming from AMOS. The native BBCSDL commands give you finer control.
 
@@ -872,12 +874,8 @@ The state file contains all the information needed to recreate the current view:
 {
   "mode": 7,
   "cursor": { "x": 10, "y": 5 },
-  "sprites": [
-    { "id": 1, "x": 100, "y": 200, "frame": 3 }
-  ],
-  "bobs": [
-    { "id": 1, "x": 300, "y": 250, "frame": 12 }
-  ],
+  "sprites": [{ "id": 1, "x": 100, "y": 200, "frame": 3 }],
+  "bobs": [{ "id": 1, "x": 300, "y": 250, "frame": 12 }],
   "cells": [
     { "row": 0, "col": 0, "char": "H", "fg": 2, "bg": 0 },
     { "row": 0, "col": 1, "char": "e", "fg": 2, "bg": 0 }
@@ -902,11 +900,11 @@ ucode skin apply my-game.snack dark_mode
 
 ### Built-in SKIN Themes
 
-| Theme | Description |
-|-------|-------------|
-| `bbc` | Classic BBC Micro 8-colour palette |
-| `teletext` | 16-colour teletext-compatible display |
-| `inverse` | All-black monochrome for accessibility |
+| Theme      | Description                            |
+| ---------- | -------------------------------------- |
+| `bbc`      | Classic BBC Micro 8-colour palette     |
+| `teletext` | 16-colour teletext-compatible display  |
+| `inverse`  | All-black monochrome for accessibility |
 
 The LENS/SKIN system is still being developed. Future uCode releases will add more themes and the ability to create custom themes.
 
@@ -998,11 +996,11 @@ The runtime loads `main.ucode` from the snack directory, makes all assets availa
 
 ### Snack Templates
 
-| Template | Description |
-|----------|-------------|
-| `game` | Sprite-based game with keyboard input and collision |
-| `teletext` | MODE 7 text-based program (quiz, menu, adventure) |
-| `empty` | Minimal starter — just a main.ucode file |
+| Template   | Description                                         |
+| ---------- | --------------------------------------------------- |
+| `game`     | Sprite-based game with keyboard input and collision |
+| `teletext` | MODE 7 text-based program (quiz, menu, adventure)   |
+| `empty`    | Minimal starter — just a main.ucode file            |
 
 #### Exercise 11.1
 
@@ -1100,129 +1098,129 @@ score% = FN_var_get("score")
 
 ### BBC BASIC Core Commands
 
-| Command | Description |
-|---------|-------------|
-| `PRINT` | Output text to screen |
-| `INPUT` | Read user input |
-| `REM` | Comment (ignored by interpreter) |
-| `MODE 7` | Enter teletext mode (40x25) |
-| `COLOUR n` | Set text colour (0-7, or 128+n for background) |
-| `COLOUR n, r, g, b` | Set palette colour n to RGB values |
-| `CLS` | Clear screen |
-| `TAB(x,y)` | Move cursor to column x, row y |
-| `END` | Stop program execution |
-| `WAIT n` | Wait n/100ths of a second |
-| `SOUND ch, fq, dur, vol` | Play a sound |
-| `RND(n)` | Random integer from 1 to n |
-| `DIM array%(n)` | Declare an array |
-| `IF...THEN...ELSE...ENDIF` | Conditional execution |
-| `FOR...NEXT` | Counted loop |
-| `REPEAT...UNTIL` | Conditional loop |
-| `WHILE...ENDWHILE` | Conditional loop |
-| `DEF PROC_...ENDPROC` | Define a procedure |
-| `DEF FN_...= value` | Define a function |
-| `INKEY(n)` | Check keyboard key |
-| `STR$()` | Convert number to string |
-| `VAL()` | Convert string to number |
-| `LEN()` | Length of string |
-| `MID$()` | Substring |
-| `ASC()` | ASCII code of character |
-| `CHR$()` | Character from ASCII code |
+| Command                    | Description                                    |
+| -------------------------- | ---------------------------------------------- |
+| `PRINT`                    | Output text to screen                          |
+| `INPUT`                    | Read user input                                |
+| `REM`                      | Comment (ignored by interpreter)               |
+| `MODE 7`                   | Enter teletext mode (40x25)                    |
+| `COLOUR n`                 | Set text colour (0-7, or 128+n for background) |
+| `COLOUR n, r, g, b`        | Set palette colour n to RGB values             |
+| `CLS`                      | Clear screen                                   |
+| `TAB(x,y)`                 | Move cursor to column x, row y                 |
+| `END`                      | Stop program execution                         |
+| `WAIT n`                   | Wait n/100ths of a second                      |
+| `SOUND ch, fq, dur, vol`   | Play a sound                                   |
+| `RND(n)`                   | Random integer from 1 to n                     |
+| `DIM array%(n)`            | Declare an array                               |
+| `IF...THEN...ELSE...ENDIF` | Conditional execution                          |
+| `FOR...NEXT`               | Counted loop                                   |
+| `REPEAT...UNTIL`           | Conditional loop                               |
+| `WHILE...ENDWHILE`         | Conditional loop                               |
+| `DEF PROC_...ENDPROC`      | Define a procedure                             |
+| `DEF FN_...= value`        | Define a function                              |
+| `INKEY(n)`                 | Check keyboard key                             |
+| `STR$()`                   | Convert number to string                       |
+| `VAL()`                    | Convert string to number                       |
+| `LEN()`                    | Length of string                               |
+| `MID$()`                   | Substring                                      |
+| `ASC()`                    | ASCII code of character                        |
+| `CHR$()`                   | Character from ASCII code                      |
 
 ### Sprite Commands (gfxlib)
 
-| Command | Description |
-|---------|-------------|
-| `PROC_gfx_init(w, h, depth)` | Initialise graphics |
-| `FN_load_sprite(file$, w, h)` | Load a sprite |
-| `PROC_sprite_place(id, x, y)` | Place a sprite |
-| `PROC_sprite_animate(id, frame)` | Set sprite animation frame |
-| `PROC_sprite_remove(id)` | Remove a sprite |
-| `FN_sprite_bob_collide(a, b)` | Check collision between two objects |
+| Command                          | Description                         |
+| -------------------------------- | ----------------------------------- |
+| `PROC_gfx_init(w, h, depth)`     | Initialise graphics                 |
+| `FN_load_sprite(file$, w, h)`    | Load a sprite                       |
+| `PROC_sprite_place(id, x, y)`    | Place a sprite                      |
+| `PROC_sprite_animate(id, frame)` | Set sprite animation frame          |
+| `PROC_sprite_remove(id)`         | Remove a sprite                     |
+| `FN_sprite_bob_collide(a, b)`    | Check collision between two objects |
 
 ### BOB Commands (imglib)
 
-| Command | Description |
-|---------|-------------|
-| `FN_load_gif(file$)` | Load an animated GIF |
-| `PROC_bob_create(id, x, y)` | Place a BOB |
-| `PROC_bob_animate(id, start, end)` | Animate a BOB |
-| `PROC_bob_remove(id)` | Remove a BOB |
+| Command                            | Description          |
+| ---------------------------------- | -------------------- |
+| `FN_load_gif(file$)`               | Load an animated GIF |
+| `PROC_bob_create(id, x, y)`        | Place a BOB          |
+| `PROC_bob_animate(id, start, end)` | Animate a BOB        |
+| `PROC_bob_remove(id)`              | Remove a BOB         |
 
 ### AMOS Shim Commands
 
-| Command | Description |
-|---------|-------------|
-| `SPRITE n, x, y, img` | Place a sprite |
-| `BOB n, x, y, file$` | Place a BOB |
-| `MOVE n, x, y, steps` | Smooth movement |
-| `COLL(a, b)` | Collision check |
-| `WAIT VBL` | Wait for vertical blank |
+| Command               | Description             |
+| --------------------- | ----------------------- |
+| `SPRITE n, x, y, img` | Place a sprite          |
+| `BOB n, x, y, file$`  | Place a BOB             |
+| `MOVE n, x, y, steps` | Smooth movement         |
+| `COLL(a, b)`          | Collision check         |
+| `WAIT VBL`            | Wait for vertical blank |
 
 ### CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `ucode run file.ucode` | Run a program |
-| `ucode` | Start the REPL |
-| `ucode lens capture prog --output state.json` | Capture LENS state |
-| `ucode skin apply state.json theme` | Apply SKIN theme |
-| `ucode skin list` | List available themes |
-| `ucode snack create name --template t` | Create a new snack |
-| `ucode snack build name` | Build a snack |
-| `ucode snack publish name.snack` | Publish a snack |
-| `ucode vault list programs` | List programs |
-| `ucode vault snapshot save name` | Save game state |
+| Command                                       | Description           |
+| --------------------------------------------- | --------------------- |
+| `ucode run file.ucode`                        | Run a program         |
+| `ucode`                                       | Start the REPL        |
+| `ucode lens capture prog --output state.json` | Capture LENS state    |
+| `ucode skin apply state.json theme`           | Apply SKIN theme      |
+| `ucode skin list`                             | List available themes |
+| `ucode snack create name --template t`        | Create a new snack    |
+| `ucode snack build name`                      | Build a snack         |
+| `ucode snack publish name.snack`              | Publish a snack       |
+| `ucode vault list programs`                   | List programs         |
+| `ucode vault snapshot save name`              | Save game state       |
 
 ### Keyboard Scan Codes
 
-| Key | INKEY Code |
-|-----|-----------|
-| ESC | -1 |
-| Space | -99 |
-| Up arrow | -58 |
-| Down arrow | -42 |
-| Left arrow | -26 |
-| Right arrow | -122 |
-| Return | -74 |
-| A-Z | ASC(code) negative |
+| Key         | INKEY Code         |
+| ----------- | ------------------ |
+| ESC         | -1                 |
+| Space       | -99                |
+| Up arrow    | -58                |
+| Down arrow  | -42                |
+| Left arrow  | -26                |
+| Right arrow | -122               |
+| Return      | -74                |
+| A-Z         | ASC(code) negative |
 
 ### Library Registry
 
-| Library | File | Purpose |
-|---------|------|---------|
-| `gfxlib` | `@lib$ + "gfxlib"` | Sprite graphics |
-| `imglib` | `@lib$ + "imglib"` | GIF/BOB animation |
-| `audiolib` | `@lib$ + "audiolib"` | Sound playback |
-| `mode7lib` | `@lib$ + "mode7lib"` | Enhanced MODE 7 |
-| `stringlib` | `@lib$ + "stringlib"` | String utilities |
-| `listlib` | `@lib$ + "listlib"` | Linked lists |
-| `box2dlib` | `@lib$ + "box2dlib"` | 2D physics |
-| `socklib` | `@lib$ + "socklib"` | Network sockets |
-| `ogllib` | `@lib$ + "ogllib"` | OpenGL graphics |
-| `webgllib` | `@lib$ + "webgllib"` | WebGL rendering |
+| Library         | File                      | Purpose            |
+| --------------- | ------------------------- | ------------------ |
+| `gfxlib`        | `@lib$ + "gfxlib"`        | Sprite graphics    |
+| `imglib`        | `@lib$ + "imglib"`        | GIF/BOB animation  |
+| `audiolib`      | `@lib$ + "audiolib"`      | Sound playback     |
+| `mode7lib`      | `@lib$ + "mode7lib"`      | Enhanced MODE 7    |
+| `stringlib`     | `@lib$ + "stringlib"`     | String utilities   |
+| `listlib`       | `@lib$ + "listlib"`       | Linked lists       |
+| `box2dlib`      | `@lib$ + "box2dlib"`      | 2D physics         |
+| `socklib`       | `@lib$ + "socklib"`       | Network sockets    |
+| `ogllib`        | `@lib$ + "ogllib"`        | OpenGL graphics    |
+| `webgllib`      | `@lib$ + "webgllib"`      | WebGL rendering    |
 | `amos_shim.bbc` | `INSTALL "amos_shim.bbc"` | AMOS compatibility |
 
 ---
 
 ## Appendix A: BBC BASIC vs AMOS Comparison
 
-| Feature | BBC BASIC (1981) | AMOS (1990) | uCode (2026) |
-|---------|-----------------|-------------|-------------|
-| Line numbers | Required | Optional | Optional |
-| Graphics mode | MODE 0-7 | Hi-res planar | MODE 7 + OpenGL |
-| Sprites | None built-in | SPRITE command | Both styles |
-| BOBs | None | BOB command | Animated GIFs |
-| Sound | SOUND command | SOUND command | SOUND + WAV/OGG |
-| Collision | Manual | COLL() function | Both styles |
-| IDE | Built-in ROM | AMOS Editor | Your editor + CLI |
-| File format | .BBC tokens | .AMOS | .ucode plain text |
-| Physics | No | No | Box2D library |
-| Networking | No | No | socklib library |
-| 3D | No | No | OpenGL/WebGL |
-| Portable | No | Amiga only | Mac, Linux, Windows |
-| Assets | Built-in | IFF format | Vault directories |
-| State save | No | No | LENS/SKIN + variables |
+| Feature       | BBC BASIC (1981) | AMOS (1990)     | uCode (2026)          |
+| ------------- | ---------------- | --------------- | --------------------- |
+| Line numbers  | Required         | Optional        | Optional              |
+| Graphics mode | MODE 0-7         | Hi-res planar   | MODE 7 + OpenGL       |
+| Sprites       | None built-in    | SPRITE command  | Both styles           |
+| BOBs          | None             | BOB command     | Animated GIFs         |
+| Sound         | SOUND command    | SOUND command   | SOUND + WAV/OGG       |
+| Collision     | Manual           | COLL() function | Both styles           |
+| IDE           | Built-in ROM     | AMOS Editor     | Your editor + CLI     |
+| File format   | .BBC tokens      | .AMOS           | .ucode plain text     |
+| Physics       | No               | No              | Box2D library         |
+| Networking    | No               | No              | socklib library       |
+| 3D            | No               | No              | OpenGL/WebGL          |
+| Portable      | No               | Amiga only      | Mac, Linux, Windows   |
+| Assets        | Built-in         | IFF format      | Vault directories     |
+| State save    | No               | No              | LENS/SKIN + variables |
 
 ---
 
@@ -1280,8 +1278,8 @@ UNTIL INKEY(-1)   REM ESC to quit
 
 ### Colour Reference
 
-| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-|---|---|---|---|---|---|---|---|
+| 0     | 1   | 2     | 3      | 4    | 5       | 6    | 7     |
+| ----- | --- | ----- | ------ | ---- | ------- | ---- | ----- |
 | Black | Red | Green | Yellow | Blue | Magenta | Cyan | White |
 
 ### Common Patterns
@@ -1307,8 +1305,8 @@ enemies%(0) = 42
 
 ---
 
-*"The best way to learn is to type in the examples, change them, break them, and fix them. That is how we all started."*
+_"The best way to learn is to type in the examples, change them, break them, and fix them. That is how we all started."_
 
 **uCode — BBC BASIC for SDL 2.0**
 
-*Part of the uDos open-source ecosystem. No cloud. No payment. No tracking.*
+_Part of the uDos open-source ecosystem. No cloud. No payment. No tracking._
