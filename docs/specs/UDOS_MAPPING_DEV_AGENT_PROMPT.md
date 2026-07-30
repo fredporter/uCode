@@ -2,7 +2,7 @@
 
 Agent: Cline Dev Agent
 Task: Implement uDos mapping system for uCode/GridCore first, with future 3D
-      expansion compatibility.
+expansion compatibility.
 Status: Active Prompt
 
 ## Context
