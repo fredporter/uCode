@@ -1,4 +1,5 @@
 import { createGrid, type Grid } from '../geometry/grid'
+import { parseAnsiSegments } from './ansi'
 
 // ── Colour indices (BBC MODE 7 palette) ──────────────────────────
 export const FG = {
@@ -92,7 +93,11 @@ export class TerminalSurface {
 
   /** Write an output line (for backend to push results) */
   writeLine(text: string, role: OutputLine['role'] = 'output'): void {
-    this.outputRows.push({ text, role })
+    // Split embedded newlines into separate scrollback rows.
+    const lines = text.split('\n')
+    for (const line of lines) {
+      this.outputRows.push({ text: line, role })
+    }
     // Keep only visible output lines in the scrollback region
     const maxVisible = this.rows - 1 // one row reserved for prompt
     while (this.outputRows.length > maxVisible) {
@@ -236,7 +241,7 @@ export class TerminalSurface {
       const line = this.outputRows[i]
       const row = this.outputStartRow + (i - startIdx)
       const fg = this.roleFg(line.role)
-      this.writeCellRow(row, line.text, fg, BG.BLACK)
+      this.writeStyledRow(row, line.text, fg)
     }
 
     // Render prompt × input at the bottom
@@ -278,5 +283,37 @@ export class TerminalSurface {
         cell.bg = bg
       }
     }
+  }
+
+  /** Write a row, parsing ANSI SGR sequences into per-cell styling. */
+  private writeStyledRow(row: number, text: string, defaultFg: number): void {
+    const spans = parseAnsiSegments(text)
+    let col = 0
+    const put = (ch: string, fg: number, bg: number, bold: boolean, flash: boolean): void => {
+      if (col >= this.cols) return
+      const cell = this.grid.cells.get(`${col}:${row}:0`)
+      if (cell) {
+        cell.char = ch
+        cell.fg = fg
+        cell.bg = bg
+        cell.bold = bold
+        cell.flash = flash
+      }
+      col++
+    }
+
+    for (const span of spans) {
+      let fg = span.style.fg ?? defaultFg
+      let bg = span.style.bg ?? BG.BLACK
+      if (span.style.reverse) {
+        const t = fg
+        fg = bg
+        bg = t
+      }
+      const bold = span.style.bold ?? false
+      const flash = span.style.flash ?? false
+      for (const ch of span.text) put(ch, fg, bg, bold, flash)
+    }
+    while (col < this.cols) put(' ', defaultFg, BG.BLACK, false, false)
   }
 }

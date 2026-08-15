@@ -104,4 +104,20 @@ describe('TeletextSurface', () => {
     expect(cell).toBeTruthy()
     expect(cell!.char).toBe('P')
   })
+
+  it('renders double-height header, mosaic separator, and flashing status', () => {
+    const surface = new TeletextSurface({ cols: 40, rows: 25 })
+    surface.loadPageObject(SAMPLE_PAGE)
+    const grid = surface.getGrid()
+
+    const header = grid.cells.get('0:0:0')
+    expect(header!.doubleHeight).toBe(true)
+
+    const separator = grid.cells.get('0:1:0')
+    expect(separator!.mosaic).toBe(0x3f)
+
+    const status = grid.cells.get('0:24:0')
+    expect(status!.char).toBe('P')
+    expect(status!.flash).toBe(true)
+  })
 })

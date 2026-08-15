@@ -1,7 +1,10 @@
 // Block graphics (existing)
 export { createEmptyBlock2x3 } from './block2x3'
 export type { Block2x3 } from './block2x3'
-export { calculateMosaicBlock } from './mosaic'
+export { calculateMosaicBlock, patternToBlock, blockToPattern } from './mosaic'
+
+// Teletext control codes + interpreter
+export * from './control'
 
 // Teletext surface (new)
 export { TeletextSurface, DEFAULT_TELETEXT_COLS, DEFAULT_TELETEXT_ROWS } from './teletext-surface'

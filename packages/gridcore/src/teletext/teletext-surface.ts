@@ -1,5 +1,6 @@
 import { createGrid, type Grid } from '../geometry/grid'
 import { FG } from '../terminal/terminal-surface'
+import { interpretTeletextLine, FLASH, STEADY, SEPARATED_GRAPHICS } from './control'
 
 // ── Constants ─────────────────────────────────────────────────────
 
@@ -137,11 +138,12 @@ export class TeletextSurface {
   private renderPage(page: TeletextPage): void {
     this.clearGrid()
 
-    // Row 0: header bar (blue background, white text)
-    this.writeRow(0, page.header, FG.WHITE, FG.BLUE, true)
+    // Row 0: header bar (blue background, white text, double height)
+    this.writeInterpretedRow(0, page.header, FG.WHITE, FG.BLUE, { doubleHeight: true })
 
-    // Row 1: separator
-    this.writeRow(1, ''.padEnd(this.cols, '-'), FG.CYAN, FG.BLACK)
+    // Row 1: mosaic block separator (full-width solid blocks)
+    const separator = String.fromCharCode(SEPARATED_GRAPHICS) + String.fromCharCode(0x3f).repeat(this.cols)
+    this.writeInterpretedRow(1, separator, FG.CYAN, FG.BLACK)
 
     // Rows 2-21: content area
     const contentStartRow = 2
@@ -149,20 +151,20 @@ export class TeletextSurface {
     const maxContentRows = contentEndRow - contentStartRow + 1
 
     for (let i = 0; i < Math.min(page.content.length, maxContentRows); i++) {
-      this.writeRow(contentStartRow + i, page.content[i], FG.YELLOW, FG.BLACK)
+      this.writeInterpretedRow(contentStartRow + i, page.content[i], FG.YELLOW, FG.BLACK)
     }
 
     // FASTEXT row: colored navigation links at bottom
     const fasttextRow = this.rows - 2
     this.renderFastText(fasttextRow, page.fasttext)
 
-    // Status row: page number, subpage indicator
+    // Status row: page number (flashing), subpage indicator, date
     const statusRow = this.rows - 1
     const subpageStr = page.subpage !== undefined && page.subpage > 0
       ? `/${page.subpage.toString().padStart(2, '0')}`
       : ''
-    const statusText = `P${page.page}${subpageStr}  ${page.date ?? ''}`
-    this.writeRow(statusRow, statusText, FG.GREEN, FG.BLACK)
+    const statusText = `${String.fromCharCode(FLASH)}P${page.page}${subpageStr}${String.fromCharCode(STEADY)}  ${page.date ?? ''}`
+    this.writeInterpretedRow(statusRow, statusText, FG.GREEN, FG.BLACK)
 
     this.onChange?.()
   }
@@ -222,6 +224,39 @@ export class TeletextSurface {
         cell.char = text[i]
         cell.fg = fg
         cell.bg = bg
+      }
+    }
+  }
+
+  /** Write a row, interpreting teletext control codes into per-cell styling. */
+  private writeInterpretedRow(
+    row: number,
+    text: string,
+    defaultFg: number,
+    defaultBg: number,
+    initial: { doubleHeight?: boolean } = {},
+  ): void {
+    const cells = interpretTeletextLine(text, {
+      fg: defaultFg,
+      bg: defaultBg,
+      doubleHeight: initial.doubleHeight,
+    })
+    for (let col = 0; col < this.cols; col++) {
+      const key = `${col}:${row}:0`
+      const cell = this.grid.cells.get(key)
+      if (!cell) continue
+      const tc = cells[col]
+      if (tc) {
+        cell.char = tc.char
+        cell.fg = tc.fg
+        cell.bg = tc.bg
+        cell.doubleHeight = tc.doubleHeight
+        cell.flash = tc.flash
+        if (tc.mosaic !== undefined) cell.mosaic = tc.mosaic
+      } else {
+        cell.char = ' '
+        cell.fg = defaultFg
+        cell.bg = defaultBg
       }
     }
   }
