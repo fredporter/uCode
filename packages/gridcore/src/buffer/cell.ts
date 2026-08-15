@@ -6,6 +6,10 @@ export interface BufferCell {
   flash: boolean
   doubleHeight: boolean
   doubleWidth: boolean
+  /** 6-bit teletext mosaic pattern (0-63); undefined = no mosaic block */
+  mosaic?: number
+  /** Optional per-cell render width in CSS px (variable char width) */
+  width?: number
 }
 
 export type GridCell = BufferCell
@@ -22,8 +26,10 @@ export function createBufferCell(
   flash = false,
   doubleHeight = false,
   doubleWidth = false,
+  mosaic?: number,
+  width?: number,
 ): BufferCell {
-  return { char, fg, bg, bold, flash, doubleHeight, doubleWidth }
+  return { char, fg, bg, bold, flash, doubleHeight, doubleWidth, mosaic, width }
 }
 
 

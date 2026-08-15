@@ -13,6 +13,16 @@ export interface Cell {
   char?: string
   fg?: number
   bg?: number
+  bold?: boolean
+  flash?: boolean
+  doubleHeight?: boolean
+  doubleWidth?: boolean
+  /** 6-bit teletext mosaic pattern (0-63); undefined = no mosaic block */
+  mosaic?: number
+  /** Optional per-cell render width in CSS px (variable char width) */
+  width?: number
+  /** Optional 24x24 pixel bitmap (576 colour indices, 0-7). */
+  pixels?: Uint8Array
 }
 
 export function calculateQRGrid(coord: string): QRSlot[][] {
@@ -39,5 +49,9 @@ export function createCell(coord: string, x = 0, y = 0, layer = 0): Cell {
     char: ' ',
     fg: 7,
     bg: 0,
+    bold: false,
+    flash: false,
+    doubleHeight: false,
+    doubleWidth: false,
   }
 }
