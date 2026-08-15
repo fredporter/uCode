@@ -8,23 +8,35 @@
  */
 
 import { spawn, type ChildProcess } from 'child_process'
-import { join } from 'path'
-import type { CommandDispatcher, CommandResult } from './runtime-bridge'
+import { delimiter, dirname, join } from 'path'
+import { existsSync } from 'fs'
+import type { CommandDispatcher, CommandResult, GridState } from './runtime-bridge'
+import type { TeletextPage } from '../teletext/teletext-surface'
 
 export interface PythonBridgeOptions {
-  /** Path to the Python venv (absolute or relative to project root) */
-  venvPath?: string
-  /** Project root directory */
+  /** Python interpreter command (default 'python3'). */
+  python?: string
+  /** Project root (defaults to the resolved uCode repo root). */
   projectRoot?: string
-  /** Timeout in ms for each command dispatch */
+  /** Override for the runtimes/basic directory. */
+  runtimeDir?: string
+  /** Override for the shared/src directory (for udos_shared). */
+  sharedDir?: string
+  /** Timeout in ms for each RPC call (default 5000). */
   timeoutMs?: number
 }
 
-/** Resolve the project root from this source file's location */
+/** Resolve the uCode repo root by walking up to the adapter marker file. */
 function defaultProjectRoot(): string {
-  // packages/gridcore/src/bridge/python-process-bridge.ts → ../../..
-  const fromSrc = join(__dirname, '..', '..', '..')
-  return fromSrc
+  const base = typeof __dirname !== 'undefined' ? __dirname : process.cwd()
+  let dir = base
+  for (let i = 0; i < 8; i++) {
+    if (existsSync(join(dir, 'runtimes', 'basic', 'bridge', 'gridcore_adapter.py'))) return dir
+    const parent = dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  return base
 }
 
 export class PythonProcessBridge {
@@ -32,7 +44,7 @@ export class PythonProcessBridge {
   private dispatcher: CommandDispatcher | null = null
   private ready: boolean = false
   private pending: Map<string, {
-    resolve: (result: CommandResult) => void
+    resolve: (result: unknown) => void
     reject: (err: Error) => void
   }> = new Map()
   private requestId = 0
@@ -45,20 +57,20 @@ export class PythonProcessBridge {
     if (this.dispatcher) return this.dispatcher
 
     const root = this.options.projectRoot ?? defaultProjectRoot()
-    const python = join(
-      this.options.venvPath ?? join(root, '.venv', 'bin'),
-      'python'
-    )
+    const runtimeDir = this.options.runtimeDir ?? join(root, 'runtimes', 'basic')
+    const sharedDir = this.options.sharedDir ?? join(root, 'shared', 'src')
+    const python = this.options.python ?? process.env.PYTHON ?? 'python3'
 
-    const adapterScript = join(
-      root,
-      'runtimes', 'basic', 'bridge', 'gridcore_adapter.py'
-    )
-
-    this.process = spawn(python, [adapterScript], {
-      cwd: root,
+    // Run the adapter as a module so its relative imports resolve, with
+    // shared/src on PYTHONPATH so udos_shared is importable.
+    this.process = spawn(python, ['-m', 'bridge.gridcore_adapter'], {
+      cwd: runtimeDir,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, PYTHONUNBUFFERED: '1' },
+      env: {
+        ...process.env,
+        PYTHONUNBUFFERED: '1',
+        PYTHONPATH: [sharedDir, process.env.PYTHONPATH].filter(Boolean).join(delimiter),
+      },
     })
 
     this.process.stdout!.on('data', (data: Buffer) => {
@@ -114,29 +126,50 @@ export class PythonProcessBridge {
   // ── Private helpers ──────────────────────────────────────────
 
   private async dispatchCommand(command: string): Promise<CommandResult> {
-    if (!this.process || !this.process.stdin) {
+    try {
+      return await this.call<CommandResult>('dispatch', { command })
+    } catch {
       return { output: 'Python runtime not running.' }
     }
+  }
 
-    const id = String(++this.requestId)
-    const request = {
-      jsonrpc: '2.0',
-      method: 'dispatch',
-      params: { command },
-      id,
-    }
+  /** Load a teletext page from the runtime page store. */
+  async teletextPage(page: number): Promise<TeletextPage | null> {
+    const result = await this.call<{ page: TeletextPage | null }>('teletext_page', { page })
+    return result?.page ?? null
+  }
 
-    return new Promise<CommandResult>((resolve, reject) => {
+  /** Reset the shared session state. */
+  async resetSession(): Promise<string> {
+    const result = await this.call<{ output?: string }>('session_reset', {})
+    return result?.output ?? 'Session reset.'
+  }
+
+  /** Read the current grid state from the session. */
+  async gridState(): Promise<GridState> {
+    return this.call<GridState>('grid_state', {})
+  }
+
+  /** Send a generic JSON-RPC call and resolve with the result payload. */
+  private call<T>(method: string, params: Record<string, unknown>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      if (!this.process || !this.process.stdin) {
+        reject(new Error('Python runtime not running.'))
+        return
+      }
+
+      const id = String(++this.requestId)
+      const request = { jsonrpc: '2.0', method, params, id }
       const timeout = this.options.timeoutMs ?? 5000
       const timer = setTimeout(() => {
         this.pending.delete(id)
-        reject(new Error(`Command timed out after ${timeout}ms: ${command}`))
+        reject(new Error(`RPC timed out after ${timeout}ms: ${method}`))
       }, timeout)
 
       this.pending.set(id, {
         resolve: (result) => {
           clearTimeout(timer)
-          resolve(result)
+          resolve(result as T)
         },
         reject: (err) => {
           clearTimeout(timer)
@@ -144,8 +177,7 @@ export class PythonProcessBridge {
         },
       })
 
-      const payload = JSON.stringify(request) + '\n'
-      this.process!.stdin!.write(payload)
+      this.process.stdin.write(JSON.stringify(request) + '\n')
     })
   }
 
@@ -168,7 +200,7 @@ export class PythonProcessBridge {
           if (response.error) {
             reject(new Error(response.error.message ?? 'Unknown error'))
           } else {
-            resolve(response.result as CommandResult)
+            resolve(response.result)
           }
         }
       } catch {

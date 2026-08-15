@@ -16,11 +16,25 @@ export interface CommandResult {
   teletextPage?: number
 }
 
+export interface GridStateCell {
+  char: string
+  fg: string | number
+  bg: string | number
+}
+
+export interface GridState {
+  width: number
+  height: number
+  cells: GridStateCell[][]
+}
+
 export type CommandDispatcher = (command: string) => CommandResult | Promise<CommandResult>
 
 export interface RuntimeBridgeOptions {
   mode?: BridgeMode
   dispatcher?: CommandDispatcher
+  /** Optional teletext page loader for in-process/mock mode. */
+  teletextLoader?: (page: number) => TeletextPage | Promise<TeletextPage | null> | null
 }
 
 // R// R// R// R// R// R// R// R// R// R// R// R// R// R// R// RridgeOptions }
@@ -110,19 +124,22 @@ function defaultDispatcher(command: string): CommandResult {
 export async function createProcessBridge(options?: PythonBridgeOptions): Promise<RuntimeBridge> {
   const proc = new PythonProcessBridge(options)
   const dispatcher = await proc.start()
-  const result = new RuntimeBridge({ dispatcher });
-  (result as any)._processBridge = proc
+  const result = new RuntimeBridge({ dispatcher })
+  result.attachProcessBridge(proc)
   return result
 }
 
 export class RuntimeBridge {
   private mode: BridgeMode
   private dispatcher: CommandDispatcher
+  private teletextLoader: ((page: number) => TeletextPage | Promise<TeletextPage | null> | null) | null
+  private processBridge: PythonProcessBridge | null = null
   private listeners: Map<string, Set<(...args: unknown[]) => void>> = new Map()
 
   constructor(options: RuntimeBridgeOptions = {}) {
     this.mode = options.mode ?? 'in-process'
     this.dispatcher = options.dispatcher ?? defaultDispatcher
+    this.teletextLoader = options.teletextLoader ?? null
   }
 
   // ── Event system ──
@@ -152,8 +169,39 @@ export class RuntimeBridge {
     }
   }
 
-  async loadTeletextPage(_pageNumber: number): Promise<TeletextPage | null> {
+  async loadTeletextPage(pageNumber: number): Promise<TeletextPage | null> {
+    if (this.processBridge) {
+      try { return await this.processBridge.teletextPage(pageNumber) } catch { return null }
+    }
+    if (this.teletextLoader) {
+      try { return await this.teletextLoader(pageNumber) } catch { return null }
+    }
     return null
+  }
+
+  /** Reset the live session (only meaningful with a process bridge). */
+  async resetSession(): Promise<string> {
+    if (this.processBridge) {
+      try { return await this.processBridge.resetSession() } catch { return 'Session reset failed.' }
+    }
+    return 'No live session (in-process mode).'
+  }
+
+  /** Read the current grid state (only meaningful with a process bridge). */
+  async getGridState(): Promise<GridState | null> {
+    if (this.processBridge) {
+      try { return await this.processBridge.gridState() } catch { return null }
+    }
+    return null
+  }
+
+  /** Attach a live Python process bridge (used by createProcessBridge). */
+  attachProcessBridge(proc: PythonProcessBridge): void {
+    this.processBridge = proc
+  }
+
+  getProcessBridge(): PythonProcessBridge | null {
+    return this.processBridge
   }
 
   getDispatcher(): CommandDispatcher { return this.dispatcher }
@@ -196,8 +244,10 @@ export class RuntimeBridge {
   }
 
   stopProcessBridge(): void {
-    const proc = (this as any)._processBridge as PythonProcessBridge | undefined
-    if (proc) { proc.stop(); delete (this as any)._processBridge }
+    if (this.processBridge) {
+      this.processBridge.stop()
+      this.processBridge = null
+    }
     this.dispatcher = defaultDispatcher
   }
 
