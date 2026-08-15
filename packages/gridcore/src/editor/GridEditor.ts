@@ -1,15 +1,29 @@
-import type { GridBuffer } from '../buffer/cell'
-import { cloneBuffer } from '../buffer/cell'
+import {
+  cloneBuffer,
+  createBufferCell,
+  type BufferCell,
+  type GridBuffer,
+} from '../buffer/cell'
+import { cropBuffer, overlayBuffer } from '../buffer/transform'
 
-type EditorCommand = {
-  do: (state: GridBuffer) => GridBuffer
-  undo: (state: GridBuffer) => GridBuffer
+export interface GridSelection {
+  x: number
+  y: number
+  w: number
+  h: number
 }
 
+/**
+ * Character/tile editor over a GridBuffer. Snapshot-based undo/redo restores
+ * the exact previous state (rather than resetting to defaults), and selection
+ * enables copy/cut/paste region operations.
+ */
 export class GridEditor {
   private state: GridBuffer
-  private undoStack: EditorCommand[] = []
-  private redoStack: EditorCommand[] = []
+  private undoStack: GridBuffer[] = []
+  private redoStack: GridBuffer[] = []
+  private selection: GridSelection | null = null
+  private clipboard: GridBuffer | null = null
 
   constructor(initial: GridBuffer) {
     this.state = cloneBuffer(initial)
@@ -19,68 +33,127 @@ export class GridEditor {
     return cloneBuffer(this.state)
   }
 
-  private execute(command: EditorCommand): void {
-    this.state = command.do(this.state)
-    this.undoStack.push(command)
-    this.redoStack = []
+  get cols(): number {
+    return this.state.length ? this.state[0].length : 0
   }
+
+  get rows(): number {
+    return this.state.length
+  }
+
+  // ── cell editing ───────────────────────────────────────────────
 
   placeCharacter(x: number, y: number, char: string): void {
-    this.execute({
-      do: state => {
-        const next = cloneBuffer(state)
-        if (next[y]?.[x]) next[y][x].char = char.slice(0, 1) || ' '
-        return next
-      },
-      undo: state => {
-        const next = cloneBuffer(state)
-        if (next[y]?.[x]) next[y][x].char = ' '
-        return next
-      },
-    })
+    if (!this.inBounds(x, y)) return
+    this.commit()
+    this.state[y][x].char = char.slice(0, 1) || ' '
   }
 
+  setForeground(x: number, y: number, fg: number): void {
+    if (!this.inBounds(x, y)) return
+    this.commit()
+    this.state[y][x].fg = fg
+  }
+
+  setBackground(x: number, y: number, bg: number): void {
+    if (!this.inBounds(x, y)) return
+    this.commit()
+    this.state[y][x].bg = bg
+  }
+
+  /** Backward-compatible alias for setForeground. */
   setPixel(x: number, y: number, color: number): void {
-    this.execute({
-      do: state => {
-        const next = cloneBuffer(state)
-        if (next[y]?.[x]) next[y][x].fg = color
-        return next
-      },
-      undo: state => {
-        const next = cloneBuffer(state)
-        if (next[y]?.[x]) next[y][x].fg = 7
-        return next
-      },
-    })
+    this.setForeground(x, y, color)
   }
 
   clearCell(x: number, y: number): void {
-    this.execute({
-      do: state => {
-        const next = cloneBuffer(state)
-        if (next[y]?.[x]) {
-          next[y][x].char = ' '
-          next[y][x].fg = 7
-          next[y][x].bg = 0
-        }
-        return next
-      },
-      undo: state => state,
-    })
+    if (!this.inBounds(x, y)) return
+    this.commit()
+    this.state[y][x] = createBufferCell()
   }
 
+  getCell(x: number, y: number): BufferCell | null {
+    return this.inBounds(x, y) ? { ...this.state[y][x] } : null
+  }
+
+  // ── region operations ──────────────────────────────────────────
+
+  fillRegion(x: number, y: number, w: number, h: number, patch: Partial<BufferCell>): void {
+    this.commit()
+    for (let dy = 0; dy < h; dy++) {
+      for (let dx = 0; dx < w; dx++) {
+        const cx = x + dx
+        const cy = y + dy
+        if (this.inBounds(cx, cy)) this.state[cy][cx] = { ...this.state[cy][cx], ...patch }
+      }
+    }
+  }
+
+  /** Stamp an arbitrary buffer (e.g. a tile brush) at a position. */
+  stamp(buffer: GridBuffer, x: number, y: number): void {
+    this.commit()
+    this.state = overlayBuffer(this.state, buffer, x, y)
+  }
+
+  // ── selection / clipboard ──────────────────────────────────────
+
+  select(x: number, y: number, w: number, h: number): void {
+    this.selection = { x, y, w, h }
+  }
+
+  getSelection(): GridSelection | null {
+    return this.selection ? { ...this.selection } : null
+  }
+
+  clearSelection(): void {
+    this.selection = null
+  }
+
+  copy(): GridBuffer | null {
+    if (!this.selection) return null
+    this.clipboard = cropBuffer(this.state, this.selection.x, this.selection.y, this.selection.w, this.selection.h)
+    return cloneBuffer(this.clipboard)
+  }
+
+  cut(): GridBuffer | null {
+    const region = this.copy()
+    if (region && this.selection) {
+      this.fillRegion(this.selection.x, this.selection.y, this.selection.w, this.selection.h, createBufferCell())
+    }
+    return region
+  }
+
+  paste(x: number, y: number): void {
+    if (!this.clipboard) return
+    this.stamp(this.clipboard, x, y)
+  }
+
+  // ── history ────────────────────────────────────────────────────
+
   undo(): void {
-    const cmd = this.undoStack.pop()
-    if (!cmd) return
-    this.state = cmd.undo(this.state)
-    this.redoStack.push(cmd)
+    const prev = this.undoStack.pop()
+    if (!prev) return
+    this.redoStack.push(cloneBuffer(this.state))
+    this.state = prev
   }
 
   redo(): void {
-    const cmd = this.redoStack.pop()
-    if (!cmd) return
-    this.state = cmd.do(this.state)
-    this.undoStack.push(cmd)
+    const next = this.redoStack.pop()
+    if (!next) return
+    this.undoStack.push(cloneBuffer(this.state))
+    this.state = next
+  }
+
+  // ── internal ───────────────────────────────────────────────────
+
+  private commit(): void {
+    this.undoStack.push(cloneBuffer(this.state))
+    if (this.undoStack.length > 100) this.undoStack.shift()
+    this.redoStack = []
+  }
+
+  private inBounds(x: number, y: number): boolean {
+    return y >= 0 && y < this.state.length && x >= 0 && x < this.state[y].length
   }
 }
+
