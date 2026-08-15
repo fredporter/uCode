@@ -11,6 +11,7 @@ import shlex
 import signal
 import struct
 import subprocess
+import tempfile
 import termios
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,20 @@ DEFAULT_COLS = 40
 DEFAULT_ROWS = 25
 DEFAULT_SHELL = os.environ.get("SHELL", "/bin/zsh")
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _minimal_prompt_env() -> dict[str, str]:
+    """Environment overrides that render a single-character prompt (no path).
+
+    zsh reads PROMPT from its startup file, so point ZDOTDIR at a minimal
+    .zshrc. PS1 covers bash and other Bourne-style shells.
+    """
+    zsh_dir = Path(tempfile.gettempdir()) / "ucode-shell"
+    zsh_dir.mkdir(parents=True, exist_ok=True)
+    rc_file = zsh_dir / ".zshrc"
+    if not rc_file.exists():
+        rc_file.write_text('PROMPT="> " RPROMPT=""\n', encoding="utf-8")
+    return {"ZDOTDIR": str(zsh_dir), "PS1": "> "}
 
 
 class LocalPtySession:
@@ -42,6 +57,7 @@ class LocalPtySession:
             **os.environ,
             "TERM": os.environ.get("TERM", "xterm-256color"),
             "COLORTERM": os.environ.get("COLORTERM", "truecolor"),
+            **_minimal_prompt_env(),
         }
         self.process = subprocess.Popen(
             shell_parts,
