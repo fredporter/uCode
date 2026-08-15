@@ -1,0 +1,59 @@
+# uCode Dev Flow — sprint.2026-08-14-runtime-bridge (Sprint 1)
+version: "1.0.0"
+created: "2026-08-14T00:00:00Z"
+updated: "2026-08-14T16:40:00Z"
+status: complete
+
+sprint:
+  name: "sprint.2026-08-14-runtime-bridge"
+  goals:
+    - "Sprint 1: Runtime bridge real dispatch (non-mock)"
+    - "Fix PythonProcessBridge spawn (module invocation + PYTHONPATH)"
+    - "Wire RuntimeBridge.loadTeletextPage / resetSession / getGridState"
+    - "Unit + Python integration tests"
+  items:
+    - id: "task-099"
+      title: "Fix PythonProcessBridge spawn: -m bridge.gridcore_adapter + PYTHONPATH=shared/src"
+      file: "packages/gridcore/src/bridge/python-process-bridge.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-100"
+      title: "Add generic call() + teletextPage/resetSession/gridState methods"
+      file: "packages/gridcore/src/bridge/python-process-bridge.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-101"
+      title: "Wire RuntimeBridge.loadTeletextPage / resetSession / getGridState + typed process bridge"
+      file: "packages/gridcore/src/bridge/runtime-bridge.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-102"
+      title: "Unit tests for RuntimeBridge dispatch/teletext wiring"
+      file: "packages/gridcore/test/bridge.test.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: medium
+    - id: "task-103"
+      title: "Python integration test (real spawn + dispatch + teletext + grid state)"
+      file: "packages/gridcore/test/bridge-python.test.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-104"
+      title: "Verify build + full test suite passes (125 tests)"
+      file: "packages/gridcore/"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+  progress:
+    completed: 6
+    pending: 0
+    percent_complete: 100
+    audit_notes:
+      - "PythonProcessBridge now spawns 'python -m bridge.gridcore_adapter' with cwd=runtimes/basic and PYTHONPATH=shared/src"
+      - "Verified live: GRID SET/GET stateful, CEEFAX/teletext_page returns real page JSON, grid_state returns session grid"
+      - "RuntimeBridge exposes loadTeletextPage, resetSession, getGridState, attachProcessBridge, getProcessBridge"
+      - "125 tests pass (gridcore 48 incl. Python integration, viewport-renderer 2, gridsmith 75)"

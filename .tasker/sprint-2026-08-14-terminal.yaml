@@ -1,0 +1,65 @@
+# uCode Dev Flow — sprint.2026-08-14-terminal (Sprint 2)
+version: "1.0.0"
+created: "2026-08-14T00:00:00Z"
+updated: "2026-08-14T17:05:00Z"
+status: complete
+
+sprint:
+  name: "sprint.2026-08-14-terminal"
+  goals:
+    - "Sprint 2: Display tab - Terminal (ANSI/VDU parsing + pixel-perfect rendering)"
+    - "ANSI SGR parser + stripAnsi in gridcore"
+    - "TerminalSurface ANSI-aware styled rendering (fg/bg/bold/flash/reverse)"
+    - "Renderer respects font/displayMode/palette + bold/flash/double/mosaic + zero-gap"
+  items:
+    - id: "task-105"
+      title: "ANSI parser module (parseAnsiSegments, stripAnsi, applySgr)"
+      file: "packages/gridcore/src/terminal/ansi.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-106"
+      title: "TerminalSurface ANSI-aware rendering (writeLine splits newlines, writeStyledRow)"
+      file: "packages/gridcore/src/terminal/terminal-surface.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-107"
+      title: "Export ansi from terminal/index.ts"
+      file: "packages/gridcore/src/terminal/index.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: low
+    - id: "task-108"
+      title: "ANSI parser tests (8)"
+      file: "packages/gridcore/test/ansi.test.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: medium
+    - id: "task-109"
+      title: "Renderer: font/displayMode/palette + bold/flash/double/mosaic + zero-gap"
+      file: "packages/viewport-renderer/src/canvas/CanvasViewport.ts, dom/DOMViewport.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-110"
+      title: "Display-mode colour helper + tests (display.ts, display.test.ts)"
+      file: "packages/viewport-renderer/src/palette/display.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: medium
+    - id: "task-111"
+      title: "Verify build + full test suite passes (136 tests)"
+      file: "packages/"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+  progress:
+    completed: 7
+    pending: 0
+    percent_complete: 100
+    audit_notes:
+      - "ANSI SGR parser maps 30-37/90-97 fg, 40-47/100-107 bg, 1 bold, 5 flash, 7 reverse, 0 reset"
+      - "TerminalSurface.writeLine splits embedded newlines and renders per-cell fg/bg/bold/flash via writeStyledRow"
+      - "CanvasViewport/DOMViewport now honour font/displayMode/palette and render bold, flash (blink), double-width/height, mosaic, zero-gap (+1 overlap)"
+      - "136 tests pass (gridcore 56, viewport-renderer 5, gridsmith 75)"

@@ -1,6 +1,57 @@
-version: "1.0.1"
-updated: "2026-07-10T14:30:00Z"
-round: "sprint-2026-07-10-handover-complete"
+version: "1.0.7"
+updated: "2026-08-14T18:00:00Z"
+round: "sprint-2026-08-14-tabhost-complete-program-done"
+
+changes_2026_08_14_s5:
+  - "GridCore: GridEditor rewritten with snapshot undo/redo (exact restore) + fillRegion/stamp + selection copy/cut/paste"
+  - "Tests: editor.test.ts (4); gridcore 74 tests"
+
+changes_2026_08_14_s6:
+  - "GridCore: LayerComposer per-layer buffers + createBaselineLayers (6 baseline layers) + compose()"
+  - "Tests: layers.test.ts (5); gridcore 79 tests"
+
+changes_2026_08_14_s7:
+  - "GridCore: SurfaceStore (shared 5-tab store, cross-tab navigateToTeletext, subscribe/emit)"
+  - "Viewport: TabHost widget + CanvasViewport/TeletextWidget getElement()"
+  - "Tests: surface-store.test.ts (5); 164 tests pass (gridcore 84, viewport-renderer 5, gridsmith 75)"
+  - "Program: all 8 sprints complete (runtime + gridcore/display system)"
+
+changes_2026_08_14_s4:
+  - "GridCore: pixel/pixel-buffer.ts — 24x24 PixelBuffer (Uint8Array colour indices) + ops"
+  - "GridCore: pixel/pixel-editor.ts — PixelEditor paint/erase/fill/clear + snapshot undo/redo"
+  - "GridCore: pixel/to-grid.ts — pixelBufferToGrid preview bridge"
+  - "GridCore: Cell.pixels storage hook + pixel module export"
+  - "Tests: pixel.test.ts (6); 150 tests pass (gridcore 70, viewport-renderer 5, gridsmith 75)"
+
+changes_2026_08_14_s3:
+  - "GridCore: teletext/control.ts — MODE 7 control-code interpreter (interpretTeletextLine)"
+  - "GridCore: teletext/mosaic.ts — patternToBlock / blockToPattern mosaic decode/encode"
+  - "GridCore: TeletextSurface renders double-height header, mosaic separator, flashing status"
+  - "Tests: teletext-control.test.ts (7) + teletext-surface double-height/mosaic/flash test; 144 tests pass"
+
+changes_2026_08_14_s2:
+  - "GridCore: terminal/ansi.ts — parseAnsiSegments, stripAnsi, applySgr (SGR fg/bg/bold/flash/reverse)"
+  - "GridCore: TerminalSurface.writeLine splits newlines + writeStyledRow renders per-cell fg/bg/bold/flash"
+  - "Viewport: CanvasViewport/DOMViewport honour font/displayMode/palette + bold/flash/double/mosaic + zero-gap"
+  - "Viewport: palette/display.ts — resolveDisplayColors + toGrayScale (mono/wireframe modes)"
+  - "Tests: ansi.test.ts (8) + display.test.ts (3); 136 tests pass (gridcore 56, viewport-renderer 5, gridsmith 75)"
+
+changes_2026_08_14_s1:
+  - "GridCore bridge: PythonProcessBridge spawns 'python -m bridge.gridcore_adapter' with cwd=runtimes/basic + PYTHONPATH=shared/src"
+  - "GridCore bridge: generic call() + teletextPage/resetSession/gridState RPC methods"
+  - "GridCore bridge: RuntimeBridge.loadTeletextPage/resetSession/getGridState + typed attachProcessBridge/getProcessBridge"
+  - "GridCore bridge: unit tests (bridge.test.ts, 6) + Python integration test (bridge-python.test.ts, 1)"
+  - "Validation: full build + 125 tests pass (gridcore 48, viewport-renderer 2, gridsmith 75)"
+
+changes_2026_08_14:
+  - "Planning: docs/GRIDCORE_DISPLAY_SPRINTS.md — 8-sprint runtime + GridCore/display program"
+  - "Planning: .tasker/sprint-2026-08-14.yaml (Sprint 0) + dev-flow.yaml program block"
+  - "Notated uCode2+ Minecraft bridge plan in uCode2 repo (uCode2/multimedia/docs/MINECRAFT_BRIDGE_PLAN.md)"
+  - "GridCore: geometry Cell extended with bold/flash/doubleHeight/doubleWidth/mosaic/width flags"
+  - "GridCore: BufferCell extended with mosaic/width for attribute parity"
+  - "GridCore: buffer/convert.ts — cellToBuffer, bufferCellToCell, gridToBuffer, bufferToGrid"
+  - "GridCore: convert.test.ts — 4 conversion round-trip tests (41 gridcore tests total)"
+  - "Validation: full build + 118 tests pass (gridcore 41, viewport-renderer 2, gridsmith 75)"
 
 changes_2026_07_08:
   - "uConstruct: 296-line BBC BASIC tile map editor with save/load, 7 tile types, LENS snapshot"

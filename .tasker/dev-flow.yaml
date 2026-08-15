@@ -300,3 +300,27 @@ sprint:
       status: scaffold
       completed: "2026-07-06"
       priority: high
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Program: Runtime & GridCore/Display (started 2026-08-14)
+# Master plan: docs/GRIDCORE_DISPLAY_SPRINTS.md
+# Sprints: Sprint 0 (unify cell model) -> Sprint 7 (tab host)
+# uCode2+ / Minecraft bridge items are notated in the uCode2 repo:
+#   ~/Code/uCode2/multimedia/docs/MINECRAFT_BRIDGE_PLAN.md
+# ─────────────────────────────────────────────────────────────────────────
+program:
+  name: "runtime-gridcore-display"
+  started: "2026-08-14"
+  status: complete
+  completed: "2026-08-14"
+  sprints:
+    - "sprint.2026-08-14  Sprint 0 - unify grid/cell model (done)"
+    - "sprint.2026-08-14-runtime-bridge  Sprint 1 - runtime bridge real dispatch (done)"
+    - "sprint.2026-08-14-terminal  Sprint 2 - display tab Terminal (done)"
+    - "sprint.2026-08-14-teletext  Sprint 3 - display tab Teletext (done)"
+    - "sprint.2026-08-14-pixel  Sprint 4 - editing tab Pixel (done)"
+    - "sprint.2026-08-14-grid  Sprint 5 - editing tab Grid (done)"
+    - "sprint.2026-08-14-layer  Sprint 6 - editing tab Layer (done)"
+    - "sprint.2026-08-14-tabhost  Sprint 7 - integration + tab host (done)"
+

@@ -1,0 +1,60 @@
+# uCode Dev Flow — sprint.2026-08-14-pixel (Sprint 4)
+version: "1.0.0"
+created: "2026-08-14T00:00:00Z"
+updated: "2026-08-14T17:40:00Z"
+status: complete
+
+sprint:
+  name: "sprint.2026-08-14-pixel"
+  goals:
+    - "Sprint 4: Editing tab - Pixel (sub-cell 24x24 pixel editor)"
+    - "PixelBuffer (24x24 colour-index bitmap) + ops"
+    - "PixelEditor with brush/erase/fill/clear + snapshot undo/redo"
+    - "pixelBufferToGrid preview bridge + Cell.pixels storage hook"
+  items:
+    - id: "task-118"
+      title: "PixelBuffer type + ops (create/set/get/fill/clear/clone)"
+      file: "packages/gridcore/src/pixel/pixel-buffer.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-119"
+      title: "PixelEditor with paint/erase/fill/clear + snapshot undo/redo"
+      file: "packages/gridcore/src/pixel/pixel-editor.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+    - id: "task-120"
+      title: "pixelBufferToGrid preview bridge"
+      file: "packages/gridcore/src/pixel/to-grid.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: medium
+    - id: "task-121"
+      title: "Add Cell.pixels storage hook + export pixel module"
+      file: "packages/gridcore/src/geometry/cell.ts, src/pixel/index.ts, src/index.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: medium
+    - id: "task-122"
+      title: "Pixel tests (pixel.test.ts, 6)"
+      file: "packages/gridcore/test/pixel.test.ts"
+      status: complete
+      completed: "2026-08-14"
+      priority: medium
+    - id: "task-123"
+      title: "Verify build + full test suite passes (150 tests)"
+      file: "packages/"
+      status: complete
+      completed: "2026-08-14"
+      priority: high
+  progress:
+    completed: 6
+    pending: 0
+    percent_complete: 100
+    audit_notes:
+      - "PixelBuffer is a 24x24 Uint8Array of MODE 7 colour indices (0-7)"
+      - "PixelEditor uses snapshot-based undo/redo (always correct, unlike the command-based GridEditor)"
+      - "pixelBufferToGrid maps each pixel to a solid-colour cell for live preview via any viewport"
+      - "Cell.pixels (Uint8Array) is the storage hook; BufferCell stays display-only"
+      - "150 tests pass (gridcore 70, viewport-renderer 5, gridsmith 75)"
