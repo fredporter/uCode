@@ -75,6 +75,11 @@ export class TeletextWidget extends ViewportWidget {
     return this.surface
   }
 
+  /** Get the canvas element for external attachment. */
+  getElement(): HTMLCanvasElement {
+    return this.viewport.getElement()
+  }
+
   /** Attach number-key page navigation (0-9) to any HTMLElement */
   attachPageNavigation(container: HTMLElement): void {
     const handler = (e: KeyboardEvent) => {

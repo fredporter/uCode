@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>uCode — Terminal & Teletext Demo</title>
+<title>uCode - Runtime and GridCore Display Demo</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -16,36 +16,24 @@
     min-height: 100vh;
     padding: 16px;
   }
-  h1 {
-    color: #58a6ff;
-    font-size: 18px;
-    margin-bottom: 12px;
-  }
-  .panels {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    max-width: 1400px;
-  }
-  .panel {
+  h1 { color: #58a6ff; font-size: 18px; margin-bottom: 12px; }
+  #app {
     border: 1px solid #30363d;
     border-radius: 6px;
-    overflow: hidden;
     background: #161b22;
+    width: 100%;
+    max-width: 1000px;
   }
-  .panel-header {
+  #app button {
     background: #21262d;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: bold;
-    color: #8b949e;
-    border-bottom: 1px solid #30363d;
+    color: #c0c0c0;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-family: inherit;
   }
-  .panel-body {
-    position: relative;
-  }
+  #app button:hover { background: #30363d; }
   .help-text {
     font-size: 11px;
     color: #8b949e;
@@ -64,268 +52,32 @@
 </head>
 <body>
 
-<h1>uCode v2.0 — Terminal + Teletext Demo</h1>
+<h1>uCode - Runtime and GridCore Display</h1>
 
-<div class="panels">
-  <div class="panel" id="terminal-panel">
-    <div class="panel-header">OK> Terminal (type commands below)</div>
-    <div class="panel-body" id="terminal-container"></div>
-  </div>
-  <div class="panel" id="teletext-panel">
-    <div class="panel-header">CEEFAX Teletext Reader (0-9 keys to navigate)</div>
-    <div class="panel-body" id="teletext-container"></div>
-  </div>
-</div>
+<div id="app"></div>
 
 <div class="help-text">
-  <strong>Terminal:</strong> Click to focus | Type commands: <code>HELP</code> <code>CEEFAX</code> <code>VAULT ollama_endpoint</code> <code>WORLD LIST</code> <code>GRID SET 10 10 X</code> | Arrow keys for history<br>
-  <strong>Teletext:</strong> Click to focus | Number keys <code>0-9</code> for page navigation | <code>ESC</code> or <code>B</code> to go back | <code>100</code> Main | <code>400</code> Vault | <code>500</code> Docs
+  <strong>Tabs:</strong> <code>terminal</code> (OK prompt) |
+  <code>teletext</code> (CEEFAX reader) |
+  <code>pixel</code> (24x24 pixel editor) |
+  <code>grid</code> (character editor) |
+  <code>layer</code> (layer stack)<br>
+  <strong>Terminal:</strong> type <code>HELP</code>, <code>CEEFAX</code> (switches to Teletext), <code>GRID SET 10 10 X</code>, <code>WORLD LIST</code>.<br>
+  <strong>Teletext:</strong> number keys <code>0-9</code> navigate pages, <code>ESC</code> or <code>B</code> go back.
 </div>
 
-<script type="module">
-  // Import from local IIFE bundles (built by tsup)
-  // In production, use: import { ... } from '@udos/gridcore'
-  // In demo mode, we use the global bundle objects
+<script src="../dist/index.global.js"></script>
+<script>
+  var V = globalThis.uDosViewportRenderer || {};
+  var TabHost = V.TabHost;
+  var app = document.getElementById('app');
 
-  // GridCore global
-  const G = globalThis.uDosGridCore || {}
-  const {
-    TerminalSurface,
-    RuntimeBridge,
-    TeletextSurface,
-    TeletextPageProvider,
-    createGrid,
-    FG, BG,
-  } = G
-
-  // Viewport renderer global
-  const V = globalThis.uDosViewportRenderer || {}
-  // Widgets are instantiated via classes from the module
-
-  // ── Initialize ──────────────────────────────────────────────
-  const terminalContainer = document.getElementById('terminal-container')
-  const teletextContainer = document.getElementById('teletext-container')
-
-  const COL_W = 24
-  const ROW_H = 24
-
-  // Terminal: 80 cols × 24 rows
-  const termCols = 80
-  const termRows = 24
-
-  // Teletext: 40 cols × 25 rows
-  const telexCols = 40
-  const telexRows = 25
-
-  // Create provider and bridge
-  const provider = new TeletextPageProvider()
-  const bridge = new RuntimeBridge()
-  let teletextWidget = null
-  let terminalWidget = null
-
-  // ── Teletext widget ─────────────────────────────────────────
-  const telexSurface = new TeletextSurface({ cols: telexCols, rows: telexRows })
-  telexSurface.setPageLoader(provider.createPageLoader())
-  telexSurface.onDisplayChange(() => {
-    renderTeletextDOM()
-  })
-
-  function renderTeletextDOM() {
-    if (!teletextContainer) return
-    const grid = telexSurface.getGrid()
-    teletextContainer.style.display = 'grid'
-    teletextContainer.style.gridTemplateColumns = `repeat(${telexCols}, ${COL_W}px)`
-    teletextContainer.style.gridTemplateRows = `repeat(${telexRows}, ${ROW_H}px)`
-    teletextContainer.innerHTML = ''
-
-    const palette = [
-      '#000000', '#ff0000', '#00ff00', '#ffff00',
-      '#0000ff', '#ff00ff', '#00ffff', '#ffffff',
-    ]
-
-    for (let y = 0; y < telexRows; y++) {
-      for (let x = 0; x < telexCols; x++) {
-        const cell = grid.cells.get(`${x}:${y}:0`)
-        if (cell) {
-          const node = document.createElement('span')
-          node.textContent = cell.char ?? ' '
-          node.style.width = `${COL_W}px`
-          node.style.height = `${ROW_H}px`
-          node.style.display = 'inline-flex'
-          node.style.alignItems = 'center'
-          node.style.justifyContent = 'center'
-          node.style.fontSize = '14px'
-          node.style.fontFamily = 'monospace'
-          node.style.color = palette[Math.min(cell.fg ?? 7, 7)]
-          node.style.backgroundColor = palette[Math.min(cell.bg ?? 0, 7)]
-          teletextContainer.appendChild(node)
-        }
-      }
-    }
+  if (!TabHost) {
+    app.textContent = 'Bundles not found. Run "npm run build" in packages/viewport-renderer first.';
+  } else {
+    var host = new TabHost({ target: app, width: 960, height: 600 });
+    globalThis.host = host;
   }
-
-  // Load page 100 initially
-  telexSurface.navigateTo(100)
-
-  // ── Terminal widget ─────────────────────────────────────────
-  const termSurface = new TerminalSurface({ cols: termCols, rows: termRows })
-
-  // Wire bridge → terminal output
-  bridge.on('command-output', (output) => {
-    if (typeof output === 'string') {
-      termSurface.writeLine(output, 'output')
-    } else if (Array.isArray(output)) {
-      for (const line of output) {
-        if (typeof line === 'string') {
-          termSurface.writeLine(line, 'output')
-        } else if (line && typeof line === 'object' && line.text) {
-          termSurface.writeLine(line.text, line.role || 'output')
-        }
-      }
-    }
-  })
-
-  // CEEFAX command → teletext navigation
-  bridge.on('teletext-navigate', (page) => {
-    const p = typeof page === 'number' ? page : parseInt(String(page), 10)
-    if (!isNaN(p)) {
-      telexSurface.navigateTo(p)
-      teletextContainer?.parentElement?.scrollIntoView({ behavior: 'smooth' })
-    }
-  })
-
-  termSurface.onDisplayChange(() => {
-    renderTerminalDOM()
-  })
-
-  function renderTerminalDOM() {
-    if (!terminalContainer) return
-    const grid = termSurface.getGrid()
-    terminalContainer.style.display = 'grid'
-    terminalContainer.style.gridTemplateColumns = `repeat(${termCols}, ${COL_W / 2}px)`
-    terminalContainer.style.gridTemplateRows = `repeat(${termRows}, ${ROW_H / 2}px)`
-    terminalContainer.innerHTML = ''
-
-    const palette = [
-      '#000000', '#ff0000', '#00ff00', '#ffff00',
-      '#0000ff', '#ff00ff', '#00ffff', '#ffffff',
-    ]
-
-    for (let y = 0; y < termRows; y++) {
-      for (let x = 0; x < termCols; x++) {
-        const cell = grid.cells.get(`${x}:${y}:0`)
-        if (cell) {
-          const node = document.createElement('span')
-          node.textContent = cell.char ?? ' '
-          node.style.width = `${COL_W / 2}px`
-          node.style.height = `${ROW_H / 2}px`
-          node.style.display = 'inline-flex'
-          node.style.alignItems = 'center'
-          node.style.justifyContent = 'center'
-          node.style.fontSize = '8px'
-          node.style.fontFamily = 'monospace'
-          node.style.lineHeight = '1'
-          node.style.color = palette[Math.min(cell.fg ?? 7, 7)]
-          node.style.backgroundColor = palette[Math.min(cell.bg ?? 0, 7)]
-          terminalContainer.appendChild(node)
-        }
-      }
-    }
-  }
-
-  // ── Keyboard input for terminal ────────────────────────────
-  let terminalFocused = false
-
-  terminalContainer?.addEventListener('click', () => {
-    terminalFocused = true
-    terminalContainer.style.outline = '1px solid #58a6ff'
-    teletextContainer?.style.setProperty('outline', 'none')
-  })
-
-  teletextContainer?.addEventListener('click', () => {
-    terminalFocused = false
-    teletextContainer.style.outline = '1px solid #58a6ff'
-    terminalContainer?.style.setProperty('outline', 'none')
-  })
-
-  document.addEventListener('keydown', (e) => {
-    // Number keys always go to teletext
-    if (e.key >= '0' && e.key <= '9') {
-      e.preventDefault()
-      handleTeletextNumber(e.key)
-      return
-    }
-
-    // Escape/B → teletext back
-    if (e.key === 'Escape' || e.key === 'b' || e.key === 'B') {
-      if (e.key === 'Escape') e.preventDefault()
-      telexSurface.goBack()
-      return
-    }
-
-    // Terminal input
-    if (!terminalFocused) return
-
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      const cmd = termSurface.getInput()
-      if (cmd) {
-        bridge.sendCommand(cmd)
-      }
-      termSurface.submit()
-    } else if (e.key === 'Backspace') {
-      e.preventDefault()
-      termSurface.typeBackspace()
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      termSurface.navigateHistory(-1)
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      termSurface.navigateHistory(1)
-    } else if (e.key.length === 1 && e.key.charCodeAt(0) >= 32 && e.key.charCodeAt(0) <= 126) {
-      e.preventDefault()
-      termSurface.typeChar(e.key)
-    }
-  })
-
-  // ── Teletext number buffer ─────────────────────────────────
-  let telexBuffer = ''
-  let telexBufferTimer = null
-
-  function handleTeletextNumber(digit) {
-    if (telexBufferTimer) clearTimeout(telexBufferTimer)
-    telexBuffer += digit
-
-    if (telexBuffer.length >= 3) {
-      const page = parseInt(telexBuffer, 10)
-      telexBuffer = ''
-      if (page >= 100 && page <= 899) {
-        telexSurface.navigateTo(page)
-      }
-      return
-    }
-
-    telexBufferTimer = setTimeout(() => {
-      const page = parseInt(telexBuffer, 10)
-      telexBuffer = ''
-      if (page >= 100 && page <= 899) {
-        telexSurface.navigateTo(page)
-      } else if (page >= 0 && page <= 9) {
-        const currentPage = telexSurface.getCurrentPage()
-        if (currentPage?.fasttext && currentPage.fasttext[page - 1]) {
-          telexSurface.navigateTo(currentPage.fasttext[page - 1].page)
-        }
-      }
-    }, 1500)
-  }
-
-  // Focus terminal by default
-  setTimeout(() => { terminalContainer?.click() }, 500)
-
-  console.log('uCode Terminal + Teletext demo ready.')
-  console.log('  - Click terminal panel, type commands (HELP, CEEFAX, VAULT ollama_endpoint)')
-  console.log('  - Press number keys 0-9 to navigate teletext pages')
-  console.log('  - Type CEEFAX in terminal to open teletext page 100')
 </script>
 
 </body>

@@ -8,12 +8,21 @@ import {
 } from '@udos/gridcore'
 import { applyCRTEffectsFilter } from '../effects/crt'
 import { getPalette } from '../palette/usx'
+import { resolveDisplayColors } from '../palette/display'
 import { ViewportWidget, type CanvasViewportOptions } from '../core/ViewportWidget'
+
+const FONT_FAMILIES: Record<string, string> = {
+  petme64: 'PetMe64, PetMe128, monospace',
+  teletext50: 'Teletext50, Bedstead, monospace',
+  custom: 'custom-font, monospace',
+}
 
 export class CanvasViewport extends ViewportWidget {
   private canvas: HTMLCanvasElement
   private context: CanvasRenderingContext2D
   private lastGrid: Grid | null = null
+  private blinkOn = true
+  private blinkTimer: ReturnType<typeof setInterval> | null = null
 
   constructor(options: CanvasViewportOptions) {
     super(options)
@@ -26,17 +35,20 @@ export class CanvasViewport extends ViewportWidget {
 
   render(grid: Grid): void {
     this.lastGrid = grid
+    this.ensureBlink(grid)
     this.drawGrid(grid)
   }
 
   update(grid: Grid): void {
     this.lastGrid = grid
+    this.ensureBlink(grid)
     this.drawGrid(grid)
   }
 
   updateCell(x: number, y: number, cell: Cell): void {
     if (!this.lastGrid) return
     this.lastGrid.cells.set(`${x}:${y}:${cell.layer}`, cell)
+    this.ensureBlink(this.lastGrid)
     this.drawGrid(this.lastGrid)
   }
 
@@ -53,8 +65,30 @@ export class CanvasViewport extends ViewportWidget {
     this.canvas.toBlob(callback)
   }
 
+  getElement(): HTMLCanvasElement {
+    return this.canvas
+  }
+
   destroy(): void {
+    if (this.blinkTimer) {
+      clearInterval(this.blinkTimer)
+      this.blinkTimer = null
+    }
     this.canvas.remove()
+  }
+
+  private ensureBlink(grid: Grid): void {
+    const hasFlash = Array.from(grid.cells.values()).some(cell => cell.flash)
+    if (hasFlash && !this.blinkTimer) {
+      this.blinkTimer = setInterval(() => {
+        this.blinkOn = !this.blinkOn
+        if (this.lastGrid) this.drawGrid(this.lastGrid)
+      }, 500)
+    } else if (!hasFlash && this.blinkTimer) {
+      clearInterval(this.blinkTimer)
+      this.blinkTimer = null
+      this.blinkOn = true
+    }
   }
 
   private drawGrid(grid: Grid): void {
@@ -75,6 +109,7 @@ export class CanvasViewport extends ViewportWidget {
       24,
     )
     const palette = getPalette(this.options.palette)
+    const fontFamily = FONT_FAMILIES[this.options.font] ?? FONT_FAMILIES.petme64
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.context.save()
@@ -82,18 +117,37 @@ export class CanvasViewport extends ViewportWidget {
     this.context.scale(metrics.scale, metrics.scale)
 
     for (const cell of visible) {
-      const fg = palette[Math.max(0, Math.min(cell.fg ?? 7, palette.length - 1))]
-      const bg = palette[Math.max(0, Math.min(cell.bg ?? 0, palette.length - 1))]
+      const char = cell.char ?? ' '
+      const baseFg = palette[Math.max(0, Math.min(cell.fg ?? 7, palette.length - 1))]
+      const baseBg = palette[Math.max(0, Math.min(cell.bg ?? 0, palette.length - 1))]
+      const { fg, bg } = resolveDisplayColors(baseFg, baseBg, this.options.displayMode, char)
+
       const x = cell.x * 24
       const y = cell.y * 24
 
+      // Zero-gap background (1px overlap per the rendering contract).
       this.context.fillStyle = bg
-      this.context.fillRect(x, y, 24, 24)
+      this.context.fillRect(x, y, 25, 25)
+
+      if (cell.mosaic !== undefined) {
+        this.drawMosaic(x, y, cell.mosaic, fg)
+        continue
+      }
+      if (char === ' ') continue
+      if (cell.flash && !this.blinkOn) continue
+
+      const scaleX = cell.doubleWidth ? 2 : 1
+      const scaleY = cell.doubleHeight ? 2 : 1
+      const fontSize = 18
+      this.context.save()
+      this.context.translate(x + 12, y + 12)
+      this.context.scale(scaleX, scaleY)
       this.context.fillStyle = fg
-      this.context.font = '18px monospace'
+      this.context.font = `${cell.bold ? 'bold ' : ''}${fontSize}px ${fontFamily}`
       this.context.textBaseline = 'middle'
       this.context.textAlign = 'center'
-      this.context.fillText(cell.char ?? ' ', x + 12, y + 12)
+      this.context.fillText(char, 0, 0)
+      this.context.restore()
     }
 
     this.context.restore()
@@ -104,5 +158,19 @@ export class CanvasViewport extends ViewportWidget {
 
     const border = BORDER_MODE_CONFIGS[this.options.borderMode]
     this.canvas.style.padding = `${((1 - border.fillFraction) / 2) * 100}%`
+  }
+
+  /** Render a 2x3 teletext mosaic block from a 6-bit pattern. */
+  private drawMosaic(x: number, y: number, pattern: number, fg: string): void {
+    const cellW = 24 / 2
+    const cellH = 24 / 3
+    for (let sub = 0; sub < 6; sub++) {
+      if ((pattern >> sub) & 1) {
+        const sx = x + (sub % 2) * cellW
+        const sy = y + Math.floor(sub / 2) * cellH
+        this.context.fillStyle = fg
+        this.context.fillRect(sx, sy, cellW + 1, cellH + 1)
+      }
+    }
   }
 }
