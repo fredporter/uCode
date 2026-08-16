@@ -69,7 +69,7 @@
     {
       "label": "uCode: Start Frontend Dev Server",
       "type": "shell",
-      "command": "cd /Users/fredbook/Code/uCore/frontend && npm run dev",
+      "command": "cd /Users/fredbook/Code/uCore/frontend-vue && npm run dev",
       "problemMatcher": [],
       "isBackground": true,
       "presentation": {
@@ -85,7 +85,7 @@
     {
       "label": "uCore: Start Backend",
       "type": "shell",
-      "command": "python3 -m backend.app --host 127.0.0.1 --port 8484",
+      "command": "python3 -m app --host 127.0.0.1 --port 8484",
       "problemMatcher": [],
       "isBackground": true,
       "presentation": {
@@ -95,7 +95,7 @@
         "panel": "new"
       },
       "options": {
-        "cwd": "/Users/fredbook/Code/uCore"
+        "cwd": "/Users/fredbook/Code/uCore/backend"
       }
     },
     {
