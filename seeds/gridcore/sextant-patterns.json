@@ -1,0 +1,250 @@
+{
+  "format": "ucode-sextant-v1",
+  "bitOrder": "bit0=TL bit1=TR bit2=ML bit3=MR bit4=BL bit5=BR",
+  "patterns": {
+    "0": {
+      "digits": "",
+      "unicode": "U+0020"
+    },
+    "1": {
+      "digits": "1",
+      "unicode": "U+1FB00"
+    },
+    "2": {
+      "digits": "2",
+      "unicode": "U+1FB01"
+    },
+    "3": {
+      "digits": "12",
+      "unicode": "U+1FB02"
+    },
+    "4": {
+      "digits": "3",
+      "unicode": "U+1FB03"
+    },
+    "5": {
+      "digits": "13",
+      "unicode": "U+1FB04"
+    },
+    "6": {
+      "digits": "23",
+      "unicode": "U+1FB05"
+    },
+    "7": {
+      "digits": "123",
+      "unicode": "U+1FB06"
+    },
+    "8": {
+      "digits": "4",
+      "unicode": "U+1FB07"
+    },
+    "9": {
+      "digits": "14",
+      "unicode": "U+1FB08"
+    },
+    "10": {
+      "digits": "24",
+      "unicode": "U+1FB09"
+    },
+    "11": {
+      "digits": "124",
+      "unicode": "U+1FB0A"
+    },
+    "12": {
+      "digits": "34",
+      "unicode": "U+1FB0B"
+    },
+    "13": {
+      "digits": "134",
+      "unicode": "U+1FB0C"
+    },
+    "14": {
+      "digits": "234",
+      "unicode": "U+1FB0D"
+    },
+    "15": {
+      "digits": "1234",
+      "unicode": "U+1FB0E"
+    },
+    "16": {
+      "digits": "5",
+      "unicode": "U+1FB0F"
+    },
+    "17": {
+      "digits": "15",
+      "unicode": "U+1FB10"
+    },
+    "18": {
+      "digits": "25",
+      "unicode": "U+1FB11"
+    },
+    "19": {
+      "digits": "125",
+      "unicode": "U+1FB12"
+    },
+    "20": {
+      "digits": "35",
+      "unicode": "U+1FB13"
+    },
+    "22": {
+      "digits": "235",
+      "unicode": "U+1FB14"
+    },
+    "23": {
+      "digits": "1235",
+      "unicode": "U+1FB15"
+    },
+    "24": {
+      "digits": "45",
+      "unicode": "U+1FB16"
+    },
+    "25": {
+      "digits": "145",
+      "unicode": "U+1FB17"
+    },
+    "26": {
+      "digits": "245",
+      "unicode": "U+1FB18"
+    },
+    "27": {
+      "digits": "1245",
+      "unicode": "U+1FB19"
+    },
+    "28": {
+      "digits": "345",
+      "unicode": "U+1FB1A"
+    },
+    "29": {
+      "digits": "1345",
+      "unicode": "U+1FB1B"
+    },
+    "30": {
+      "digits": "2345",
+      "unicode": "U+1FB1C"
+    },
+    "31": {
+      "digits": "12345",
+      "unicode": "U+1FB1D"
+    },
+    "32": {
+      "digits": "6",
+      "unicode": "U+1FB1E"
+    },
+    "33": {
+      "digits": "16",
+      "unicode": "U+1FB1F"
+    },
+    "34": {
+      "digits": "26",
+      "unicode": "U+1FB20"
+    },
+    "35": {
+      "digits": "126",
+      "unicode": "U+1FB21"
+    },
+    "36": {
+      "digits": "36",
+      "unicode": "U+1FB22"
+    },
+    "37": {
+      "digits": "136",
+      "unicode": "U+1FB23"
+    },
+    "38": {
+      "digits": "236",
+      "unicode": "U+1FB24"
+    },
+    "39": {
+      "digits": "1236",
+      "unicode": "U+1FB25"
+    },
+    "40": {
+      "digits": "46",
+      "unicode": "U+1FB26"
+    },
+    "41": {
+      "digits": "146",
+      "unicode": "U+1FB27"
+    },
+    "42": {
+      "digits": "246",
+      "unicode": "U+1FB28"
+    },
+    "43": {
+      "digits": "1246",
+      "unicode": "U+1FB29"
+    },
+    "44": {
+      "digits": "346",
+      "unicode": "U+1FB2A"
+    },
+    "45": {
+      "digits": "1346",
+      "unicode": "U+1FB2B"
+    },
+    "46": {
+      "digits": "2346",
+      "unicode": "U+1FB2C"
+    },
+    "47": {
+      "digits": "12346",
+      "unicode": "U+1FB2D"
+    },
+    "48": {
+      "digits": "56",
+      "unicode": "U+1FB2E"
+    },
+    "49": {
+      "digits": "156",
+      "unicode": "U+1FB2F"
+    },
+    "50": {
+      "digits": "256",
+      "unicode": "U+1FB30"
+    },
+    "51": {
+      "digits": "1256",
+      "unicode": "U+1FB31"
+    },
+    "52": {
+      "digits": "356",
+      "unicode": "U+1FB32"
+    },
+    "53": {
+      "digits": "1356",
+      "unicode": "U+1FB33"
+    },
+    "54": {
+      "digits": "2356",
+      "unicode": "U+1FB34"
+    },
+    "55": {
+      "digits": "12356",
+      "unicode": "U+1FB35"
+    },
+    "56": {
+      "digits": "456",
+      "unicode": "U+1FB36"
+    },
+    "57": {
+      "digits": "1456",
+      "unicode": "U+1FB37"
+    },
+    "58": {
+      "digits": "2456",
+      "unicode": "U+1FB38"
+    },
+    "59": {
+      "digits": "12456",
+      "unicode": "U+1FB39"
+    },
+    "60": {
+      "digits": "3456",
+      "unicode": "U+1FB3A"
+    },
+    "63": {
+      "digits": "123456",
+      "unicode": "U+2588"
+    }
+  }
+}

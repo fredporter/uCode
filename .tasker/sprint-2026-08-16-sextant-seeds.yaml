@@ -1,0 +1,47 @@
+# uCode Dev Flow — sprint.2026-08-16-sextant-seeds (Sprint B)
+version: "1.0.0"
+created: "2026-08-16T00:00:00Z"
+updated: "2026-08-16T00:00:00Z"
+status: not-started
+
+sprint:
+  name: "sprint.2026-08-16-sextant-seeds"
+  order: 2
+  depends_on: ["sprint.2026-08-16-glyph-atlas"]
+  goals:
+    - "Connected-cell grid seeds built from the shared sextant block patterns"
+    - "Same seed renders identically in Terminal (24x24) and Teletext (24x20) views"
+    - "Seed schema for multi-cell art (ucode-grid-seed-v1)"
+  items:
+    - id: "task-210"
+      title: "Connected-cell seed schema + TS types"
+      file: "packages/gridcore/src/seeds/grid-seed.ts"
+      status: not-started
+      priority: high
+    - id: "task-211"
+      title: "Seed example: uCode wordmark/logo as sextant connected cells"
+      file: "seeds/gridcore/grids/uCode-wordmark.json"
+      status: not-started
+      priority: high
+    - id: "task-212"
+      title: "Seed example: border/panel frame using sextant edges"
+      file: "seeds/gridcore/grids/panel-frame.json"
+      status: not-started
+      priority: medium
+    - id: "task-213"
+      title: "Loader: render seed grids into a GridBuffer via sextant pattern table"
+      file: "packages/gridcore/src/seeds/render-seed.ts"
+      status: not-started
+      priority: high
+    - id: "task-214"
+      title: "Playwright golden image: Terminal vs Teletext render seed identically"
+      file: "tests/"
+      status: not-started
+      priority: high
+  progress:
+    completed: 0
+    pending: 5
+    percent_complete: 0
+    audit_notes:
+      - "Sextant sub-cells scale with view: 2x3 blocks = 12x8 px at 1x, 24x16 at 2x (teletext), 36x24 at 3x (terminal)"
+      - "Identical across views because both renderers consume the same 6-bit pattern table"

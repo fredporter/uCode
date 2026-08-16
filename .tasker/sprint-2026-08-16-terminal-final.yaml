@@ -1,0 +1,42 @@
+# uCode Dev Flow — sprint.2026-08-16-terminal-final (Sprint D)
+version: "1.0.0"
+created: "2026-08-16T00:00:00Z"
+updated: "2026-08-16T00:00:00Z"
+status: not-started
+
+sprint:
+  name: "sprint.2026-08-16-terminal-final"
+  order: 4
+  depends_on: ["sprint.2026-08-16-glyph-atlas"]
+  goals:
+    - "Finish the Terminal tab to pixel-perfect standard using Playwright"
+    - "Golden-image verification for every terminal glyph + prompt + shell output"
+    - "Debug glyph-inspector surface to eyeball all 96 glyphs at once"
+  items:
+    - id: "task-230"
+      title: "Terminal golden-image test: welcome banner + prompt exact pixels"
+      file: "tests/"
+      status: not-started
+      priority: high
+    - id: "task-231"
+      title: "Glyph inspector debug route (all 96 glyphs x 8x8 in one grid)"
+      file: "frontend-vue/src/surfaces/"
+      status: not-started
+      priority: medium
+    - id: "task-232"
+      title: "Fix terminal cell sizing/alignment from golden-image diffs"
+      file: "frontend-vue/src/grid-core/gridui-canvas.ts"
+      status: not-started
+      priority: high
+    - id: "task-233"
+      title: "Verify shell PTY output renders glyph-perfect (single '>' prompt)"
+      file: "ucode_runtime/terminal_runtime.py + frontend"
+      status: not-started
+      priority: high
+  progress:
+    completed: 0
+    pending: 4
+    percent_complete: 0
+    audit_notes:
+      - "Terminal is PressStart2P 8x8 at 3x = 24x24 gcell (exact fill)"
+      - "Font baseline: PressStart2P ink occupies rows 0-6 of 8 (row 7 blank) — keep as-is for authenticity"
