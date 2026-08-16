@@ -1,8 +1,8 @@
 # uCode Dev Flow — sprint.2026-08-16-teletext-ceefax (Sprint E)
 version: "1.0.0"
 created: "2026-08-16T00:00:00Z"
-updated: "2026-08-16T00:00:00Z"
-status: blocked
+updated: "2026-08-16T21:40:00Z"
+status: in-progress
 
 sprint:
   name: "sprint.2026-08-16-teletext-ceefax"
@@ -15,14 +15,17 @@ sprint:
     - "FASTEXT navigation + page stack over vault-sourced pages"
   items:
     - id: "task-240"
-      title: "BLOCKED: await full Ceefax brief (page layout, vault source, graphics spec)"
-      file: "seeds/gridcore/layers/"
-      status: blocked
+      title: "Wire teletext reader to published vault content (Documentation + Global Knowledge)"
+      file: "frontend-vue/src/surfaces/ucode/UCodeSurface.vue"
+      status: completed
       priority: high
   progress:
-    completed: 0
-    pending: 1
-    percent_complete: 0
+    completed: 1
+    pending: 0
+    percent_complete: 100
     audit_notes:
-      - "Deferred until the full brief is loaded per request"
-      - "Targets: vault content ingestion, page composer, MODE7 double-height + flash + smooth mosaic"
+      - "Reader fetches /api/library/search (source=public + global-knowledge workspace), groups into Documentation (200) / Global Knowledge (300) / Learning (400) libraries."
+      - "Page 100 = library index; 200/300/400 = doc lists (14/page, paginated); 250+/350+/450+ = doc content via /api/library/file (cached)."
+      - "Fastext: Index / Docs / Knowledge / Help. Header + clock + double-height title + NEWFLASH + status bar retained."
+      - "Backend must run from ~/Code/uCore/backend: python3 -m app --host 127.0.0.1 --port 8484."
+      - "Remaining (future brief): boxed double-height panels (╔═╗), separated graphics, subpages, richer BBC page layout."
