@@ -106,8 +106,9 @@ const PATTERN_TO_CODE = buildPatternMap();
 
 /** Convert a 6-bit pattern to its display character (space for empty). */
 export function patternToChar(pattern: number): string {
-  if (pattern <= 0) return " ";
-  const code = PATTERN_TO_CODE.get(pattern);
+  if (pattern <= 0) return " ";  // Patterns 61/62 ("all but one corner") have no Unicode codepoint — snap to
+  // the full block so coarse coastlines stay solid rather than showing holes.
+  if (pattern === 61 || pattern === 62) return '\u2588'  const code = PATTERN_TO_CODE.get(pattern);
   return code !== undefined ? String.fromCodePoint(code) : " ";
 }
 

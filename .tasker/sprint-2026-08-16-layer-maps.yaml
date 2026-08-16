@@ -1,8 +1,8 @@
 # uCode Dev Flow — sprint.2026-08-16-layer-maps (Sprint C)
 version: "1.0.0"
 created: "2026-08-16T00:00:00Z"
-updated: "2026-08-16T00:00:00Z"
-status: not-started
+updated: "2026-08-16T20:00:00Z"
+status: in-progress
 
 sprint:
   name: "sprint.2026-08-16-layer-maps"
@@ -17,42 +17,45 @@ sprint:
     - id: "task-220"
       title: "Layer map schema + TS types (projection, bounds, layers, cells)"
       file: "packages/gridcore/src/seeds/layer-map.ts"
-      status: not-started
+      status: completed
       priority: high
     - id: "task-221"
       title: "Generate world-map seed (40x25 gcells = 80x75 sextant px)"
       file: "seeds/gridcore/layers/world-map.json"
-      status: not-started
+      status: completed
       priority: high
     - id: "task-222"
       title: "Beyond dataset: moon map seed"
       file: "seeds/gridcore/layers/moon.json"
-      status: not-started
+      status: completed
       priority: medium
     - id: "task-223"
       title: "Beyond dataset: region map seed (e.g. Australia or UK)"
       file: "seeds/gridcore/layers/region.json"
-      status: not-started
+      status: completed
       priority: medium
     - id: "task-224"
       title: "Layer map loader -> Layer tab render path (terrain/details/entities layers)"
       file: "packages/gridcore/src/seeds/load-layer-map.ts"
-      status: not-started
+      status: completed
       priority: high
     - id: "task-225"
       title: "Layer tab: load seed layer maps by name + world-map default"
       file: "frontend-vue/src/surfaces/ucode/UCodeSurface.vue"
-      status: not-started
+      status: completed
       priority: high
     - id: "task-226"
       title: "Tests: layer map load + bounds/coordinate mapping"
       file: "packages/gridcore/test/"
-      status: not-started
+      status: completed
       priority: medium
   progress:
-    completed: 0
-    pending: 7
-    percent_complete: 0
+    completed: 7
+    pending: 0
+    percent_complete: 100
     audit_notes:
       - "Equirectangular projection default; bounds lat/lon drive cell sampling"
       - "Each layer is a sparse cell list (sextant code + fg/bg), composed bottom-up"
+      - "World map rasterised from Natural Earth 110m land polygons (ne_110m_land.geojson) via uCode/scripts/bake-layer-maps.mjs; 407 land cells."
+      - "Patterns 61/62 (all-but-one-corner) have no Unicode codepoint — snapped to full block (63) in bake + loaders."
+      - "Layer tab UI: World/Moon/Region selector buttons; world default; status bar shows map name/bounds/projection."
