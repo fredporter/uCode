@@ -19,13 +19,19 @@ sprint:
       file: "frontend-vue/src/surfaces/ucode/UCodeSurface.vue"
       status: completed
       priority: high
+    - id: "task-241"
+      title: "BBC graphics: boxed double-height titles + separated graphics + rotating subpages"
+      file: "frontend-vue/src/surfaces/ucode/UCodeSurface.vue"
+      status: completed
+      priority: high
   progress:
-    completed: 1
+    completed: 2
     pending: 0
     percent_complete: 100
     audit_notes:
       - "Reader fetches /api/library/search (source=public + global-knowledge workspace), groups into Documentation (200) / Global Knowledge (300) / Learning (400) libraries."
       - "Page 100 = library index; 200/300/400 = doc lists (14/page, paginated); 250+/350+/450+ = doc content via /api/library/file (cached)."
       - "Fastext: Index / Docs / Knowledge / Help. Header + clock + double-height title + NEWFLASH + status bar retained."
+      - "Boxed double-height titles use sextant edges (23/3/43 top, 21/42 sides, 53/48/58 bottom, dh title inside); full-width separated-graphics bar (pattern 3) under header in section colour."
+      - "Subpages: docs split into 15-line screens, auto-rotate every 4s (Ceefax-style), manual advance via '.'/'n' and back via ','/'p'; status bar shows N/M."
       - "Backend must run from ~/Code/uCore/backend: python3 -m app --host 127.0.0.1 --port 8484."
-      - "Remaining (future brief): boxed double-height panels (╔═╗), separated graphics, subpages, richer BBC page layout."
