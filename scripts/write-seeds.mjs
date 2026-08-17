@@ -19,7 +19,6 @@ if (brace > 0) raw = raw.slice(brace);
 const obj = JSON.parse(raw);
 const sext = JSON.parse(obj.sextants);
 const term = JSON.parse(obj.terminalAtlas);
-const tele = JSON.parse(obj.teletextAtlas);
 
 const targets = [
   resolve(__dirname, "../seeds/gridcore"),
@@ -33,11 +32,7 @@ for (const base of targets) {
     `${base}/glyph-atlas.terminal.json`,
     JSON.stringify(term, null, 2),
   );
-  writeFileSync(
-    `${base}/glyph-atlas.teletext.json`,
-    JSON.stringify(tele, null, 2),
-  );
   console.log(
-    `wrote ${base} — terminal=${Object.keys(term.glyphs).length} teletext=${Object.keys(tele.glyphs).length} sextants=${Object.keys(sext.patterns).length}`,
+    `wrote ${base} — terminal=${Object.keys(term.glyphs).length} sextants=${Object.keys(sext.patterns).length}`,
   );
 }

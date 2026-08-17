@@ -1,8 +1,10 @@
-# Sprint E (Expansion) — Teletext Ceefax: unification & polish
+# Sprint E (Expansion) — Teletext-style Vault Reader
 
-> Status: **planned** — expand in the morning.
-> Parent work: Sprint A–E (glyph atlas → sextant seeds → layer maps → terminal → teletext Ceefax reader) is complete and pushed.
-> Companion doc: `docs/TELETEXT_ARCHITECTURE.md` (the three-implementation reconciliation plan).
+> Status: **complete** (2026-08-17).
+> Parent work: Sprint A–E (glyph atlas → sextant seeds → layer maps → terminal → teletext) is complete and pushed.
+> Companion doc: `docs/TELETEXT_ARCHITECTURE.md` (teletext-style vault reader).
+> Direction: uCode builds its **own** Ceefax-inspired teletext view for
+> published vault content — not a repurposing of BBC Ceefax pages.
 
 ## Where we are (baseline)
 
@@ -16,9 +18,10 @@
 
 ## Goal
 
-Turn the working Teletext reader into the **single, unified** Ceefax surface:
-one page model, one control-code source, richer pages, and a clean seam to the
-Python content store.
+Ship the Teletext tab as a **teletext-style viewer for uCode's own vault
+content**: Bedstead (SAA5050) rendering at 16:9, double-height titles,
+separated-graphics bars, fastext and subpage rotation — driven by
+`/api/library/*` vault libraries rather than external Ceefax content.
 
 ## Workstreams
 
@@ -59,22 +62,26 @@ Python content store.
 
 ### 5. Font fidelity (Bedstead)
 
-Prototype swapping MODE7GX3 (12×16) for Bedstead (12×20, true SAA5050) —
-CC0, authentic teletext proportions, richer G0/G2/G3 sets. Low-risk spike;
-keep MODE7GX3 as default until the A/B decides.
+MODE7GX3 removed; Bedstead (12×20, true SAA5050, CC0) is now the sole
+Teletext face.
 
-- [ ] Obtain Bedstead as TTF/WOFF (convert BDF→TTF via FontForge `bdf2ttf`,
-      or grab a prebuilt build from bjh21.me.uk/bedstead); add beside
-      `MODE7GX3.TTF`.
-- [ ] Add a **12×20** Bedstead bake to `uCode/scripts/bake-teletext-atlas.mjs`.
-- [ ] Parameterise `G0Renderer` (glyphW/glyphH/fontFamily) or add a third
-      renderer for 12×20; confirm `renderHalf` 10/10 split + mosaic
-      `subH = glyphH/3` still behave.
-- [ ] A/B Bedstead vs MODE7GX3 in the Glyphs tab + page 250 (boxed titles,
-      separated bars).
-- [ ] Decide: Bedstead as new default, or an optional "authentic Ceefax" face
-      behind the existing font toggle.
-- [ ] Regenerate golden baselines if the default changes.
+- [x] Obtain Bedstead (BDF bitmap + OTF outline from bjh21.me.uk/bedstead);
+      vendored at `uCore/frontend-vue/public/fonts/bedstead-20.bdf` and
+      `bedstead.otf`.
+- [x] Add a **12×20** Bedstead bake: `uCode/scripts/bake-bedstead-atlas.mjs`
+      reads the BDF directly (pixel-perfect, no FontForge needed) → writes
+      `glyph-atlas.bedstead.json` (12×20, cell 24×40 @2×). Bakes ASCII +
+      box-drawing (U+2500–257F) + block elements (U+2580–259F) + 2×3 sextants
+      (U+1FB00–1FB3B) so the teletext view renders the same symbols/blocks as
+      Terminal.
+- [x] Add a renderer for 12×20 (`bedsteadRenderer`, mosaic + atlas) in
+      `gridui-canvas` + the Pixel Editor; `renderHalf` 10/10 split confirmed,
+      mosaic `subH = glyphH/3` ≈ 6.67 rows.
+- [x] Remove MODE7GX3: deleted `MODE7GX3.TTF`, `glyph-atlas.teletext.json`,
+      `bake-teletext-atlas.mjs`, the `G0Renderer` class, and all
+      `mode7gx3`/`teletextFont` references. Teletext, Grid, Layer and the
+      Pixel Editor now use Bedstead; the Glyphs tab has Terminal + Bedstead.
+- [x] Regenerate golden baselines (default teletext face changed to Bedstead).
 
 ## Verification
 
@@ -84,24 +91,21 @@ keep MODE7GX3 as default until the A/B decides.
 - `vue-tsc --noEmit` — type safety across the extraction.
 - Manual: page 250 (SNACKS_SKILLS_STATUS_AUDIT), subpage rotation, fastext.
 
-## Open questions (expand in the morning)
+## Decisions (resolved 2026-08-17)
 
-1. Which vault sources beyond Documentation / Global Knowledge / Learning?
-2. Is the Python `/api/ceefax/*` store the content authority, or the TS
-   `TeletextPageProvider`? (Recommendation: TS provider owns _building_, Python
-   owns _feed data_.)
-3. Subpage hold semantics — hold-on-arrive vs. manual freeze toggle?
-4. Logo page: uCode wordmark mosaic, or a BBC-style Test Card F?
-5. Should the 48×36 Python buffer be resized to 40×25, or should the reader
-   become size-tolerant?
-6. Bedstead as default or optional face? (Recommendation: optional toggle
-   first, promote to default if it reads better on page 250.)
+1. **Content** — uCode's own vault content (Documentation / Global Knowledge /
+   Learning) rendered in a teletext style; not BBC Ceefax pages.
+2. **Content authority** — the Vue reader builds pages client-side from
+   `/api/library/*`; the Python `/api/ceefax/*` store is deprecated for this
+   surface.
+3. **Font** — Bedstead (SAA5050) is the default and sole Teletext face;
+   MODE7GX3 removed.
+4. **Layout** — 74×25 native 12×20 cells at 16:9 (`fit-exact`), no stretching.
+5. **Unification (E1–E4)** — deferred; the inline reader is the single
+   implementation for now.
 
-## First actions tomorrow
+## Next steps (optional polish)
 
-1. Answer the open questions above.
-2. Do **E1** (pure extraction, no behaviour change) with golden + vue-tsc as
-   the safety net.
-3. Commit E1 before touching E2–E4.
-4. Kick off the **Bedstead spike** (workstream 5) in parallel — it's
-   independent of the unification work and can land on its own.
+- Subpage hold, search page, and 3-digit page entry.
+- Mosaic logo page (uCode wordmark or a Test Card F style page).
+- Flash timing and colour-coded section headers.

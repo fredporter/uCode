@@ -21,6 +21,7 @@ GridCore/display system, with every tab fully functional and wired up.
 ## Sprint sequence
 
 ### Sprint 0 — Foundation: unify the grid/cell model
+
 - Reconcile `geometry/Cell` and `buffer/BufferCell` so they share one attribute
   shape (char/fg/bg/bold/flash/doubleHeight/doubleWidth/mosaic/width).
 - Add `gridToBuffer` / `bufferToGrid` conversion so the Map-based `Grid`
@@ -28,37 +29,44 @@ GridCore/display system, with every tab fully functional and wired up.
 - Acceptance: one attribute contract; conversion round-trip tests; all tests pass.
 
 ### Sprint 1 — Runtime bridge: real dispatch
+
 - Wire `RuntimeBridge.loadTeletextPage()` to the Python `teletext_page` RPC.
 - Unify in-process / websocket / process modes with clean fallback + session state.
 - Acceptance: CEEFAX/GRID/VAULT etc. return real runtime output; bridge tests pass.
 
 ### Sprint 2 — Display tab: Terminal
+
 - Real ucode1 dispatch, VDU/ANSI parsing, scrollback, history, role colours,
   double-width/height, blink; pixel-perfect 80x24 / 40x25 zero-gap rendering.
 - Acceptance: every dispatcher command maps to real output; terminal tests + demo.
 
 ### Sprint 3 — Display tab: Teletext
-- G0 bitmap pipeline (MODE7GX3 -> 12x10), 2x3 mosaic, double-height, flash/hold
-  timer, FASTEXT colour links, page stack, sub-pages.
+
+- G0 bitmap pipeline (Bedstead 12×20, atlas-first), 2x3 mosaic, double-height,
+  flash/hold timer, FASTEXT colour links, page stack, sub-pages.
 - Acceptance: rendering-contract checklist passes; zero-gap + correct mosaic + flash.
 
 ### Sprint 4 — Editing tab: Pixel
+
 - Sub-cell (24x24) pixel editor: brush/eraser, colour picker (MODE7 8-colour),
   fill, undo/redo (GridEditor), live preview.
 - Acceptance: draw/undo/redo/pick/render.
 
 ### Sprint 5 — Editing tab: Grid
+
 - Character/tile editor: place chars, tile brush, selection + copy/paste/move,
   region fill, grid-line toggle, pan/zoom.
 - Acceptance: char placement, selection ops, clipboard, consistent with GridEditor.
 
 ### Sprint 6 — Editing tab: Layer
+
 - Layer editor over LayerComposer: 6 baseline layers (terrain, details,
   foreground, lighting, collision, entities), CRUD/reorder/visibility/opacity/
   blend/merge/lock, per-layer buffers, composition preview.
 - Acceptance: full layer CRUD + composition renders top-down.
 
 ### Sprint 7 — Integration & hardening: the tab host
+
 - Tabbed embeddable host (Terminal, Teletext, Pixel, Grid, Layer), shared store,
   cross-tab wiring (CEEFAX -> Teletext, edit -> live display), keyboard
   shortcuts, localStorage persistence, pixel/Playwright audit, docs round.

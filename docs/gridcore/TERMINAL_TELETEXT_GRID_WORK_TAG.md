@@ -1,5 +1,10 @@
 # Terminal & Teletext Grid Modes — Work Tag
 
+> **SUPERSEDED (2026-08-17)** — this tag predates the current Vue +
+> `<gridui-canvas>` implementation. See `docs/GRIDUI_RENDERING_CONTRACT.md` and
+> `docs/TELETEXT_ARCHITECTURE.md` for the live specs. Kept for historical
+> reference only.
+
 **Status:** 🔖 Tagged for Specialized Work  
 **Priority:** High  
 **Category:** Grid Rendering & Character Maps  
@@ -12,11 +17,14 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 ## Tagged Components
 
 ### 1. Terminal Viewport
+
 **Files:**
+
 - `frontend/src/styles/gridui-terminal.css`
 - `frontend/src/surfaces/ucode/UCodeSurface.tsx`
 
 **Requirements:**
+
 - Character-based rendering with monospace fonts
 - Grid algebra for character positioning
 - Terminal-specific animations (cursor blink, line scroll)
@@ -24,11 +32,14 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 - Integration with USX spacing variables
 
 ### 2. Teletext Mode
+
 **Files:**
+
 - `frontend/src/styles/gridui-terminal.css` (lines 69-200)
 - `frontend/src/styles/gridui.css`
 
 **Requirements:**
+
 - Teletext page rendering (40x25 character grid)
 - Info bar with page navigation
 - LIVE/FEED/BBCSDL badges
@@ -36,11 +47,14 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 - Page navigation overlay
 
 ### 3. Grid Tools UI
+
 **Files:**
+
 - `frontend/src/surfaces/ucode/gridToolset.ts`
 - `frontend/src/surfaces/ucode/UCodeSurface.tsx`
 
 **Requirements:**
+
 - Grid tool panels and controls
 - Character map selectors
 - Grid algebra calculators
@@ -50,6 +64,7 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 ## Work Items
 
 ### Phase 1: Terminal Enhancement
+
 - [ ] Enhance terminal viewport with USX spacing
 - [ ] Add proper Pico CSS color variables
 - [ ] Improve terminal input field styling
@@ -57,6 +72,7 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 - [ ] Implement line scrolling with smooth transitions
 
 ### Phase 2: Teletext Enhancement
+
 - [ ] Standardize teletext info bar with USX components
 - [ ] Enhance badge animations with USX timing
 - [ ] Improve page navigation overlay
@@ -64,6 +80,7 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 - [ ] Implement character grid rendering
 
 ### Phase 3: Grid Tools Enhancement
+
 - [ ] Update grid tool panels with USX layout
 - [ ] Enhance character map selectors
 - [ ] Improve grid algebra calculator UI
@@ -75,6 +92,7 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 ⚠️ **IMPORTANT:** Grid-based CSS styles are intentionally SEPARATE from USX styles. Do NOT merge gridui styles with USX styles — they have unique rendering requirements (grid algebra, teletext, character maps) that conflict with USX layout.
 
 ### Separation Rules:
+
 1. Keep `gridui.css` and `gridui-terminal.css` separate from USX files
 2. Use USX variables for spacing and colors, but maintain grid-specific layout
 3. Grid algebra calculations must remain independent
@@ -85,28 +103,24 @@ Terminal and Teletext grid modes require specialized CSS and rendering logic tha
 While maintaining separation, integrate these USX standards:
 
 ### Spacing Variables
+
 ```css
---usx-spacing-xs: 4px
---usx-spacing-sm: 8px
---usx-spacing-md: 12px
---usx-spacing-lg: 16px
---usx-spacing-xl: 24px
+--usx-spacing-xs: 4px --usx-spacing-sm: 8px --usx-spacing-md: 12px
+  --usx-spacing-lg: 16px --usx-spacing-xl: 24px;
 ```
 
 ### Color Variables
+
 ```css
---pico-background-color: #0d1117
---pico-card-background-color: #161b22
---pico-color: #c9d1d9
---pico-muted-color: #8b949e
---pico-border-color: #30363d
---pico-primary: #58a6ff
+--pico-background-color: #0d1117 --pico-card-background-color: #161b22
+  --pico-color: #c9d1d9 --pico-muted-color: #8b949e --pico-border-color: #30363d
+  --pico-primary: #58a6ff;
 ```
 
 ### Typography
+
 ```css
---pico-font-family: system-ui, -apple-system, sans-serif
---pico-font-size: 1rem
+--pico-font-family: system-ui, -apple-system, sans-serif --pico-font-size: 1rem;
 ```
 
 ## Testing Requirements
