@@ -16,7 +16,8 @@ Single active implementation lives in
 - Builds pages client-side: index `100`, news `101`, sub-index `199`,
   help `888`, and doc list/content pages (`200+`, `300+`, `400+`).
 - Renders through `<gridui-canvas>` with the Bedstead (SAA5050) font,
-  74×25 native cells at 16:9 (`fit-exact`).
+  74×25 native cells at 16:9 (`fit-exact`) — the **tall** cell register
+  (3×5 dots) of `docs/GRID_CELL_ALGEBRA.md`.
 
 ### Page anatomy
 

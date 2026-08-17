@@ -44,6 +44,20 @@ GridBuffer: GridCell[][]                ← grid-core/types.ts
 fractional scale so the grid fills its container exactly while glyphs keep
 their native aspect — no stretch, no gaps.
 
+## Base Cell Algebra
+
+Both fonts share a **4×4 device-pixel dot lattice** (4 = gcd(8,12) = gcd(8,20)):
+
+| Register | Glyph | Dots | Default for |
+|----------|-------|------|-------------|
+| **square** | 8×8 | 2×2 | gaming, mapping, sprites/bobs |
+| **tall** | 12×20 | 3×5 | docs, reading, teletext |
+
+- Column pitch = lcm(8,12) = 24 px (6 dots) → 3 square cells = 2 tall cells.
+- Row pitch = lcm(8,20) = 40 px (10 dots) → 5 square rows = 2 tall rows.
+- Super-cell **24×40** tiles both exactly; sprites/bobs/emoji are free
+  dot-rectangles with 1px motion. See `docs/GRID_CELL_ALGEBRA.md`.
+
 ## Surface Layout (UCodeSurface, route `/ucode`)
 
 | Tab | Grid | Font | Cell mode | Frame |
