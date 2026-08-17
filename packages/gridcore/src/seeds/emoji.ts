@@ -26,7 +26,10 @@ export function loadEmojiAtlas(): EmojiAtlas {
 }
 
 /** Look up one emoji glyph by code point (returns undefined if not baked). */
-export function getEmojiGlyph(atlas: EmojiAtlas, charCode: number): PixelBuffer | undefined {
+export function getEmojiGlyph(
+  atlas: EmojiAtlas,
+  charCode: number,
+): PixelBuffer | undefined {
   return atlas.get(charCode);
 }
 

@@ -49,7 +49,7 @@ const SOLID_SQUARES = [
 
 // Hand-authored 12×12 glyphs.
 const ART = {
-  "2764": [
+  2764: [
     // ❤️ red heart
     ".RRR....RRR.",
     "RRRRR..RRRRR",
@@ -139,7 +139,7 @@ const ART = {
     "............",
     "............",
   ],
-  "2714": [
+  2714: [
     // ✔ check mark
     "...........G",
     "..........GG",
@@ -154,7 +154,7 @@ const ART = {
     "............",
     "............",
   ],
-  "2716": [
+  2716: [
     // ✖ cross
     "RR........RR",
     ".RR......RR.",

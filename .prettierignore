@@ -1,0 +1,22 @@
+# ────────────────────────────────────────────────────────────────
+# Lanes
+# ────────────────────────────────────────────────────────────────
+# Prose (USX) presentation lives in uCore and is Prettier-formatted.
+# GridCore / uCode runtime lives in this repo and is hand-formatted —
+# these are two separate lanes. Prettier must NOT rewrite the runtime.
+# ────────────────────────────────────────────────────────────────
+
+# uCode runtime / grid algebra lane
+packages/**
+runtimes/**
+agents/**
+shared/**
+scripts/**
+seeds/**
+ucode_runtime/**
+programs/**
+tests/**
+
+# Generated / vendored
+**/dist/**
+**/node_modules/**

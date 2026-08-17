@@ -17,6 +17,21 @@ uCode is **not** a full application GUI. It provides:
 - CLI/MCP surfaces
 - Inspectable render targets (terminal & teletext widgets)
 
+## Lanes: Prose vs GridCore
+
+The system has **two separate lanes**, kept apart on purpose:
+
+| Lane                         | Home                | Styling                     | Role                                  |
+| ---------------------------- | ------------------- | --------------------------- | ------------------------------------- |
+| **Prose (USX)**              | `uCore` (host app)  | USX style tokens, Prettier  | content/docs browsing, presentation   |
+| **GridCore (uCode runtime)** | `uCode` (this repo) | hand-formatted, no Prettier | grid algebra, runtime, cell rendering |
+
+- Prose documents may **embed** GridCore views (TerminalWidget /
+  TeletextWidget / `<gridui-canvas>`) — a grid view is a render target, not a
+  Prose surface.
+- Prettier and USX conventions apply to the Prose lane only. This repo's
+  `.prettierignore` excludes the runtime so the lanes never cross-format.
+
 ## Repository Boundary
 
 ### uCode Owns
