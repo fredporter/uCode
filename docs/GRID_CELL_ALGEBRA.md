@@ -88,3 +88,7 @@ flowchart TB
 - **Implemented**: `packages/gridcore/src/coordinates/dot.ts` — `DOT_PX`, the
   `square`/`tall` cell registers, pitch + super-cell constants, and
   cell ↔ dot ↔ px conversions (exported from `@udos/gridcore`, with tests).
+- **Wired into the renderer**: `gridui-canvas` exposes `cellRegister`,
+  `dotSize`, `dotRectForCell`, `cellAtDot` and `dotToCss`, so cell and
+  sprite/bob coordinates share one lattice origin.
+
