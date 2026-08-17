@@ -250,8 +250,8 @@ export class TeletextSurface {
         cell.char = tc.char
         cell.fg = tc.fg
         cell.bg = tc.bg
-        cell.doubleHeight = tc.doubleHeight
-        cell.flash = tc.flash
+        cell.dh = tc.dh
+        cell.blink = tc.blink
         if (tc.mosaic !== undefined) cell.mosaic = tc.mosaic
       } else {
         cell.char = ' '

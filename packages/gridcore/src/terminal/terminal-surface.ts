@@ -289,7 +289,7 @@ export class TerminalSurface {
   private writeStyledRow(row: number, text: string, defaultFg: number): void {
     const spans = parseAnsiSegments(text)
     let col = 0
-    const put = (ch: string, fg: number, bg: number, bold: boolean, flash: boolean): void => {
+    const put = (ch: string, fg: number, bg: number, bold: boolean, blink: boolean): void => {
       if (col >= this.cols) return
       const cell = this.grid.cells.get(`${col}:${row}:0`)
       if (cell) {
@@ -297,7 +297,7 @@ export class TerminalSurface {
         cell.fg = fg
         cell.bg = bg
         cell.bold = bold
-        cell.flash = flash
+        cell.blink = blink
       }
       col++
     }
@@ -311,8 +311,8 @@ export class TerminalSurface {
         bg = t
       }
       const bold = span.style.bold ?? false
-      const flash = span.style.flash ?? false
-      for (const ch of span.text) put(ch, fg, bg, bold, flash)
+      const blink = span.style.blink ?? false
+      for (const ch of span.text) put(ch, fg, bg, bold, blink)
     }
     while (col < this.cols) put(' ', defaultFg, BG.BLACK, false, false)
   }

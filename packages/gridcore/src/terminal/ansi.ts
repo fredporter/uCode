@@ -5,7 +5,7 @@ export interface AnsiStyle {
   fg?: number
   bg?: number
   bold?: boolean
-  flash?: boolean
+  blink?: boolean
   reverse?: boolean
 }
 
@@ -22,10 +22,10 @@ export function applySgr(style: AnsiStyle, params: number[]): AnsiStyle {
   for (const p of params) {
     if (p === 0) { next = {}; continue }
     if (p === 1) { next = { ...next, bold: true }; continue }
-    if (p === 5) { next = { ...next, flash: true }; continue }
+    if (p === 5) { next = { ...next, blink: true }; continue }
     if (p === 7) { next = { ...next, reverse: true }; continue }
     if (p === 22) { next = { ...next, bold: false }; continue }
-    if (p === 25) { next = { ...next, flash: false }; continue }
+    if (p === 25) { next = { ...next, blink: false }; continue }
     if (p === 27) { next = { ...next, reverse: false }; continue }
     if (p === 39) { next = { ...next }; delete next.fg; continue }
     if (p === 49) { next = { ...next }; delete next.bg; continue }

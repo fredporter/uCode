@@ -1,19 +1,21 @@
-export interface BufferCell {
+export interface GridCell {
   char: string
   fg: number
   bg: number
-  bold: boolean
-  flash: boolean
-  doubleHeight: boolean
-  doubleWidth: boolean
-  /** 6-bit teletext mosaic pattern (0-63); undefined = no mosaic block */
-  mosaic?: number
-  /** Optional per-cell render width in CSS px (variable char width) */
+  bold?: boolean
+  /** Teletext flash (blink). */
+  blink?: boolean
+  /** Double-height glyph half. */
+  dh?: "top" | "bottom"
+  /** Mosaic block graphic flag (sextant glyph lives in `char`). */
+  mosaic?: boolean
+  /** Optional per-cell render width in CSS px (variable char width). */
   width?: number
 }
 
-export type GridCell = BufferCell
-export type GridBuffer = BufferCell[][]
+/** @deprecated use `GridCell`. */
+export type BufferCell = GridCell
+export type GridBuffer = GridCell[][]
 
 export const TERMINAL_COLS = 80
 export const TERMINAL_ROWS = 24
@@ -23,13 +25,12 @@ export function createBufferCell(
   fg = 7,
   bg = 0,
   bold = false,
-  flash = false,
-  doubleHeight = false,
-  doubleWidth = false,
-  mosaic?: number,
+  blink?: boolean,
+  mosaic?: boolean,
+  dh?: "top" | "bottom",
   width?: number,
-): BufferCell {
-  return { char, fg, bg, bold, flash, doubleHeight, doubleWidth, mosaic, width }
+): GridCell {
+  return { char, fg, bg, bold, blink, mosaic, dh, width }
 }
 
 

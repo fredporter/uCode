@@ -31,9 +31,9 @@ describe('ansi parsing', () => {
     expect(spans[0].style).toEqual({ bg: 4 })
   })
 
-  it('parses reverse and flash', () => {
-    const spans = parseAnsiSegments('\x1b[7;5mX\x1b[0m')
-    expect(spans[0].style).toEqual({ reverse: true, flash: true })
+  it('parses reverse and blink', () => {
+    const spans = parseAnsiSegments('\x1b[5;7mflash\x1b[0m')
+    expect(spans[0].style).toEqual({ reverse: true, blink: true })
   })
 
   it('applySgr resets on code 0', () => {

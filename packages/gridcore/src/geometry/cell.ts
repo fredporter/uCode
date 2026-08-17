@@ -14,14 +14,15 @@ export interface Cell {
   fg?: number
   bg?: number
   bold?: boolean
-  flash?: boolean
-  doubleHeight?: boolean
-  doubleWidth?: boolean
-  /** 6-bit teletext mosaic pattern (0-63); undefined = no mosaic block */
-  mosaic?: number
-  /** Optional per-cell render width in CSS px (variable char width) */
+  /** Teletext flash (blink). */
+  blink?: boolean
+  /** Double-height glyph half. */
+  dh?: "top" | "bottom"
+  /** Mosaic block graphic flag (sextant glyph lives in `char`). */
+  mosaic?: boolean
+  /** Optional per-cell render width in CSS px (variable char width). */
   width?: number
-  /** Optional 24x24 pixel bitmap (576 colour indices, 0-7). */
+  /** Optional 24x24 pixel bitmap (colour indices). */
   pixels?: Uint8Array
 }
 
@@ -50,8 +51,5 @@ export function createCell(coord: string, x = 0, y = 0, layer = 0): Cell {
     fg: 7,
     bg: 0,
     bold: false,
-    flash: false,
-    doubleHeight: false,
-    doubleWidth: false,
   }
 }

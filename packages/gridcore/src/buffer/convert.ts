@@ -13,9 +13,8 @@ export function cellToBuffer(cell: Cell): BufferCell {
     fg: cell.fg ?? 7,
     bg: cell.bg ?? 0,
     bold: cell.bold ?? false,
-    flash: cell.flash ?? false,
-    doubleHeight: cell.doubleHeight ?? false,
-    doubleWidth: cell.doubleWidth ?? false,
+    blink: cell.blink,
+    dh: cell.dh,
     mosaic: cell.mosaic,
     width: cell.width,
   }
@@ -32,9 +31,8 @@ export function bufferCellToCell(cell: BufferCell, x: number, y: number, layer =
   out.fg = cell.fg
   out.bg = cell.bg
   out.bold = cell.bold
-  out.flash = cell.flash
-  out.doubleHeight = cell.doubleHeight
-  out.doubleWidth = cell.doubleWidth
+  out.blink = cell.blink
+  out.dh = cell.dh
   out.mosaic = cell.mosaic
   out.width = cell.width
   return out

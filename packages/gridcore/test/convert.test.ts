@@ -12,16 +12,16 @@ describe('cell model conversion', () => {
     cell.fg = 2
     cell.bg = 1
     cell.bold = true
-    cell.doubleHeight = true
-    cell.mosaic = 0b101010
+    cell.dh = "top"
+    cell.mosaic = true
 
     const buf = cellToBuffer(cell)
     expect(buf.char).toBe('X')
     expect(buf.fg).toBe(2)
     expect(buf.bg).toBe(1)
     expect(buf.bold).toBe(true)
-    expect(buf.doubleHeight).toBe(true)
-    expect(buf.mosaic).toBe(0b101010)
+    expect(buf.dh).toBe("top")
+    expect(buf.mosaic).toBe(true)
   })
 
   it('converts a populated grid to a 2D buffer', () => {
@@ -60,18 +60,15 @@ describe('cell model conversion', () => {
       fg: 7,
       bg: 0,
       bold: true,
-      flash: true,
-      doubleHeight: false,
-      doubleWidth: true,
-      mosaic: 0b000111,
+      blink: true,
+      mosaic: true,
     }
     const grid = bufferToGrid(buffer)
     const cell = grid.cells.get('0:0:0')
     expect(cell).toBeTruthy()
     expect(cell!.char).toBe('M')
     expect(cell!.bold).toBe(true)
-    expect(cell!.flash).toBe(true)
-    expect(cell!.doubleWidth).toBe(true)
-    expect(cell!.mosaic).toBe(0b000111)
+    expect(cell!.blink).toBe(true)
+    expect(cell!.mosaic).toBe(true)
   })
 })

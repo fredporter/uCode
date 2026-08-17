@@ -4,6 +4,8 @@
 // teletext character set. They set state (colour, double-height, flash,
 // graphics mode) and do not advance the cursor.
 
+import { patternToChar } from "../seeds"
+
 // Alphanumeric foreground colours (0x00-0x07)
 export const ALPHA_BLACK = 0x00
 export const ALPHA_RED = 0x01
@@ -44,10 +46,11 @@ export interface TeletextCell {
   char: string
   fg: number
   bg: number
-  doubleHeight: boolean
-  flash: boolean
-  /** 6-bit mosaic pattern (0-63) when this cell is a mosaic block. */
-  mosaic?: number
+  /** Double-height glyph half. */
+  dh?: "top" | "bottom"
+  blink: boolean
+  /** Mosaic block graphic flag (sextant glyph lives in `char`). */
+  mosaic?: boolean
 }
 
 export interface TeletextState {
@@ -98,11 +101,18 @@ export function interpretTeletextLine(
     }
 
     if (graphics !== 'none') {
-      cells.push({ char: ' ', fg, bg, doubleHeight, flash, mosaic: code & 0x3f })
+      cells.push({
+        char: patternToChar(code & 0x3f),
+        fg,
+        bg,
+        dh: doubleHeight ? "top" : undefined,
+        blink: flash,
+        mosaic: true,
+      })
       continue
     }
 
-    cells.push({ char: ch, fg, bg, doubleHeight, flash })
+    cells.push({ char: ch, fg, bg, dh: doubleHeight ? "top" : undefined, blink: flash })
   }
 
   return cells

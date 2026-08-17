@@ -12,7 +12,6 @@ export interface ColourEntry {
   hex: string;
 }
 
-
 /** Column specification for prose layouts (Grid Algebra v2.0). */
 export interface ColumnSpec {
   count: number;

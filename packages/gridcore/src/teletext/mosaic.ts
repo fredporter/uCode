@@ -1,4 +1,5 @@
 import type { Cell } from '../geometry/cell'
+import { charToPattern } from '../seeds'
 import { createEmptyBlock2x3, type Block2x3 } from './block2x3'
 
 /** Convert a 6-bit mosaic pattern to a Block2x3. */
@@ -26,7 +27,7 @@ export function blockToPattern(block: Block2x3): number {
 }
 
 export function calculateMosaicBlock(cell: Cell): Block2x3 {
-  if (cell.mosaic !== undefined) return patternToBlock(cell.mosaic)
+  if (cell.mosaic) return patternToBlock(charToPattern(cell.char ?? ' '))
   const block = createEmptyBlock2x3()
   const seed = `${cell.x},${cell.y},${cell.layer}`.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
   return patternToBlock(seed & 0x3f)

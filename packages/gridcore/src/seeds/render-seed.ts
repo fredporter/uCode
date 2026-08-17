@@ -114,6 +114,15 @@ export function patternToChar(pattern: number): string {
   return code !== undefined ? String.fromCodePoint(code) : " ";
 }
 
+/** Reverse of {@link patternToChar}: sextant/block char → 6-bit pattern. */
+export function charToPattern(char: string): number {
+  const cp = char.codePointAt(0) ?? 0;
+  for (const [pattern, code] of PATTERN_TO_CODE) {
+    if (code === cp) return pattern;
+  }
+  return 0;
+}
+
 /**
  * Render a seed into a canonical GridBuffer. Empty cells (pattern 0) become
  * spaces; filled cells carry `mosaic: pattern` plus the display character.
@@ -134,9 +143,7 @@ export function renderSeed(seed: GridSeed): GridBuffer {
           bg,
           false,
           false,
-          false,
-          false,
-          pattern === 0 ? undefined : pattern,
+          pattern === 0 ? undefined : true,
         ),
       );
     }

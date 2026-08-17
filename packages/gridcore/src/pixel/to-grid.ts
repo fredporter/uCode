@@ -1,4 +1,4 @@
-import { createBufferCell, type GridBuffer } from '../buffer'
+import { createBufferCell, type GridBuffer } from "../buffer";
 import {
   createPixelBuffer,
   getPixel,
@@ -7,7 +7,7 @@ import {
   PIXEL_WIDTH,
   setPixel,
   type PixelBuffer,
-} from './pixel-buffer'
+} from "./pixel-buffer";
 
 /**
  * Convert a pixel buffer into a GridBuffer for preview: each pixel becomes
@@ -18,16 +18,16 @@ export function pixelBufferToGridBuffer(
   width = PIXEL_WIDTH,
   height = PIXEL_HEIGHT,
 ): GridBuffer {
-  const grid: GridBuffer = []
+  const grid: GridBuffer = [];
   for (let y = 0; y < height; y++) {
-    const row: GridBuffer[number] = []
+    const row: GridBuffer[number] = [];
     for (let x = 0; x < width; x++) {
-      const color = getPixel(buffer, x, y, width, height)
-      row.push(createBufferCell(' ', color, color))
+      const color = getPixel(buffer, x, y, width, height);
+      row.push(createBufferCell(" ", color, color));
     }
-    grid.push(row)
+    grid.push(row);
   }
-  return grid
+  return grid;
 }
 
 /**
@@ -39,14 +39,21 @@ export function gridBufferToPixelBuffer(
   width = PIXEL_WIDTH,
   height = PIXEL_HEIGHT,
 ): PixelBuffer {
-  const pixels = createPixelBuffer(0, width, height)
+  const pixels = createPixelBuffer(0, width, height);
   for (let y = 0; y < Math.min(height, buf.length); y++) {
-    const row = buf[y]
-    if (!row) continue
+    const row = buf[y];
+    if (!row) continue;
     for (let x = 0; x < Math.min(width, row.length); x++) {
-      const fg = row[x]?.fg ?? 0
-      setPixel(pixels, x, y, Math.max(0, Math.min(PIXEL_COLOURS - 1, fg)), width, height)
+      const fg = row[x]?.fg ?? 0;
+      setPixel(
+        pixels,
+        x,
+        y,
+        Math.max(0, Math.min(PIXEL_COLOURS - 1, fg)),
+        width,
+        height,
+      );
     }
   }
-  return pixels
+  return pixels;
 }

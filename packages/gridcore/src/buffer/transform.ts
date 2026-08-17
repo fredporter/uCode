@@ -62,7 +62,7 @@ export function writeBufferString(buf: GridBuffer, x: number, y: number, text: s
   for (let i = 0; i < text.length; i++) {
     const dx = x + i
     if (dx < 0 || dx >= cols) continue
-    out[y][dx] = { char: text[i], fg, bg, bold, flash: false, doubleHeight: false, doubleWidth: false }
+    out[y][dx] = { char: text[i], fg, bg, bold }
   }
 
   return out

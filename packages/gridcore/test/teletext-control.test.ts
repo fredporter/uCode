@@ -17,8 +17,8 @@ describe('teletext control interpreter', () => {
   it('renders plain text with default style', () => {
     const cells = interpretTeletextLine('hi')
     expect(cells).toEqual([
-      { char: 'h', fg: 7, bg: 0, doubleHeight: false, flash: false },
-      { char: 'i', fg: 7, bg: 0, doubleHeight: false, flash: false },
+      { char: 'h', fg: 7, bg: 0, blink: false },
+      { char: 'i', fg: 7, bg: 0, blink: false },
     ])
   })
 
@@ -30,14 +30,14 @@ describe('teletext control interpreter', () => {
 
   it('applies double height', () => {
     const cells = interpretTeletextLine(`${c(DOUBLE_HEIGHT)}HI`)
-    expect(cells[0].doubleHeight).toBe(true)
+    expect(cells[0].dh).toBe("top")
     expect(cells[0].char).toBe('H')
   })
 
   it('toggles flash on and off', () => {
     const cells = interpretTeletextLine(`${c(FLASH)}A${c(STEADY)}B`)
-    expect(cells[0].flash).toBe(true)
-    expect(cells[1].flash).toBe(false)
+    expect(cells[0].blink).toBe(true)
+    expect(cells[1].blink).toBe(false)
   })
 
   it('sets new background from foreground', () => {
@@ -49,8 +49,8 @@ describe('teletext control interpreter', () => {
   it('decodes separated graphics into mosaic blocks', () => {
     // 0x3f = all six bits set = full block
     const cells = interpretTeletextLine(`${c(SEPARATED_GRAPHICS)}${c(0x3f)}${c(RELEASE_GRAPHICS)}A`)
-    expect(cells[0].mosaic).toBe(0x3f)
-    expect(cells[0].char).toBe(' ')
+    expect(cells[0].mosaic).toBe(true)
+    expect(cells[0].char).toBe('\u2588')
     expect(cells[1].char).toBe('A')
     expect(cells[1].mosaic).toBeUndefined()
   })

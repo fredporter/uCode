@@ -111,13 +111,13 @@ describe('TeletextSurface', () => {
     const grid = surface.getGrid()
 
     const header = grid.cells.get('0:0:0')
-    expect(header!.doubleHeight).toBe(true)
+    expect(header!.dh).toBe("top")
 
     const separator = grid.cells.get('0:1:0')
-    expect(separator!.mosaic).toBe(0x3f)
+    expect(separator!.mosaic).toBe(true)
 
     const status = grid.cells.get('0:24:0')
     expect(status!.char).toBe('P')
-    expect(status!.flash).toBe(true)
+    expect(status!.blink).toBe(true)
   })
 })
