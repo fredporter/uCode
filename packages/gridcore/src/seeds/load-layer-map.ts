@@ -29,7 +29,14 @@ export function loadLayerMap(map: LayerMap): GridBuffer {
       buf[cell.row][cell.col] =
         pattern === 0
           ? createBufferCell(" ", fg, bg)
-          : createBufferCell(patternToChar(pattern), fg, bg, false, false, true);
+          : createBufferCell(
+              patternToChar(pattern),
+              fg,
+              bg,
+              false,
+              false,
+              true,
+            );
     }
   }
   return buf;

@@ -1,0 +1,261 @@
+// Bake the deterministic colour-emoji atlas.
+//
+// Emoji glyphs are authored as 12×12 pixel art against the 32-colour
+// PALETTE_PIXEL_32 palette — no system emoji font is involved, so the atlas
+// is byte-for-byte deterministic on every machine (unlike runtime
+// `fillText` rasterisation of colour glyphs).
+//
+// Outputs:
+//   - packages/gridcore/src/seeds/emoji-atlas.ts   (embedded, typed)
+//   - seeds/gridcore/glyph-atlas.emoji.json        (reference JSON)
+//
+// Usage: node scripts/bake-emoji-atlas.mjs
+
+import { mkdirSync, writeFileSync } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const CELL = 12;
+
+// Art legend: character → PALETTE_PIXEL_32 index.
+// Index 0 is the transparent/background sentinel, so "black" features use the
+// deep-blue shade (31) which reads as near-black.
+const LEGEND = {
+  ".": 0, // transparent
+  K: 31, // deep blue (near-black for eyes/mouth + black square)
+  W: 7, // white
+  R: 1, // red
+  G: 2, // green
+  Y: 3, // yellow
+  B: 4, // blue
+  O: 8, // orange
+  U: 10, // purple
+  D: 14, // gold
+};
+
+// Solid-colour squares (programmatic).
+const SOLID_SQUARES = [
+  ["1F7E5", "R"], // 🟥 red
+  ["1F7E6", "B"], // 🟦 blue
+  ["1F7E7", "O"], // 🟧 orange
+  ["1F7E8", "Y"], // 🟨 yellow
+  ["1F7E9", "G"], // 🟩 green
+  ["1F7EA", "U"], // 🟪 purple
+  ["2B1B", "K"], // ⬛ black
+  ["2B1C", "W"], // ⬜ white
+];
+
+// Hand-authored 12×12 glyphs.
+const ART = {
+  "2764": [
+    // ❤️ red heart
+    ".RRR....RRR.",
+    "RRRRR..RRRRR",
+    "RRRRRRRRRRRR",
+    "RRRRRRRRRRRR",
+    ".RRRRRRRRRR.",
+    "..RRRRRRRR..",
+    "...RRRRRR...",
+    "....RRRR....",
+    ".....RR.....",
+    "............",
+    "............",
+    "............",
+  ],
+  "2B50": [
+    // ⭐ gold star
+    ".....DD.....",
+    ".....DD.....",
+    "....DDDD....",
+    "....DDDD....",
+    "DDDDDDDDDDDD",
+    "DDDDDDDDDDDD",
+    "....DDDD....",
+    "....DDDD....",
+    ".....DD.....",
+    ".....DD.....",
+    "............",
+    "............",
+  ],
+  "2B06": [
+    // ⬆ up arrow
+    ".....WW.....",
+    ".....WW.....",
+    "....WWWW....",
+    "...WWWWWW...",
+    "..WWWWWWWW..",
+    ".WWWWWWWWWW.",
+    ".WWWWWWWWWW.",
+    ".....WW.....",
+    ".....WW.....",
+    ".....WW.....",
+    "............",
+    "............",
+  ],
+  "2B07": [
+    // ⬇ down arrow
+    ".....WW.....",
+    ".....WW.....",
+    ".....WW.....",
+    ".WWWWWWWWWW.",
+    ".WWWWWWWWWW.",
+    "..WWWWWWWW..",
+    "...WWWWWW...",
+    "....WWWW....",
+    ".....WW.....",
+    "............",
+    "............",
+    "............",
+  ],
+  "2B05": [
+    // ⬅ left arrow
+    ".....WW.....",
+    "....WW......",
+    "...WW.......",
+    "..WWWWWWWWWW",
+    "..WWWWWWWWWW",
+    "...WW.......",
+    "....WW......",
+    ".....WW.....",
+    "............",
+    "............",
+    "............",
+    "............",
+  ],
+  "27A1": [
+    // ➡ right arrow
+    ".....WW.....",
+    "......WW....",
+    ".......WW...",
+    "WWWWWWWWWW..",
+    "WWWWWWWWWW..",
+    ".......WW...",
+    "......WW....",
+    ".....WW.....",
+    "............",
+    "............",
+    "............",
+    "............",
+  ],
+  "2714": [
+    // ✔ check mark
+    "...........G",
+    "..........GG",
+    ".........GG.",
+    "........GG..",
+    ".......GG...",
+    "......GG....",
+    "G....GG.....",
+    "GG..GG......",
+    ".GGGG.......",
+    "..GG........",
+    "............",
+    "............",
+  ],
+  "2716": [
+    // ✖ cross
+    "RR........RR",
+    ".RR......RR.",
+    "..RR....RR..",
+    "...RR..RR...",
+    "....RRRR....",
+    ".....RR.....",
+    "....RRRR....",
+    "...RR..RR...",
+    "..RR....RR..",
+    ".RR......RR.",
+    "RR........RR",
+    "............",
+  ],
+  "1F600": [
+    // 😀 smiling face
+    "..YYYYYYYY..",
+    ".YYYYYYYYYY.",
+    "YYYYYYYYYYYY",
+    "YYKYYYYYYKYY",
+    "YYYYYYYYYYYY",
+    "YYYYYYYYYYYY",
+    "YYYYYYYYYYYY",
+    "YYKKKKKKKKYY",
+    "YYYYYYYYYYYY",
+    ".YYYYYYYYYY.",
+    "..YYYYYYYY..",
+    "............",
+  ],
+};
+
+function artToPixels(rows) {
+  if (rows.length !== CELL) {
+    throw new Error(`expected ${CELL} rows, got ${rows.length}`);
+  }
+  const out = [];
+  for (const row of rows) {
+    if (row.length !== CELL) {
+      throw new Error(`row length ${row.length} != ${CELL}: "${row}"`);
+    }
+    for (const ch of row) {
+      if (!(ch in LEGEND)) throw new Error(`unknown art char "${ch}"`);
+      out.push(LEGEND[ch]);
+    }
+  }
+  return out;
+}
+
+function solidSquare(ch) {
+  const idx = LEGEND[ch];
+  return new Array(CELL * CELL).fill(idx);
+}
+
+const glyphs = {};
+
+for (const [code, ch] of SOLID_SQUARES) {
+  glyphs[`U+${code}`] = solidSquare(ch);
+}
+for (const [code, rows] of Object.entries(ART)) {
+  glyphs[`U+${code}`] = artToPixels(rows);
+}
+
+const glyphCount = Object.keys(glyphs).length;
+
+// ── TS module (embedded, typed) ──────────────────────────────────
+const tsBody = `// Generated by scripts/bake-emoji-atlas.mjs — do not edit by hand.
+// ${glyphCount} deterministic 12×12 colour glyphs (palette index 0 = transparent).
+
+export const EMOJI_ATLAS = {
+  format: "ucode-emoji-atlas-v1",
+  family: "uCode Pixel Emoji",
+  cellW: ${CELL},
+  cellH: ${CELL},
+  palette: "pixel-32",
+  glyphs: ${JSON.stringify(glyphs, null, 2)},
+} as const;
+`;
+
+// ── JSON reference ───────────────────────────────────────────────
+const jsonBody = JSON.stringify(
+  {
+    format: "ucode-emoji-atlas-v1",
+    family: "uCode Pixel Emoji",
+    cellW: CELL,
+    cellH: CELL,
+    palette: "pixel-32",
+    glyphs,
+  },
+  null,
+  2,
+);
+
+const targets = {
+  ts: resolve(__dirname, "../packages/gridcore/src/seeds/emoji-atlas.ts"),
+  json: resolve(__dirname, "../seeds/gridcore/glyph-atlas.emoji.json"),
+};
+
+mkdirSync(dirname(targets.ts), { recursive: true });
+mkdirSync(dirname(targets.json), { recursive: true });
+writeFileSync(targets.ts, tsBody + "\n");
+writeFileSync(targets.json, jsonBody + "\n");
+
+console.log(`wrote ${targets.ts} (${glyphCount} glyphs)`);
+console.log(`wrote ${targets.json} (${glyphCount} glyphs)`);

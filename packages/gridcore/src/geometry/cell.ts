@@ -1,42 +1,42 @@
 export interface QRSlot {
-  id: number
-  payload?: string
+  id: number;
+  payload?: string;
 }
 
 export interface Cell {
-  coord: string
-  x: number
-  y: number
-  layer: number
-  qrGrid: QRSlot[][]
-  storage: number
-  char?: string
-  fg?: number
-  bg?: number
-  bold?: boolean
+  coord: string;
+  x: number;
+  y: number;
+  layer: number;
+  qrGrid: QRSlot[][];
+  storage: number;
+  char?: string;
+  fg?: number;
+  bg?: number;
+  bold?: boolean;
   /** Teletext flash (blink). */
-  blink?: boolean
+  blink?: boolean;
   /** Double-height glyph half. */
-  dh?: "top" | "bottom"
+  dh?: "top" | "bottom";
   /** Mosaic block graphic flag (sextant glyph lives in `char`). */
-  mosaic?: boolean
+  mosaic?: boolean;
   /** Optional per-cell render width in CSS px (variable char width). */
-  width?: number
+  width?: number;
   /** Optional 24x24 pixel bitmap (colour indices). */
-  pixels?: Uint8Array
+  pixels?: Uint8Array;
 }
 
 export function calculateQRGrid(coord: string): QRSlot[][] {
-  const slots: QRSlot[][] = []
-  let index = 0
+  const slots: QRSlot[][] = [];
+  let index = 0;
   for (let row = 0; row < 3; row++) {
-    const line: QRSlot[] = []
+    const line: QRSlot[] = [];
     for (let col = 0; col < 3; col++) {
-      line.push({ id: index++, payload: `${coord}:qr:${row}-${col}` })
+      line.push({ id: index++, payload: `${coord}:qr:${row}-${col}` });
     }
-    slots.push(line)
+    slots.push(line);
   }
-  return slots
+  return slots;
 }
 
 export function createCell(coord: string, x = 0, y = 0, layer = 0): Cell {
@@ -47,9 +47,9 @@ export function createCell(coord: string, x = 0, y = 0, layer = 0): Cell {
     layer,
     qrGrid: calculateQRGrid(coord),
     storage: 45 * 1024,
-    char: ' ',
+    char: " ",
     fg: 7,
     bg: 0,
     bold: false,
-  }
+  };
 }
