@@ -11,7 +11,7 @@ Provides character-level editing tools for the grid editor:
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from ..grid.models import Grid, GridCell
+from udos_shared import Grid, GridCell
 from .palette import CharacterPalette, SlotEntry, SlotCategory
 
 

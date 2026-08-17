@@ -91,4 +91,3 @@ flowchart TB
 - **Wired into the renderer**: `gridui-canvas` exposes `cellRegister`,
   `dotSize`, `dotRectForCell`, `cellAtDot` and `dotToCss`, so cell and
   sprite/bob coordinates share one lattice origin.
-

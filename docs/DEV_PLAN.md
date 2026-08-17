@@ -70,7 +70,7 @@ Priority: basic runtime → amos runtime → shared
 | ---------------- | -------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
 | `runtimes/basic` | Fix Python 3.14 dataclass compat | `pip install -e runtimes/basic && python -c "import ucode1"` | Complete in isolated venv (`.venv-amos-check`) after dataclass cleanup and split-import fixes |
 | `runtimes/amos`  | Verify editable install          | `pip install -e runtimes/amos && python -c "import ucode2"`  | Complete in isolated venv (`.venv-amos-check`)                                                |
-| `shared/`        | Extract common runtime support   | Review existing cross-references                             | Pending                                                                                       |
+| `shared/`        | Extract common runtime support   | Review existing cross-references                             | Complete — `udos_shared` is now the canonical superset (grid models + coords); all runtime grid/editor/render modules import it; local `models.py`/`coords.py` removed; 24 shared tests pass |
 
 ### Phase 3: Integration (COMPLETE)
 

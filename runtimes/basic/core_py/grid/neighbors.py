@@ -6,7 +6,7 @@ Provides neighbor finding utilities for different grid types.
 
 from enum import Enum
 from typing import List, Optional, Tuple
-from .models import Coordinate, CoordSystem, Grid
+from udos_shared import Coordinate, CoordSystem, Grid
 
 
 class NeighborPattern(Enum):

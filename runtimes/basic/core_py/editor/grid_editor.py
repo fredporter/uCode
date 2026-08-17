@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from ..grid.models import Grid, GridCell, Coordinate, GridRegion, GridSize
+from udos_shared import Grid, GridCell, Coordinate, GridRegion, GridSize
 from ..grid.layers import GridLayer, GridStack, LayerType
 from .history import EditHistory
 from .palette import CharacterPalette, SlotEntry

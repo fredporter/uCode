@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from ..grid.models import Grid, GridCell, Coordinate, GridRegion
+from udos_shared import Grid, GridCell, Coordinate, GridRegion
 from ..grid.layers import GridLayer, GridStack, LayerType
 
 

@@ -8,7 +8,7 @@ import heapq
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Generic, List, Optional, Set, Tuple, TypeVar
 from enum import Enum
-from .models import Grid, Coordinate, GridSize
+from udos_shared import Grid, Coordinate, GridSize
 from .neighbors import get_neighbors_4way, get_neighbors_8way, get_neighbors_in_grid, NeighborPattern
 
 T = TypeVar('T')

@@ -7,7 +7,7 @@ Provides layer-based grid organization for multi-layer data.
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar
-from .models import Grid, GridCell, GridSize
+from udos_shared import Grid, GridCell, GridSize
 
 T = TypeVar('T')
 

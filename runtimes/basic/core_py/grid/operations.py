@@ -5,7 +5,7 @@ Provides grid manipulation operations (slice, rotate, flip, transform, etc.).
 """
 
 from typing import Callable, List, Optional, Tuple, TypeVar, Any, Dict
-from .models import Grid, GridCell, GridSize, Coordinate, GridRegion
+from udos_shared import Grid, GridCell, GridSize, Coordinate, GridRegion
 from .exceptions import GridBoundsError, GridError
 
 T = TypeVar('T')

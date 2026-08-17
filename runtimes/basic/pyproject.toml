@@ -29,6 +29,7 @@ dependencies = [
     "rich>=10.0.0",
     "pyyaml>=6.0",
     "liquidpy>=0.9",
+    "udos_shared>=0.1.0",
 ]
 
 [project.urls]
