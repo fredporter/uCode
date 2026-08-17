@@ -21,10 +21,10 @@ dot = 4×4 px
 
 A cell is a dot-rectangle. Two named registers cover the two faces:
 
-| Register | Glyph | Dots | Aspect | Default for |
-|----------|-------|------|--------|-------------|
-| **square** | 8×8  | 2×2  | 1:1    | gaming, mapping, sprites/bobs |
-| **tall**   | 12×20 | 3×5 | 3:5    | docs, reading, teletext |
+| Register   | Glyph | Dots | Aspect | Default for                   |
+| ---------- | ----- | ---- | ------ | ----------------------------- |
+| **square** | 8×8   | 2×2  | 1:1    | gaming, mapping, sprites/bobs |
+| **tall**   | 12×20 | 3×5  | 3:5    | docs, reading, teletext       |
 
 The registers are **interchangeable** because the dot is the common unit — a
 single layout may mix square and tall cells on the same lattice.
@@ -65,11 +65,11 @@ flowchart TB
 
 ## BASIC runtime addressing
 
-| Layer     | Resolution                    | API shape          |
-|-----------|-------------------------------|--------------------|
-| text      | cell (square or tall)         | `PRINT @x,y`       |
-| graphics  | dot (4px) or 1px              | `PLOT` / `DRAW`    |
-| sprites   | 1px motion over the lattice   | `SPRITE`           |
+| Layer    | Resolution                  | API shape       |
+| -------- | --------------------------- | --------------- |
+| text     | cell (square or tall)       | `PRINT @x,y`    |
+| graphics | dot (4px) or 1px            | `PLOT` / `DRAW` |
+| sprites  | 1px motion over the lattice | `SPRITE`        |
 
 ## Coordinates
 
@@ -85,6 +85,6 @@ flowchart TB
   unified in `gridui-canvas`.
 - Cell sizing modes (`native` / `square` / `fit-exact`) are views on top of this
   lattice.
-- **Proposed next step**: a `dot` coordinate module in `grid-core` as the single
-  source of truth for cell vs sprite coordinates (see
-  `docs/GRIDUI_RENDERING_CONTRACT.md`).
+- **Implemented**: `packages/gridcore/src/coordinates/dot.ts` — `DOT_PX`, the
+  `square`/`tall` cell registers, pitch + super-cell constants, and
+  cell ↔ dot ↔ px conversions (exported from `@udos/gridcore`, with tests).
