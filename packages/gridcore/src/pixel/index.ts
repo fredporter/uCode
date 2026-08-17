@@ -1,3 +1,4 @@
 export * from './pixel-buffer'
 export * from './pixel-editor'
-export { pixelBufferToGrid } from './to-grid'
+export * from './symbol-map'
+export { gridBufferToPixelBuffer, pixelBufferToGridBuffer } from './to-grid'

@@ -28,7 +28,7 @@ export const SUPER_CELL = {
   dotsH: 10,
 } as const;
 
-export type CellRegisterName = 'square' | 'tall';
+export type CellRegisterName = "square" | "tall";
 
 /** A named cell register — a glyph's native size in px. */
 export interface CellRegister {
@@ -38,14 +38,19 @@ export interface CellRegister {
 }
 
 /** Square cell (8×8 = 2×2 dots) — gaming, mapping, sprites/bobs. */
-export const SQUARE_CELL: CellRegister = { name: 'square', glyphW: 8, glyphH: 8 };
-/** Tall cell (12×20 = 3×5 dots) — docs, reading, teletext. */
-export const TALL_CELL: CellRegister = { name: 'tall', glyphW: 12, glyphH: 20 };
-
-export const CELL_REGISTERS: Readonly<Record<CellRegisterName, CellRegister>> = {
-  square: SQUARE_CELL,
-  tall: TALL_CELL,
+export const SQUARE_CELL: CellRegister = {
+  name: "square",
+  glyphW: 8,
+  glyphH: 8,
 };
+/** Tall cell (12×20 = 3×5 dots) — docs, reading, teletext. */
+export const TALL_CELL: CellRegister = { name: "tall", glyphW: 12, glyphH: 20 };
+
+export const CELL_REGISTERS: Readonly<Record<CellRegisterName, CellRegister>> =
+  {
+    square: SQUARE_CELL,
+    tall: TALL_CELL,
+  };
 
 export interface DotPoint {
   x: number;
@@ -85,15 +90,28 @@ export function pxToDots(px: number): number {
 }
 
 /** Dot-space rectangle occupied by cell (col, row) for a register. */
-export function cellToDotRect(col: number, row: number, reg: CellRegister): DotRect {
+export function cellToDotRect(
+  col: number,
+  row: number,
+  reg: CellRegister,
+): DotRect {
   const w = registerDotsW(reg);
   const h = registerDotsH(reg);
   return { x: col * w, y: row * h, w, h };
 }
 
 /** Pixel-space rectangle occupied by cell (col, row) for a register. */
-export function cellToPxRect(col: number, row: number, reg: CellRegister): DotRect {
-  return { x: col * reg.glyphW, y: row * reg.glyphH, w: reg.glyphW, h: reg.glyphH };
+export function cellToPxRect(
+  col: number,
+  row: number,
+  reg: CellRegister,
+): DotRect {
+  return {
+    x: col * reg.glyphW,
+    y: row * reg.glyphH,
+    w: reg.glyphW,
+    h: reg.glyphH,
+  };
 }
 
 /** The cell containing a dot-space point (floored). */

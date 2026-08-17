@@ -1,22 +1,52 @@
-import { cellKey, createGrid, type Grid } from '../geometry/grid'
-import { getPixel, PIXEL_SIZE, type PixelBuffer } from './pixel-buffer'
+import { createBufferCell, type GridBuffer } from '../buffer'
+import {
+  createPixelBuffer,
+  getPixel,
+  PIXEL_COLOURS,
+  PIXEL_HEIGHT,
+  PIXEL_WIDTH,
+  setPixel,
+  type PixelBuffer,
+} from './pixel-buffer'
 
 /**
- * Convert a pixel buffer into a Grid for preview: each pixel becomes one
- * solid-colour cell (fg = bg = colour), renderable by any viewport.
+ * Convert a pixel buffer into a GridBuffer for preview: each pixel becomes
+ * one solid-colour cell (fg = bg = colour), renderable by <gridui-canvas>.
  */
-export function pixelBufferToGrid(buffer: PixelBuffer, size = PIXEL_SIZE): Grid {
-  const grid = createGrid(size, size)
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const color = getPixel(buffer, x, y)
-      const cell = grid.cells.get(cellKey(x, y, 0))
-      if (cell) {
-        cell.char = ' '
-        cell.fg = color
-        cell.bg = color
-      }
+export function pixelBufferToGridBuffer(
+  buffer: PixelBuffer,
+  width = PIXEL_WIDTH,
+  height = PIXEL_HEIGHT,
+): GridBuffer {
+  const grid: GridBuffer = []
+  for (let y = 0; y < height; y++) {
+    const row: GridBuffer[number] = []
+    for (let x = 0; x < width; x++) {
+      const color = getPixel(buffer, x, y, width, height)
+      row.push(createBufferCell(' ', color, color))
     }
+    grid.push(row)
   }
   return grid
+}
+
+/**
+ * Inverse of {@link pixelBufferToGridBuffer}: read each solid-colour cell's
+ * foreground index back into a PixelBuffer. Used by grid import on the Pixel tab.
+ */
+export function gridBufferToPixelBuffer(
+  buf: GridBuffer,
+  width = PIXEL_WIDTH,
+  height = PIXEL_HEIGHT,
+): PixelBuffer {
+  const pixels = createPixelBuffer(0, width, height)
+  for (let y = 0; y < Math.min(height, buf.length); y++) {
+    const row = buf[y]
+    if (!row) continue
+    for (let x = 0; x < Math.min(width, row.length); x++) {
+      const fg = row[x]?.fg ?? 0
+      setPixel(pixels, x, y, Math.max(0, Math.min(PIXEL_COLOURS - 1, fg)), width, height)
+    }
+  }
+  return pixels
 }
