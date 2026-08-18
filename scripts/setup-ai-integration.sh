@@ -178,13 +178,14 @@ ENVEOF
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Step 5: Copy config templates to ~/.ucore (for uCore integration)
+# Step 5: Copy config templates to $UDOS_HOME/config (for uCore integration)
 # ──────────────────────────────────────────────────────────────────────────────
 setup_ucore_config() {
   echo ""
   echo "━━━ Step 3: uCore Config Sync ━━━"
 
-  local ucore_config_dir="$HOME/.ucore/config"
+  local udos_home="${UDOS_HOME:-$HOME/Code/.udos}"
+  local ucore_config_dir="$udos_home/config"
   mkdir -p "$ucore_config_dir"
 
   # Copy openrouter.yaml if it doesn't exist in uCore config

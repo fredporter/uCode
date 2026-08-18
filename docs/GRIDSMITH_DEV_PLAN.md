@@ -1,13 +1,14 @@
 # GridSmith Implementation: Developer Execution Plan
 
-**Status:** 🚀 READY FOR IMPLEMENTATION
+**Status:** Implemented baseline; future work is hardening and product integration
 **Agent:** GridSmith v1.0
 **Workspace:** `~/Code/uCode/agents/gridsmith/`
 **Imported:** 2026-07-01
 
 ## Architecture
 
-GridSmith is a **Node.js CLI agent** for world building with MCP tools for Cline integration.
+GridSmith is a **Node.js CLI toolkit** for deterministic world building with an
+optional MCP adapter for compatible external clients.
 It complements the existing GridCore Vue library (display) and `gridsmith_api.py` (Python REST API).
 
 ## Component Map
@@ -42,6 +43,7 @@ It complements the existing GridCore Vue library (display) and `gridsmith_api.py
 ## Integration Points
 
 - Python `gridsmith_api.py` endpoints call GridSmith via `gridsmith_bridge.py`
-- MCP tools exposed via Cline MCP config to `agents/gridsmith/src/mcp/server.js`
+- MCP tools exposed by `agents/gridsmith/src/mcp/server.ts`; client configuration
+  remains external to uCode
 - Frontend display via GridCore Vue components (existing)
 - Workspace at `workspaces/gridcore/` (existing, empty)

@@ -18,7 +18,7 @@ class TemplateRegistry:
 
         Args:
             directories: List of directories to scan for templates.
-                        Defaults to ~/.udos/templates/ and ./templates/
+                        Defaults to $UDOS_HOME/templates/ and ./templates/
         """
         self.directories = directories or self._default_dirs()
         self._cache: Optional[Dict[str, str]] = None
@@ -26,7 +26,8 @@ class TemplateRegistry:
     def _default_dirs(self) -> List[str]:
         """Get default template directories."""
         dirs = []
-        user_dir = os.path.expanduser("~/.udos/templates")
+        udos_home = os.path.expanduser(os.environ.get("UDOS_HOME", "~/Code/.udos"))
+        user_dir = os.path.join(udos_home, "templates")
         if os.path.isdir(user_dir):
             dirs.append(user_dir)
         local_dir = os.path.join(os.getcwd(), "templates")
@@ -64,11 +65,13 @@ class TemplateRegistry:
         result = []
         for name, path in sorted(templates.items()):
             size = os.path.getsize(path) if os.path.isfile(path) else 0
-            result.append({
-                "name": name,
-                "path": path,
-                "size": size,
-            })
+            result.append(
+                {
+                    "name": name,
+                    "path": path,
+                    "size": size,
+                }
+            )
         return result
 
     def get_template(self, name: str) -> Optional[str]:

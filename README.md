@@ -81,10 +81,10 @@ npm install
 npm run build
 npm test
 
-# Python runtime environment
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -U pip
+# Shared ecosystem Python environment
+python3 -m venv ../.venv  # only when ~/Code/.venv does not yet exist
+../.venv/bin/python -m pip install --no-build-isolation -e shared -e runtimes/basic
+../.venv/bin/python -m pytest -q runtimes/basic/tests
 ```
 
 ---

@@ -274,7 +274,7 @@ ollama stop qwen2.5-coder:7b          # Free RAM
 ollama rm qwen2.5-coder:14b           # Delete model
 
 # ── Config ─────────────────────────────────────────────────────
-cp config/hivemind.env ~/.ucore/config/
+cp config/hivemind.env "${UDOS_HOME:-$HOME/Code/.udos}/config/"
 ./scripts/setup-ai-integration.sh     # Full AI setup
 
 # ── Health ──────────────────────────────────────────────────────

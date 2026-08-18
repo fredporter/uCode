@@ -83,19 +83,20 @@ See [SKILLS_PIPELINE.md](SKILLS_PIPELINE.md) for full details.
 
 ---
 
-## Terminal Constraints (VS Code / USXD)
+## Managed terminal constraints
 
-When running commands in the VS Code or USXD terminal:
+When running commands through a managed uDos terminal surface:
 
 - **No streaming** — use `--no-stream` flags, avoid `tail -f`, `watch`
 - **No pipes/redirects** — use temp files instead of `|`, `>`, `<<`
 - **No special characters** — avoid `;`, `&&`, `||` in command strings
 - **No interactive prompts** — use `--yes` flags, pre-seed answers
 - **Keep commands short** — break long commands into steps
-- **🚫 NO background processes** — never use `nohup`, `&`, `disown`, `bg`. These crash the IDE. Use `launchctl` for macOS services or the Skills pipeline.
+- **🚫 NO background processes** — never use `nohup`, `&`, `disown`, `bg`. Use the governed service manager.
 - **🚫 NO long-running commands** — avoid `sleep`, `wait`, infinite loops. Use `--timeout` flags, keep commands under 10 seconds.
 - **🚫 NO process spawning** — avoid `nohup`, `setsid`, `daemonize`. Use `launchctl submit` for persistent services.
-- **🚫 NO `npx vite` or similar dev servers** — starting dev servers from VS Code terminal crashes the IDE. Use `surface-repair` skill or `launchctl` instead.
+- **🚫 NO unmanaged dev servers** — use the uCore service controls so
+  lifecycle, logs, and quit intent remain observable.
 
 ---
 
@@ -199,4 +200,4 @@ uwf status                                  # Workflow engine status
 2. **Dead Path Detector first** — run before any feature work
 3. **Vendor over fork** — clone to Vendor/, don't fork unless necessary
 4. **Sandbox isolates changes** — origin repos stay clean until publish
-5. **USXD is primary** — VS Code is the workshop for building USXD itself
+5. **uCore Developer is primary** — Codex is the external ecosystem workshop
