@@ -1,6 +1,27 @@
 version: "1.0.7"
-updated: "2026-08-14T18:00:00Z"
-round: "sprint-2026-08-14-tabhost-complete-program-done"
+updated: "2026-08-18T13:30:00Z"
+round: "sprint-2026-08-16-glyph-atlas-through-ceefax-closed"
+
+changes_2026_08_16_glyph_atlas:
+  - "GridCore display: baked glyph-atlas seeds (96 glyphs each: PressStart2P 8x8 terminal + MODE7GX3 12x10 teletext); renderer reads bitmaps, no live fillText"
+  - "Shared 64-pattern sextant table seed (bit0=TL..bit5=BR); deterministic integer scale in gcell terms (glyph-aligned, no gaps)"
+  - "Atlas unit tests + golden-image verification"
+
+changes_2026_08_16_sextant_seeds:
+  - "Seeds: connected-cell grid seeds (ucode-grid-seed-v1) from shared sextant patterns — uCode wordmark + panel frame"
+  - "Terminal/Teletext render identically via shared 6-bit pattern table (teletext cell 12x16, terminal 8x8); pattern 21 mapped to U+258C"
+
+changes_2026_08_16_terminal_final:
+  - "Terminal tab: PressStart2P 8x8 @3x = 24x24 gcell; golden baselines committed (terminal.png, glyphs-terminal.png, glyphs-teletext.png)"
+  - "Glyph inspector added as 6th 'Glyphs' tab (95 printable ASCII grid, Terminal/Teletext font toggle); PTY verified glyph-perfect"
+
+changes_2026_08_16_layer_maps:
+  - "Layer maps: ucode-layer-map-v1 schema + seeds (world 407 land cells from Natural Earth 110m, moon, region); sparse sextant cell layers"
+  - "Layer tab World/Moon/Region selector; equirectangular projection; loader -> Layer render path"
+
+changes_2026_08_16_teletext_ceefax:
+  - "Teletext/Ceefax: vault-backed pages (Documentation 200 / Global Knowledge 300 / Learning 400) with FASTEXT nav + page stack"
+  - "BBC graphics: boxed double-height titles (sextant edges), separated-graphics bar, 4s rotating subpages"
 
 changes_2026_08_14_s5:
   - "GridCore: GridEditor rewritten with snapshot undo/redo (exact restore) + fillRegion/stamp + selection copy/cut/paste"
@@ -156,7 +177,7 @@ changes_2026_07_06_s5:
   - "Skills: Auto-generates uCode integration spec (LENS extractors + SKIN themes + MCP commands)"
   - "Skills: Effort estimates with breakdown for each game template"
   - "GridSmith: Tool registry extended to 15 tools (inspire_engine)"
-  - "GridSmith: CLI: gridsmith skill inspire-engine --game \"Knight Orc\""
+  - 'GridSmith: CLI: gridsmith skill inspire-engine --game "Knight Orc"'
   - "GridSmith: MCP handler for inspire_engine in JSON-RPC server"
   - "GridSmith: Test suite 66 tests passing (27 core + 39 skill tests across 5 skills)"
 

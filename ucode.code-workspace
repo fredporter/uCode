@@ -4,48 +4,48 @@
       "name": "uCode (root)",
       "path": ".",
       "git": {
-        "checkoutType": "auto"
-      }
+        "checkoutType": "auto",
+      },
     },
     {
       "name": "gridcore",
       "path": "packages/gridcore",
       "git": {
-        "checkoutType": "auto"
-      }
+        "checkoutType": "auto",
+      },
     },
     {
       "name": "viewport-renderer",
       "path": "packages/viewport-renderer",
       "git": {
-        "checkoutType": "auto"
-      }
+        "checkoutType": "auto",
+      },
     },
     {
       "name": "agents",
       "path": "agents",
       "git": {
-        "checkoutType": "auto"
-      }
+        "checkoutType": "auto",
+      },
     },
     {
       "name": "shared",
       "path": "shared",
       "git": {
-        "checkoutType": "auto"
-      }
+        "checkoutType": "auto",
+      },
     },
     {
       "name": "runtimes",
       "path": "runtimes",
       "git": {
-        "checkoutType": "auto"
-      }
-    }
+        "checkoutType": "auto",
+      },
+    },
   ],
   "settings": {
     // Python settings
-    "python.defaultInterpreterPath": "./.venv/bin/python",
+    "python.defaultInterpreterPath": "/Users/fredbook/.venvs/global/bin/python",
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.analysis.typeCheckingMode": "basic",
@@ -61,18 +61,8 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit",
-      "source.organizeImports": "explicit"
+      "source.organizeImports": "explicit",
     },
-
-    // ESLint configuration
-    "eslint.workingDirectories": ["./"],
-    "eslint.validate": [
-      "javascript",
-      "javascriptreact",
-      "typescript",
-      "typescriptreact"
-    ],
 
     // Vitest configuration
     "vitest.enable": true,
@@ -84,7 +74,7 @@
       "**/.venv": false,
       "**/node_modules": true,
       "**/dist": true,
-      "**/.git": true
+      "**/.git": true,
     },
 
     // Search exclusions
@@ -93,7 +83,7 @@
       "**/dist": true,
       "**/.git": true,
       "**/__pycache__": true,
-      "**/.pytest_cache": true
+      "**/.pytest_cache": true,
     },
 
     // Terminal settings
@@ -110,40 +100,32 @@
     "emmet.includeLanguages": {
       "javascript": "javascriptreact",
       "typescript": "html",
-      "typescriptreact": "html"
+      "typescriptreact": "html",
     },
 
     // Files associations
     "files.associations": {
       "*.module.css": "css",
-      "*.css": "css"
+      "*.css": "css",
     },
 
     // Search settings
-    "search.followSymlinks": false
+    "search.followSymlinks": false,
   },
   "extensions": {
     "recommendations": [
       "ms-python.python",
       "ms-python.vscode-pylance",
+      "ms-python.debugpy",
       "ms-python.black-formatter",
       "ms-python.flake8",
-      "bradlc.vscode-tailwindcss",
+      "ms-python.vscode-python-envs",
       "esbenp.prettier-vscode",
-      "ms-vscode.vscode-typescript-next",
-      "ms-vscode.vscode-json",
-      "formulahendry.auto-rename-tag",
-      "abusaidm.html-snippets",
-      "ChristianKohler.PathIntellisense",
-      "ms-vscode.vscode-node-azure-pack",
-      "ms-azuretools.vscode-docker",
-      "github.copilot",
-      "github.copilot-chat",
-      "ms-vscode.vscode-git",
-      "github.vscode-pull-request-github",
-      "ms-vscode.vscode-markdown",
       "redhat.vscode-yaml",
-      "mechatroner.codesnap"
-    ]
-  }
+      "github.vscode-github-actions",
+      "github.vscode-pull-request-github",
+      "mikestead.dotenv",
+      "vizards.deepseek-v4-for-copilot",
+    ],
+  },
 }
