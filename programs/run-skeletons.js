@@ -1,6 +1,7 @@
-const { ucodeWeaver } = require('/Users/fredbook/Code/uCode/agents/gridsmith/dist/index.cjs');
 const fs = require('fs');
 const path = require('path');
+const repoRoot = path.resolve(__dirname, '..');
+const { ucodeWeaver } = require(path.join(repoRoot, 'agents/gridsmith/dist/index.cjs'));
 
 function generate(programName, outputDir, gdd) {
   const code = ucodeWeaver({gdd: gdd, program_name: programName, runtime: 'bbc_basic_sdl', display_mode: 'teletext'});
@@ -74,6 +75,6 @@ const eamonGDD = {
   },
 };
 
-generate('NetHack', '/Users/fredbook/Code/uCode/programs/nethack/src', nethackGDD);
-generate('uConstruct', '/Users/fredbook/Code/uCode/programs/uconstruct/src', { title: 'uConstruct', genre: ['construction', 'simulation'], summary: 'Build a castle.', core_mechanics: [{ name: 'tile_editor', description: 'Place tiles to build' }], uCode_integration: { lens_extractors: [{ target: 'stone', type: 'uint16', description: 'Stone count' }, { target: 'wood', type: 'uint16', description: 'Wood count' }], skin_themes: [{ name: 'repton_classic', description: 'Warm tones' }], mcp_commands: [{ name: 'uconstruct_save', description: 'Save castle' }] } });
-generate('Eamon', '/Users/fredbook/Code/uCode/programs/eamon/src', eamonGDD);
+generate('NetHack', path.join(repoRoot, 'programs/nethack/src'), nethackGDD);
+generate('uConstruct', path.join(repoRoot, 'programs/uconstruct/src'), { title: 'uConstruct', genre: ['construction', 'simulation'], summary: 'Build a castle.', core_mechanics: [{ name: 'tile_editor', description: 'Place tiles to build' }], uCode_integration: { lens_extractors: [{ target: 'stone', type: 'uint16', description: 'Stone count' }, { target: 'wood', type: 'uint16', description: 'Wood count' }], skin_themes: [{ name: 'repton_classic', description: 'Warm tones' }], mcp_commands: [{ name: 'uconstruct_save', description: 'Save castle' }] } });
+generate('Eamon', path.join(repoRoot, 'programs/eamon/src'), eamonGDD);
