@@ -109,69 +109,6 @@ export function libraryForPage(page: number, libraries: VaultLibrary[]): VaultLi
   return libraries.find((lib) => lib.page === base);
 }
 
-/** Rotating subpage index (0-based) within the current page. */
-export const teletextSubpage = ref(0);
-
-/** Tick counter for subpage auto-rotation. */
-export let teletextTick = 0;
-
-/** Split a document's wrapped body into screens of ~15 lines. */
-export function docScreens(doc: VaultDoc): string[][] {
-  const body = doc.path && vaultDocCache?.get(doc.path) ?? doc.preview;
-  const wrapped = wrapText(body, 38);
-  const screens: string[][] = [];
-  for (let i = 0; i < wrapped.length; i += DOC_SCREEN_LINES) {
-    screens.push(wrapped.slice(i, i + DOC_SCREEN_LINES));
-  }
-  return screens.length > 0 ? screens : [[]];
-}
-
-/** Fetch one library source's document list. */
-export async function fetchVaultSource(source: string): Promise<VaultDoc[]> {
-  const res = await fetch(UCORE_API + "/api/library/search?q=" + encodeURIComponent(source) + "&limit=400");
-  if (!res.ok) throw new Error("HTTP " + res.status + " (" + source + ")");
-  const data = await res.json();
-  const raw = Array.isArray(data.results) ? data.results : [];
-  return raw.map((d) => {
-    const item = d as Record<string, unknown>;
-    const tags = Array.isArray(item.tags) ? (item.tags as string[]) : [];
-    return {
-      path: String(item.path ?? ""),
-      filename: String(item.filename ?? ""),
-      binder: item.binder ? String(item.binder) : null,
-      tags: Array.isArray(item.tags) ? (item.tags as string[]) : [],
-      preview: String(item.preview ?? ""),
-      extension: String(item.extension ?? ""),
-    };
-  });
-}
-
-/** Fetch the published vault index and group docs into libraries. */
-export async function loadVaultContent(): Promise<void> {
-  try {
-    const sources = new Set(PUBLIC_LIBRARY_DEFS.map((def) => def.source));
-    const fetched = new Map<string, VaultDoc[]>();
-    await Promise.all(
-      Array.from(sources).map(async (source) => {
-        fetched.set(source, await fetchVaultSource(source));
-      }),
-    );
-    vaultLibraries.value = PUBLIC_LIBRARY_DEFS.map((def) => {
-      const all = fetched.get(def.source) ?? [];
-      const docs = (def.tag ? all.filter((d) => d.tags.includes(def.tag)) : all)
-        .filter((d) => d.extension === "md" || d.extension === "markdown")
-        .slice(0, MAX_DOCS_PER_LIBRARY);
-      return { ...def, docs };
-    });
-    vaultError.value = null;
-  } catch (e) {
-    vaultError.value = e instanceof Error ? e.message : String(e);
-  } finally {
-    vaultLoaded.value = true;
-    renderTeletextPage();
-  }
-}
-
 /** Ceefax-style clock: `Mon 16 Aug 21:00/12`. */
 export function ceefaxClock(): string {
   const d = new Date();
@@ -269,7 +206,7 @@ export function writeBoxedDoubleHeightTitle(buf: ReaderBuffer, title: string, co
 // (vaultLibraries, vaultLoaded, vaultError) and return a ReaderTeletextPage.
 // ────────────────────────────────────────────────────────────────────
 
-interface BuilderContext {
+export interface BuilderContext {
   vaultLibraries: VaultLibrary[];
   vaultLoaded: boolean;
   vaultError: string | null;
@@ -363,9 +300,12 @@ export function docListPage(
   return { title: lib.label, colour: lib.colour, lines };
 }
 
-/** Split a document's wrapped body into screens of ~15 lines. */
-export function docScreens(doc: VaultDoc): string[][] {
-  const body = doc.path && vaultDocCache?.get(doc.path) ?? doc.preview;
+/** Split a document's cached body (or preview fallback) into reader screens. */
+export function docScreens(
+  doc: VaultDoc,
+  contentCache?: ReadonlyMap<string, string>,
+): string[][] {
+  const body = (doc.path ? contentCache?.get(doc.path) : undefined) ?? doc.preview;
   const wrapped = wrapText(body, 38);
   const screens: string[][] = [];
   for (let i = 0; i < wrapped.length; i += DOC_SCREEN_LINES) {
@@ -387,7 +327,7 @@ export function docContentPage(
       lines: ["  Document not found."],
     };
   }
-  const screens = docScreens(doc, ctx);
+  const screens = docScreens(doc, ctx.vaultDocCache);
   const total = screens.length;
   const subpage =
     ctx.teletextSubpage !== undefined
