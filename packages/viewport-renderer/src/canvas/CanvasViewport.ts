@@ -1,6 +1,7 @@
 import {
   BORDER_MODE_CONFIGS,
   calculateViewportSize,
+  charToPattern,
   getViewportCells,
   type Cell,
   type Grid,
@@ -78,7 +79,7 @@ export class CanvasViewport extends ViewportWidget {
   }
 
   private ensureBlink(grid: Grid): void {
-    const hasFlash = Array.from(grid.cells.values()).some(cell => cell.flash)
+    const hasFlash = Array.from(grid.cells.values()).some(cell => cell.blink)
     if (hasFlash && !this.blinkTimer) {
       this.blinkTimer = setInterval(() => {
         this.blinkOn = !this.blinkOn
@@ -129,15 +130,15 @@ export class CanvasViewport extends ViewportWidget {
       this.context.fillStyle = bg
       this.context.fillRect(x, y, 25, 25)
 
-      if (cell.mosaic !== undefined) {
-        this.drawMosaic(x, y, cell.mosaic, fg)
+      if (cell.mosaic) {
+        this.drawMosaic(x, y, charToPattern(char), fg)
         continue
       }
       if (char === ' ') continue
-      if (cell.flash && !this.blinkOn) continue
+      if (cell.blink && !this.blinkOn) continue
 
-      const scaleX = cell.doubleWidth ? 2 : 1
-      const scaleY = cell.doubleHeight ? 2 : 1
+      const scaleX = cell.width ? cell.width / 24 : 1
+      const scaleY = cell.dh ? 2 : 1
       const fontSize = 18
       this.context.save()
       this.context.translate(x + 12, y + 12)

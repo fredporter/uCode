@@ -2,7 +2,7 @@ import {
   SurfaceStore,
   TABS,
   bufferToGrid,
-  pixelBufferToGrid,
+  pixelBufferToGridBuffer,
   type TabId,
 } from '@udos/gridcore'
 import { TerminalWidget } from '../widgets/TerminalWidget'
@@ -65,6 +65,8 @@ export class TabHost {
     this.terminal = new TerminalWidget({
       width,
       height,
+      zoom: 'auto',
+      borderMode: 1,
       displayMode: 'teletext',
       palette: 'teletext',
       font: 'petme64',
@@ -73,6 +75,8 @@ export class TabHost {
     this.teletext = new TeletextWidget({
       width,
       height,
+      zoom: 'auto',
+      borderMode: 1,
       displayMode: 'teletext',
       palette: 'teletext',
       font: 'teletext50',
@@ -114,7 +118,7 @@ export class TabHost {
       this.preview.render(bufferToGrid(this.store.gridEditor.buffer))
       this.content.appendChild(this.preview.getElement())
     } else if (tab === 'pixel') {
-      this.preview.render(pixelBufferToGrid(this.store.pixelEditor.buffer))
+      this.preview.render(bufferToGrid(pixelBufferToGridBuffer(this.store.pixelEditor.buffer)))
       this.content.appendChild(this.preview.getElement())
     } else if (tab === 'layer') {
       this.preview.render(bufferToGrid(this.store.layerComposer.compose()))
