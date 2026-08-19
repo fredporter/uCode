@@ -9,12 +9,10 @@ The UDO runtime provides system-layer services for the uDos ecosystem:
 - Workflows: Multi-step orchestration
 - Publish: Content publishing to targets
 - Vault: File system abstraction
-- MCP: Model Context Protocol server management
 - Checks: System health checks
 - Exec: Command execution
 
-This module is the Python reference implementation.
-A Rust-native version will be built for Snackbar production deployment.
+This module is the Python runtime implementation.
 """
 
 __version__ = "0.1.0"

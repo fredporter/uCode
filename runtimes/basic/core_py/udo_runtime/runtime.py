@@ -76,16 +76,6 @@ class UDOPublishTarget:
 
 
 @dataclass
-class MCPServerStatus:
-    id: str
-    name: str
-    running: bool = False
-    output: List[str] = field(default_factory=list)
-    error: Optional[str] = None
-    started_at: Optional[int] = None
-
-
-@dataclass
 class CheckResult:
     id: str
     name: str
@@ -117,7 +107,6 @@ class UDORuntime:
         self.agents: Dict[str, UDOAgent] = {}
         self.workflows: Dict[str, UDOWorkflow] = {}
         self.publish_targets: Dict[str, UDOPublishTarget] = {}
-        self.mcp_servers: Dict[str, MCPServerStatus] = {}
         self.checks: Dict[str, CheckResult] = {}
 
         # Load persisted state
@@ -149,7 +138,6 @@ class UDORuntime:
             ("agents", UDOAgent),
             ("workflows", UDOWorkflow),
             ("publish_targets", UDOPublishTarget),
-            ("mcp_servers", MCPServerStatus),
             ("checks", CheckResult),
         ]:
             items = self._load_state_file(key)
@@ -410,34 +398,6 @@ class UDORuntime:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content)
         return True
-
-    # ─── MCP ───────────────────────────────────────────────────────
-
-    def get_mcp_status(self) -> List[MCPServerStatus]:
-        return list(self.mcp_servers.values())
-
-    def start_mcp_server(self, server_id: str) -> bool:
-        if server_id in self.mcp_servers:
-            self.mcp_servers[server_id].running = True
-            self.mcp_servers[server_id].started_at = int(time.time())
-            self._persist("mcp_servers")
-            return True
-        return False
-
-    def stop_mcp_server(self, server_id: str) -> bool:
-        if server_id in self.mcp_servers:
-            self.mcp_servers[server_id].running = False
-            self._persist("mcp_servers")
-            return True
-        return False
-
-    def call_mcp_tool(self, server_id: str, tool: str, args: Dict[str, Any]) -> Any:
-        if server_id not in self.mcp_servers:
-            return {"error": f"MCP server {server_id} not found"}
-        if not self.mcp_servers[server_id].running:
-            return {"error": f"MCP server {server_id} is not running"}
-        # Placeholder: actual MCP tool call
-        return {"result": f"Called {tool} on {server_id} with {args}"}
 
     # ─── Checks ────────────────────────────────────────────────────
 

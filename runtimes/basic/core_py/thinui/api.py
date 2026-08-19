@@ -318,7 +318,6 @@ def run_api_server(host: str = "127.0.0.1", port: int = 8001):
     print(f"  GET  http://{host}:{port}/api/udo/workflows")
     print(f"  GET  http://{host}:{port}/api/udo/publish/targets")
     print(f"  GET  http://{host}:{port}/api/udo/vault")
-    print(f"  GET  http://{host}:{port}/api/udo/mcp/status")
     print(f"  GET  http://{host}:{port}/api/udo/checks")
     print(f"  POST http://{host}:{port}/api/udo/exec")
     
