@@ -27,7 +27,7 @@ programs/<name>/
 │   └── sounds/           # WAV audio files
 ├── lens/                 # LENS extractor modules
 ├── skin/                 # SKIN theme definitions
-├── mcp/                  # control command specifications
+├── control/              # Control command specifications
 └── test/                 # Integration tests
 ```
 
