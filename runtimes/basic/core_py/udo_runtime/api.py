@@ -235,40 +235,6 @@ def create_udo_blueprint() -> Blueprint:
         success = rt.write_vault_file(data["path"], data.get("content", ""))
         return jsonify({"success": success})
 
-    # ─── MCP ───────────────────────────────────────────────────────
-
-    @bp.route("/mcp/status", methods=["GET"])
-    def mcp_status():
-        servers = rt.get_mcp_status()
-        return jsonify([{
-            "id": s.id,
-            "name": s.name,
-            "running": s.running,
-            "output": s.output,
-            "error": s.error,
-            "startedAt": s.started_at,
-        } for s in servers])
-
-    @bp.route("/mcp/<server_id>/start", methods=["POST"])
-    def start_mcp(server_id: str):
-        success = rt.start_mcp_server(server_id)
-        return jsonify({"success": success})
-
-    @bp.route("/mcp/<server_id>/stop", methods=["POST"])
-    def stop_mcp(server_id: str):
-        success = rt.stop_mcp_server(server_id)
-        return jsonify({"success": success})
-
-    @bp.route("/mcp/<server_id>/call", methods=["POST"])
-    def call_mcp(server_id: str):
-        data = request.get_json() or {}
-        result = rt.call_mcp_tool(
-            server_id,
-            data.get("tool", ""),
-            data.get("args", {}),
-        )
-        return jsonify(result)
-
     # ─── Checks ────────────────────────────────────────────────────
 
     @bp.route("/checks", methods=["GET"])
