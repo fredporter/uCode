@@ -13,7 +13,6 @@ from . import (
     cell,  # Cell System with UDX addressing (NEW)
     feed,  # Feed event archiving to Cells (NEW)
     grid,  # Python grid-core (NEW)
-    mcp_client,  # MCP client for uCode2 communication (NEW)
     mdx,  # MDX Runtime with Snack shortcode support (NEW)
     nugget,  # Nugget module — binary executable units (renamed from relic)
     plugin,  # Plugin system (NEW)
@@ -39,20 +38,6 @@ from .grid import (
     GridCell,
     GridRegion,
     GridSize,
-)
-
-# MCP Client
-from .mcp_client import (
-    McpClient,
-    McpClientError,
-    McpConnectionError,
-    McpRequest,
-    McpRequestType,
-    McpResponse,
-    McpTimeoutError,
-    get_default_socket_path,
-    socket_exists,
-    test_connection,
 )
 
 # Nugget System
@@ -220,7 +205,6 @@ __all__ = [
     "Coordinate",
     "CoordSystem",
     "text",
-    "mcp_client",
     # Text System
     "TextInjector",
     "TemplateEngine",
@@ -233,17 +217,6 @@ __all__ = [
     "InjectionError",
     "MarkdownError",
     "FormattingError",
-    # MCP Client
-    "McpClient",
-    "McpClientError",
-    "McpConnectionError",
-    "McpTimeoutError",
-    "McpRequest",
-    "McpRequestType",
-    "McpResponse",
-    "get_default_socket_path",
-    "socket_exists",
-    "test_connection",
     # Plugin System
     "PluginDiscovery",
     "PluginRegistry",
