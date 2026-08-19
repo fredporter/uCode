@@ -18,7 +18,7 @@ from .manifest import (
     SnackManifest,
     LensConfig,
     SkinConfig,
-    MCPConfig,
+    RCPConfig,
     Dependency,
     load_manifest,
 )

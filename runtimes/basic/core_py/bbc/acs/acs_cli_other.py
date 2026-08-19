@@ -15,7 +15,7 @@ Commands:
   load-rom     Load a ROM file
   load-disk    Load a disk image
   debug        Start interactive debugger
-  mcp          Send MCP commands to the emulator
+  rcp          Send RCP commands to the emulator
   info         Show emulator information
   save-state   Save emulator state to file
   load-state   Load emulator state from file
@@ -33,7 +33,7 @@ Examples:
   ucode acs key 65          # Press 'A'
   ucode acs type "HELLO"
   ucode acs export --format html
-  ucode acs mcp send PAUSE
+  ucode acs rcp send PAUSE
   ucode acs debug
 """
 
@@ -89,8 +89,8 @@ class ACS_CLI:
             self._command_load_disk(args[1:])
         elif command == "debug":
             self._command_debug(args[1:])
-        elif command == "mcp":
-            self._command_mcp(args[1:])
+        elif command == "rcp":
+            self._command_rcp(args[1:])
         elif command == "info":
             self._command_info(args[1:])
         elif command == "save-state":
@@ -441,16 +441,16 @@ class ACS_CLI:
             else:
                 print(f"Unknown command: {action}")
 
-    # ── MCP ─────────────────────────────────────────────────────────
+    # ── RCP ─────────────────────────────────────────────────────────
 
-    def _command_mcp(self, args):
-        """Send MCP commands to the emulator.
+    def _command_rcp(self, args):
+        """Send RCP commands to the emulator.
 
-        Usage: ucode acs mcp <subcommand> [OPTIONS]
+        Usage: ucode acs rcp <subcommand> [OPTIONS]
 
         Subcommands:
-          send COMMAND [ARGS]    Send an MCP command
-          status                 Show MCP state
+          send COMMAND [ARGS]    Send an RCP command
+          status                 Show RCP state
           history                Show command history
           clear                  Clear pending commands
 
@@ -467,46 +467,46 @@ class ACS_CLI:
           STATE       Show CPU state
         """
         if len(args) < 1:
-            print("Usage: ucode acs mcp <subcommand> [OPTIONS]")
+            print("Usage: ucode acs rcp <subcommand> [OPTIONS]")
             print("Subcommands: send, status, history, clear")
             return
 
-        from core_py.bbc.mcp_bridge import create_mcp_bridge
-        mcp = create_mcp_bridge()
+        from core_py.bbc.rcp_bridge import create_rcp_bridge
+        rcp = create_rcp_bridge()
 
         subcommand = args[0]
         sub_args = args[1:]
 
         if subcommand == "send":
             if len(sub_args) < 1:
-                print("Usage: ucode acs mcp send COMMAND [ARGS]")
+                print("Usage: ucode acs rcp send COMMAND [ARGS]")
                 print("Commands: PAUSE, RESUME, SAVE, RESTORE, INSPECT, EVAL, QUIT, STEP, RESET, STATE")
                 return
             cmd_str = " ".join(sub_args)
-            cmd = mcp.queue_command(cmd_str, source="cli")
-            response = mcp.process_command(cmd)
+            cmd = rcp.queue_command(cmd_str, source="cli")
+            response = rcp.process_command(cmd)
             if response:
                 print(f"✅ {response}")
             else:
                 print(f"✅ Command queued: {cmd_str}")
 
         elif subcommand == "status":
-            state = mcp.get_state() if hasattr(mcp, 'get_state') else {}
-            print("MCP State:")
-            print(f"  Enabled: {mcp._enabled}")
-            print(f"  Pending commands: {len(mcp._pending_commands)}")
-            print(f"  Pending responses: {len(mcp._responses)}")
+            state = rcp.get_state() if hasattr(rcp, 'get_state') else {}
+            print("RCP State:")
+            print(f"  Enabled: {rcp._enabled}")
+            print(f"  Pending commands: {len(rcp._pending_commands)}")
+            print(f"  Pending responses: {len(rcp._responses)}")
 
         elif subcommand == "history":
             print("Command history not available in basic mode")
 
         elif subcommand == "clear":
-            mcp.clear_commands()
-            mcp.clear_responses()
+            rcp.clear_commands()
+            rcp.clear_responses()
             print("✅ Cleared pending commands and responses")
 
         else:
-            print(f"Unknown mcp subcommand: {subcommand}")
+            print(f"Unknown rcp subcommand: {subcommand}")
 
     # ── Info ────────────────────────────────────────────────────────
 

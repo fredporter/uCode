@@ -4,7 +4,7 @@
 # The original Apple II disk images are mounted read-only.
 # LENS captures common game variables (HP%, GOLD%, ROOM%).
 # SKIN provides teletext and retro paper themes.
-# MCP supports pause, save, restore, and export commands.
+# RCP supports pause, save, restore, and export commands.
 
 name: "Eamon Dungeon Designer"
 version: "1.0.0"
@@ -57,7 +57,7 @@ skin:
     - "thinui"
     - "ceefax_thinui"
 
-mcp:
+rcp:
   commands:
     - name: "pause"
       description: "Pause game execution"
