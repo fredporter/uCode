@@ -47,7 +47,8 @@ See [LEARNING-PATHS.md](LEARNING-PATHS.md) for complete details on each path.
 
 ## uCode Skills Framework
 
-The uCode Skills Framework provides 6 automated tools for adapting classic programs to uCode. All 6 skills are built and wired into the GridSmith CLI and MCP server.
+The uCode Skills Framework provides six automated tools for adapting classic
+programs to uCode. All six are wired into the GridSmith CLI.
 
 | Skill | Purpose | Tests |
 |-------|---------|-------|

@@ -6,7 +6,7 @@ uDosGo code surfaces. It is designed to be consumed by host applications such as
 uCode internals.
 
 **uCode is not a full application GUI.** It provides the foundational runtime
-packages, grid/code algebra, import/export tooling, CLI/MCP surfaces, and
+packages, grid/code algebra, import/export tooling, CLI surfaces, and
 inspectable render targets such as terminal and teletext widgets.
 
 The advanced runtime layer is now tracked as **uCode2**. uCode2 is reserved for
@@ -27,11 +27,11 @@ Application-specific runtime concerns that belong to HomeNest should live in
 | ---------------------------- | -------------------------------------------------- |
 | `packages/gridcore`          | Grid algebra, code addressing, cell/layer model    |
 | `packages/viewport-renderer` | Browser render surfaces, Terminal/Teletext widgets |
-| `agents/gridsmith`           | CLI/MCP/import/export/build tooling                |
+| `agents/gridsmith`           | CLI/import/export/build tooling                    |
 | `runtimes/basic`             | BASIC runtime bridge/package                       |
 | `runtimes/amos`              | AMOS runtime bridge/package                        |
 | `shared`                     | Cross-runtime support (not host-app-specific)      |
-| `config/`                    | AI routing, MCP definitions, vault config          |
+| `config/`                    | Runtime and development configuration              |
 | `docs/`                      | Specs, boundary docs, workflows                    |
 | `tests/`                     | Integration tests                                  |
 
@@ -43,8 +43,9 @@ Application-specific runtime concerns that belong to HomeNest should live in
 - User/session/application state
 - Long-running command-centre behaviour
 
-uCore and other hosts should consume uCode through **package, CLI, MCP, or
-runtime artifact boundaries**.
+uCore and other hosts should consume uCode through **package, CLI, or runtime
+artifact boundaries**. External MCP exposure belongs to uCore's canonical
+`udos-mcp` gateway.
 
 ---
 
@@ -56,12 +57,12 @@ uCode/
 │   ├── gridcore/             Grid algebra and core grid/code primitives
 │   └── viewport-renderer/    Terminal/teletext/browser render surfaces
 ├── agents/
-│   └── gridsmith/            CLI, MCP, and import/export tooling
+│   └── gridsmith/            CLI and import/export tooling
 ├── runtimes/
 │   ├── basic/                BASIC runtime bridge/package
 │   └── amos/                 AMOS runtime bridge/package
 ├── shared/                   Cross-runtime support
-├── config/                   AI routing, MCP, vault configuration
+├── config/                   Runtime and development configuration
 ├── docs/                     Specs, boundary docs, workflows
 ├── tests/                    Integration tests
 └── README.md                 This file
@@ -132,24 +133,12 @@ runtimes/
 
 ---
 
-## AI Integration
+## External Tool Integration
 
-uCode provides MCP tooling (via GridSmith) that can be consumed by AI agents.
-For full AI provider routing (Ollama, OpenRouter, Hivemind), uCode delegates to
-uCore's snackbar daemon:
-
-```
-GridSmith MCP → uCore Snackbar (port 8484) → LiteLLM → Ollama/OpenRouter
-```
-
-Configuration lives in `config/`:
-
-| File                     | Purpose                         |
-| ------------------------ | ------------------------------- |
-| `config/hivemind.env`    | API keys for OpenRouter, Ollama |
-| `config/openrouter.yaml` | Model routing tiers & costs     |
-| `config/mcp_config.json` | MCP server definitions          |
-| `config/vault.yaml`      | Vault/secret paths              |
+GridSmith exposes deterministic package and CLI contracts. uCore invokes those
+contracts through its GridSmith bridge and selectively exposes bounded reads
+through the canonical `udos-mcp` gateway. uCode does not run an MCP server,
+proxy providers, or own client configuration.
 
 ## Embedding uCode
 

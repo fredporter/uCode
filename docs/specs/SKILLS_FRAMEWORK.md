@@ -608,6 +608,6 @@ class EliteLensExtractor:
 
 ### Phase 4: Integration (Week 7-8)
 
-- Wire skills into GridSmith MCP tools
+- Keep skills available through the GridSmith CLI tool registry
 - Create end-to-end pipeline: `Source-Miner → LENS-Craft → MCP-Scribe`
 - Generate Program.yaml from skills pipeline output

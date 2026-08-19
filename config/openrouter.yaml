@@ -1,7 +1,6 @@
 # OpenRouter Configuration for uCode (Local-First Mode)
 # Provider routing: Ollama local (free) → OpenRouter cloud (paid fallback)
 # See config/ollama-models.yaml for local-only config.
-# See docs/AI_INTEGRATION.md for full setup guide.
 
 openrouter:
   endpoint: "https://openrouter.ai/api/v1"
