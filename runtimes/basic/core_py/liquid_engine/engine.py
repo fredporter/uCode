@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 try:
     from liquid import Liquid
+
     HAS_LIQUID = True
 except ImportError:
     HAS_LIQUID = False
@@ -26,7 +27,7 @@ class LiquidEngine:
 
         Args:
             template_dirs: List of directories to search for templates.
-                          Defaults to ~/.udos/templates/ and ./templates/
+                          Defaults to $UDOS_HOME/templates/ and ./templates/
         """
         self.template_dirs = template_dirs or self._default_dirs()
 
@@ -34,7 +35,8 @@ class LiquidEngine:
         """Get default template directories."""
         dirs = []
         # User-level templates
-        user_dir = os.path.expanduser("~/.udos/templates")
+        udos_home = os.path.expanduser(os.environ.get("UDOS_HOME", "~/Code/.udos"))
+        user_dir = os.path.join(udos_home, "templates")
         if os.path.isdir(user_dir):
             dirs.append(user_dir)
         # Project-level templates
@@ -62,10 +64,7 @@ class LiquidEngine:
             RuntimeError: If liquidpy is not installed or rendering fails.
         """
         if not HAS_LIQUID:
-            raise ImportError(
-                "liquidpy is not installed. "
-                "Run: pip install liquidpy"
-            )
+            raise ImportError("liquidpy is not installed. Run: pip install liquidpy")
         try:
             engine = Liquid(template_source, from_file=False)
             return engine.render(**(data or {}))
@@ -90,10 +89,7 @@ class LiquidEngine:
             Rendered string output.
         """
         if not HAS_LIQUID:
-            raise ImportError(
-                "liquidpy is not installed. "
-                "Run: pip install liquidpy"
-            )
+            raise ImportError("liquidpy is not installed. Run: pip install liquidpy")
         # Search template directories for the file
         for directory in self.template_dirs:
             path = os.path.join(directory, template_name)
@@ -102,12 +98,8 @@ class LiquidEngine:
                     engine = Liquid(path, from_file=True)
                     return engine.render(**(data or {}))
                 except Exception as e:
-                    raise RuntimeError(
-                        f"Liquid render failed for {path}: {e}"
-                    ) from e
-        raise FileNotFoundError(
-            f"Template '{template_name}' not found in {self.template_dirs}"
-        )
+                    raise RuntimeError(f"Liquid render failed for {path}: {e}") from e
+        raise FileNotFoundError(f"Template '{template_name}' not found in {self.template_dirs}")
 
     def render_snack(
         self,

@@ -88,9 +88,9 @@ To manually configure via UI:
 Or manually:
 
 ```bash
-mkdir -p ~/.ucore/config
-cp config/hivemind.env ~/.ucore/config/hivemind.env
-cp config/openrouter.yaml ~/.ucore/config/openrouter.yaml
+mkdir -p "${UDOS_HOME:-$HOME/Code/.udos}/config"
+cp config/hivemind.env "${UDOS_HOME:-$HOME/Code/.udos}/config/hivemind.env"
+cp config/openrouter.yaml "${UDOS_HOME:-$HOME/Code/.udos}/config/openrouter.yaml"
 ```
 
 ### 4. Start uCore Snackbar

@@ -15,16 +15,20 @@ Protocol (JSON-RPC 2.0 style):
 
 from __future__ import annotations
 
-import json
 import importlib.util
-from dataclasses import dataclass, field, asdict
+import json
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
-from .session_state import get_session, SessionState
+try:
+    from .session_state import SessionState, get_session
+except ImportError:  # Direct script/test import from the bridge directory.
+    from session_state import SessionState, get_session
 
 
 # ── Data types (match TypeScript TeletextPage) ──────────────────
+
 
 @dataclass
 class FastTextLink:
@@ -47,12 +51,14 @@ class TeletextPage:
 
 # ── Vault lookup ────────────────────────────────────────────────
 
+
 def _load_vault_config() -> Dict[str, Any]:
     """Load vault.yaml from config."""
     vault_path = Path("config/vault.yaml")
     if vault_path.exists():
         try:
             import yaml
+
             with open(vault_path) as fh:
                 return yaml.safe_load(fh) or {}
         except Exception:
@@ -78,12 +84,9 @@ _LENS_MODULE_FILES: Dict[str, Path] = {
     "elite": _REPO_ROOT / "programs" / "elite" / "lens" / "elite_lens.py",
     "nethack": _REPO_ROOT / "programs" / "nethack" / "lens" / "nethack_lens.py",
     "eamon": _REPO_ROOT / "programs" / "eamon" / "lens" / "eamon_lens.py",
-    "uconstruct": _REPO_ROOT / "programs" / "uconstruct" / "lens"
-    / "uconstruct_lens.py",
-    "knight-orc": _REPO_ROOT / "programs" / "knight-orc" / "lens"
-    / "knight_orc_lens.py",
-    "apple-panic": _REPO_ROOT / "programs" / "apple-panic" / "lens"
-    / "apple_panic_lens.py",
+    "uconstruct": _REPO_ROOT / "programs" / "uconstruct" / "lens" / "uconstruct_lens.py",
+    "knight-orc": _REPO_ROOT / "programs" / "knight-orc" / "lens" / "knight_orc_lens.py",
+    "apple-panic": _REPO_ROOT / "programs" / "apple-panic" / "lens" / "apple_panic_lens.py",
 }
 
 
@@ -127,7 +130,7 @@ def capture_program_state(program_name: str) -> Optional[Dict[str, Any]]:
 
     try:
         extractor = extractor_class(emu=_NullEmulator())
-        if hasattr(extractor, 'capture_all'):
+        if hasattr(extractor, "capture_all"):
             return extractor.capture_all()
         return {}
     except Exception:
@@ -227,8 +230,7 @@ def _dispatch_world(upper: str, session: SessionState) -> Dict[str, Any]:
     return {"output": session.world_list()}
 
 
-def _dispatch_program(upper: str,
-                      session: SessionState) -> Dict[str, Any]:
+def _dispatch_program(upper: str, session: SessionState) -> Dict[str, Any]:
     """Handle LOAD, LIST, RUN, SAVE, NEW, CAT, DIR, RENUM."""
     if upper == "LIST":
         return {"output": session.program_list()}
@@ -247,7 +249,7 @@ def _dispatch_program(upper: str,
 
     if upper.startswith("LOAD "):
         # Support both LOAD "file" and LOAD file
-        filename = upper[5:].strip().strip('"\'')
+        filename = upper[5:].strip().strip("\"'")
         return {"output": session.program_load(filename)}
 
     if upper == "NEW":
@@ -259,7 +261,7 @@ def _dispatch_program(upper: str,
         # Quick-save to the loaded filename
         return _dispatch_save(session.program_filename, session)
     if upper.startswith("SAVE "):
-        filename = upper[5:].strip().strip('"\'')
+        filename = upper[5:].strip().strip("\"'")
         return _dispatch_save(filename, session)
 
     if upper in ("CAT", "DIR"):
@@ -280,8 +282,7 @@ def _dispatch_program(upper: str,
     return {"output": f"Unknown command: {upper}. Type HELP."}
 
 
-def _dispatch_save(filename: str,
-                   session: SessionState) -> Dict[str, Any]:
+def _dispatch_save(filename: str, session: SessionState) -> Dict[str, Any]:
     """Save program memory to a file."""
     if not session.program_lines:
         return {"output": "No program loaded to save."}
@@ -314,8 +315,7 @@ def _dispatch_gridsmith(upper: str) -> Dict[str, Any]:
                 "  GRIDSMITH PATHFIND <g> <sx> <sy> <ex> <ey>  Find path",
                 "  GRIDSMITH COMPOSE_LAYERS <g>     Compose layers",
                 "  GRIDSMITH EXPORT_UVOX <g> <out>  Export UVox artifact",
-                "  GRIDSMITH LATLON_TO_UCODE <lat> <lon>  "
-                "Convert coords",
+                "  GRIDSMITH LATLON_TO_UCODE <lat> <lon>  Convert coords",
                 "Type GRIDSMITH <command> for details.",
             ]
         }
@@ -335,26 +335,19 @@ def _dispatch_gridsmith(upper: str) -> Dict[str, Any]:
     if upper.startswith("GRIDSMITH CREATE_WORLD "):
         name = upper.split("CREATE_WORLD ", 1)[1].strip()
         return {
-            "output": f"World '{name}' created via GridSmith. "
-            f"use GRIDSMITH WORLD LIST to verify"
+            "output": f"World '{name}' created via GridSmith. use GRIDSMITH WORLD LIST to verify"
         }
 
     if upper.startswith("GRIDSMITH CREATE_GRID"):
         return {
-            "output": "Grid created. "
-            "Use GRIDSMITH CELL EDIT <grid> <x> <y> <char> to populate."
+            "output": "Grid created. Use GRIDSMITH CELL EDIT <grid> <x> <y> <char> to populate."
         }
 
     if upper.startswith("GRIDSMITH CELL EDIT "):
-        return {
-            "output": "Cell edited. Use GRID GET <x> <y> to verify."
-        }
+        return {"output": "Cell edited. Use GRID GET <x> <y> to verify."}
 
     if upper.startswith("GRIDSMITH PATH"):
-        return {
-            "output": "Pathfinding dispatched. "
-            "Use GRIDSMITH PATH RESULT to check."
-        }
+        return {"output": "Pathfinding dispatched. Use GRIDSMITH PATH RESULT to check."}
 
     if upper.startswith("GRIDSMITH COMPOSE"):
         return {"output": "Layers composed. Viewport updated."}
@@ -369,10 +362,7 @@ def _dispatch_gridsmith(upper: str) -> Dict[str, Any]:
         return {"output": "Use: GRIDSMITH LATLON_TO_UCODE <lat> <lon>"}
 
     if upper.startswith("GRIDSMITH LATLON_TO_UCODE "):
-        return {
-            "output": "Coordinate converted. "
-            "Use GRIDSMITH UCODE_TO_LATLON to reverse."
-        }
+        return {"output": "Coordinate converted. Use GRIDSMITH UCODE_TO_LATLON to reverse."}
 
     return {"output": f"Unknown GridSmith command: {upper}"}
 
@@ -438,9 +428,13 @@ def dispatch_command(command: str) -> Dict[str, Any]:
         return _dispatch_world(upper, session)
 
     # ── LOAD / LIST / RUN / SAVE / NEW / CAT / DIR / RENUM ──
-    if (upper.startswith("LOAD ") or upper.startswith("LIST")
-            or upper.startswith("SAVE") or upper in ("NEW", "CAT", "DIR")
-            or upper.startswith("RENUM")):
+    if (
+        upper.startswith("LOAD ")
+        or upper.startswith("LIST")
+        or upper.startswith("SAVE")
+        or upper in ("NEW", "CAT", "DIR")
+        or upper.startswith("RENUM")
+    ):
         return _dispatch_program(upper, session)
 
     # ── RUN ── (execute loaded program)
@@ -464,9 +458,7 @@ def dispatch_command(command: str) -> Dict[str, Any]:
 
     # ── SKIN ──
     if upper == "SKIN":
-        return {
-            "output": ["Skins: bbc, teletext, inverse, classic, dark, retro"]
-        }
+        return {"output": ["Skins: bbc, teletext, inverse, classic, dark, retro"]}
 
     # ── LENS ──
     if upper == "LENS" or upper == "LENS HELP":
@@ -480,8 +472,7 @@ def dispatch_command(command: str) -> Dict[str, Any]:
                 + [f"  {p}" for p in programs]
                 + [
                     "",
-                    "Usage: LENS CAPTURE <program> | "
-                    "LENS RESTORE <program> | LENS LIST",
+                    "Usage: LENS CAPTURE <program> | LENS RESTORE <program> | LENS LIST",
                 ]
             }
         return {
@@ -492,10 +483,7 @@ def dispatch_command(command: str) -> Dict[str, Any]:
     if upper == "LENS LIST":
         programs = list_programs()
         if programs:
-            return {
-                "output": ["Registered LENS programs:"]
-                + [f"  - {p}" for p in programs]
-            }
+            return {"output": ["Registered LENS programs:"] + [f"  - {p}" for p in programs]}
         return {"output": "No LENS programs registered."}
 
     if upper.startswith("LENS CAPTURE "):
@@ -503,8 +491,7 @@ def dispatch_command(command: str) -> Dict[str, Any]:
         state = capture_program_state(program_name)
         if state:
             return {
-                "output": f"LENS capture: {program_name} "
-                f"state snapshot taken ({len(state)} keys)."
+                "output": f"LENS capture: {program_name} state snapshot taken ({len(state)} keys)."
             }
         return {
             "output": f"LENS capture failed: program '{program_name}' "
@@ -513,20 +500,14 @@ def dispatch_command(command: str) -> Dict[str, Any]:
 
     if upper.startswith("LENS RESTORE "):
         program_name = upper[13:].strip()
-        return {
-            "output": f"LENS restore: {program_name} "
-            "state restored (simulated)."
-        }
+        return {"output": f"LENS restore: {program_name} state restored (simulated)."}
 
     # ── GRIDSMITH ── (delegated)
     if upper.startswith("GRIDSMITH"):
         return _dispatch_gridsmith(upper)
 
     # Unknown
-    return {
-        "output": f"Unknown command: {command}. "
-        "Type HELP for available commands."
-    }
+    return {"output": f"Unknown command: {command}. Type HELP for available commands."}
 
 
 def _dispatch_run(session: SessionState) -> Dict[str, Any]:
@@ -552,8 +533,7 @@ def _dispatch_run(session: SessionState) -> Dict[str, Any]:
         process.start()
     except FileNotFoundError:
         return {
-            "output": "BBCSDL binary not found. "
-            "Install runtimes/basic/bbcsdl/ to run programs."
+            "output": "BBCSDL binary not found. Install runtimes/basic/bbcsdl/ to run programs."
         }
     except Exception as exc:
         return {"output": f"Failed to start BBCSDL: {exc}"}
@@ -586,6 +566,7 @@ def _dispatch_run(session: SessionState) -> Dict[str, Any]:
 
 # ── Teletext page loading ───────────────────────────────────────
 
+
 def load_teletext_page(page_number: int) -> Optional[Dict[str, Any]]:
     """
     Load a CEEFAX page from the runtime's page store.
@@ -594,10 +575,7 @@ def load_teletext_page(page_number: int) -> Optional[Dict[str, Any]]:
     Falls back to generated pages for known routes if file doesn't exist.
     """
     # Try loading from disk
-    page_path = (
-        Path(__file__).resolve().parent.parent
-        / "ceefax" / "pages" / f"{page_number}.json"
-    )
+    page_path = Path(__file__).resolve().parent.parent / "ceefax" / "pages" / f"{page_number}.json"
     if page_path.exists():
         try:
             with open(page_path) as fh:
@@ -650,8 +628,7 @@ def _generate_page(page_number: int) -> Optional[Dict[str, Any]]:
         content = [
             "    VAULT CONFIGURATION",
             "",
-            f"  Path: "
-            f"{vault_block.get('path', '~/.local/share/udos/Vault/')}",
+            f"  Path: {vault_block.get('path', '~/.local/share/udos/Vault/')}",
             "",
         ]
         for key in keys:
@@ -709,6 +686,7 @@ def _generate_page(page_number: int) -> Optional[Dict[str, Any]]:
 
 
 # ── JSON-RPC handler ─────────────────────────────────────────────
+
 
 def handle_request(request: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -796,6 +774,7 @@ def handle_request(request: Dict[str, Any]) -> Dict[str, Any]:
 
 # ── HTTP/WS server ───────────────────────────────────────────────
 
+
 def serve_http(port: int = 8671) -> None:
     """
     Start a simple HTTP + WebSocket server for the GridCore adapter.
@@ -809,7 +788,7 @@ def serve_http(port: int = 8671) -> None:
       WS   /ws          -> WebSocket for live bidirectional commands
     """
     try:
-        from http.server import HTTPServer, BaseHTTPRequestHandler
+        from http.server import BaseHTTPRequestHandler, HTTPServer
     except ImportError:
         print("http.server not available")
         return
@@ -819,14 +798,8 @@ def serve_http(port: int = 8671) -> None:
     class GridcoreRequestHandler(BaseHTTPRequestHandler):
         def do_POST(self):
             if self.path == "/dispatch":
-                content_length = int(
-                    self.headers.get("Content-Length", 0)
-                )
-                body = (
-                    self.rfile.read(content_length)
-                    if content_length > 0
-                    else b"{}"
-                )
+                content_length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(content_length) if content_length > 0 else b"{}"
                 try:
                     req = _json.loads(body)
                 except _json.JSONDecodeError:
@@ -874,12 +847,8 @@ def serve_http(port: int = 8671) -> None:
         def do_OPTIONS(self):
             self.send_response(200)
             self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header(
-                "Access-Control-Allow-Methods", "GET, POST, OPTIONS"
-            )
-            self.send_header(
-                "Access-Control-Allow-Headers", "Content-Type"
-            )
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
             self.end_headers()
 
         def log_message(self, format, *args):
@@ -888,10 +857,7 @@ def serve_http(port: int = 8671) -> None:
 
     server = HTTPServer(("127.0.0.1", port), GridcoreRequestHandler)
     print(f"GridcoreAdapter HTTP server listening on 127.0.0.1:{port}")
-    print(
-        f"  POST http://127.0.0.1:{port}/dispatch  "
-        '(body: {"command":"HELP"})'
-    )
+    print(f'  POST http://127.0.0.1:{port}/dispatch  (body: {{"command":"HELP"}})')
     print(f"  GET  http://127.0.0.1:{port}/page/100  (teletext page)")
     try:
         server.serve_forever()

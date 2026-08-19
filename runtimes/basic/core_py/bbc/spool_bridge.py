@@ -16,14 +16,15 @@ shared between different games (e.g., Eamon -> ACS).
 import json
 import os
 import time
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
 class SpoolHeader:
     """Header metadata for a Spool file"""
+
     version: str = "1.0"
     snack_id: str = "bbc_basic"
     snack_name: str = "BBC BASIC Program"
@@ -37,6 +38,7 @@ class SpoolHeader:
 @dataclass
 class SpoolEnvelope:
     """Complete Spool save file"""
+
     header: SpoolHeader = field(default_factory=SpoolHeader)
     variables: Dict[str, Any] = field(default_factory=dict)
     arrays: Dict[str, List[Any]] = field(default_factory=dict)
@@ -59,10 +61,11 @@ class SpoolBridge:
 
         Args:
             interpreter: Optional BBCBasicInterpreter to attach to
-            spool_dir: Directory for spool files (default: ~/.udos/spools/)
+            spool_dir: Directory for spool files (default: $UDOS_HOME/spools/)
         """
         self.interpreter = interpreter
-        self._spool_dir = spool_dir or os.path.expanduser("~/.udos/spools")
+        udos_home = os.path.expanduser(os.environ.get("UDOS_HOME", "~/Code/.udos"))
+        self._spool_dir = spool_dir or os.path.join(udos_home, "spools")
         self._current_spool: Optional[SpoolEnvelope] = None
         self._save_count: int = 0
         self._load_count: int = 0
@@ -130,31 +133,27 @@ class SpoolBridge:
             )
 
             # Include LENS events if available
-            if hasattr(self.interpreter, '_lens_engine') and self.interpreter._lens_engine:
+            if hasattr(self.interpreter, "_lens_engine") and self.interpreter._lens_engine:
                 lens = self.interpreter._lens_engine
                 envelope.events = [asdict(e) for e in lens.event_queue]
-                envelope.snapshots = {
-                    name: asdict(snap)
-                    for name, snap in lens.snapshots.items()
-                }
+                envelope.snapshots = {name: asdict(snap) for name, snap in lens.snapshots.items()}
 
             # Include SKIN state if available
-            if hasattr(self.interpreter, '_skin_engine') and self.interpreter._skin_engine:
+            if hasattr(self.interpreter, "_skin_engine") and self.interpreter._skin_engine:
                 skin = self.interpreter._skin_engine
-                envelope.metadata['skin'] = skin.active_skin_name
-                envelope.metadata['char_mappings'] = {
+                envelope.metadata["skin"] = skin.active_skin_name
+                envelope.metadata["char_mappings"] = {
                     str(k): v for k, v in skin._char_mappings.items()
                 }
-                envelope.metadata['palette_overrides'] = {
+                envelope.metadata["palette_overrides"] = {
                     str(k): v for k, v in skin._palette_overrides.items()
                 }
 
             # Include MCP state if available
-            if hasattr(self.interpreter, '_mcp_bridge') and self.interpreter._mcp_bridge:
+            if hasattr(self.interpreter, "_mcp_bridge") and self.interpreter._mcp_bridge:
                 mcp = self.interpreter._mcp_bridge
-                envelope.metadata['mcp_responses'] = [
-                    {"success": r.success, "result": r.result}
-                    for r in mcp._responses
+                envelope.metadata["mcp_responses"] = [
+                    {"success": r.success, "result": r.result} for r in mcp._responses
                 ]
 
             # Serialize to JSON
@@ -169,7 +168,7 @@ class SpoolBridge:
 
             # Write to file
             spool_path = self._get_spool_path(filename)
-            with open(spool_path, 'w') as f:
+            with open(spool_path, "w") as f:
                 json.dump(spool_data, f, indent=2, default=str)
 
             self._current_spool = envelope
@@ -183,8 +182,8 @@ class SpoolBridge:
     def _get_spool_path(self, filename: str) -> str:
         """Get the full path for a spool file"""
         # Ensure filename has .spool extension
-        if not filename.endswith('.spool'):
-            filename += '.spool'
+        if not filename.endswith(".spool"):
+            filename += ".spool"
         return os.path.join(self._spool_dir, filename)
 
     # ── Load ──────────────────────────────────────────────────────
@@ -210,45 +209,48 @@ class SpoolBridge:
                 return False
 
             # Read from file
-            with open(spool_path, 'r') as f:
+            with open(spool_path, "r") as f:
                 spool_data = json.load(f)
 
             # Restore variables
-            variables = spool_data.get('variables', {})
+            variables = spool_data.get("variables", {})
             self.interpreter.state.variables.clear()
             self.interpreter.state.variables.update(variables)
 
             # Restore arrays
-            arrays = spool_data.get('arrays', {})
+            arrays = spool_data.get("arrays", {})
             self.interpreter.state.arrays.clear()
             self.interpreter.state.arrays.update(arrays)
 
             # Restore LENS events if available
-            if hasattr(self.interpreter, '_lens_engine') and self.interpreter._lens_engine:
+            if hasattr(self.interpreter, "_lens_engine") and self.interpreter._lens_engine:
                 lens = self.interpreter._lens_engine
-                events_data = spool_data.get('events', [])
+                events_data = spool_data.get("events", [])
                 lens.event_queue.clear()
                 for e_data in events_data:
                     from .lens import LENSEvent
-                    lens.event_queue.append(LENSEvent(
-                        name=e_data.get('name', 'unknown'),
-                        timestamp=e_data.get('timestamp', 0),
-                        state=e_data.get('state', {}),
-                        event_type=e_data.get('event_type', 'game_event'),
-                    ))
+
+                    lens.event_queue.append(
+                        LENSEvent(
+                            name=e_data.get("name", "unknown"),
+                            timestamp=e_data.get("timestamp", 0),
+                            state=e_data.get("state", {}),
+                            event_type=e_data.get("event_type", "game_event"),
+                        )
+                    )
 
             # Restore SKIN state if available
-            metadata = spool_data.get('metadata', {})
-            if hasattr(self.interpreter, '_skin_engine') and self.interpreter._skin_engine:
+            metadata = spool_data.get("metadata", {})
+            if hasattr(self.interpreter, "_skin_engine") and self.interpreter._skin_engine:
                 skin = self.interpreter._skin_engine
-                skin_name = metadata.get('skin', 'teletext_classic')
+                skin_name = metadata.get("skin", "teletext_classic")
                 skin.apply(skin_name)
                 # Restore char mappings
-                mappings = metadata.get('char_mappings', {})
+                mappings = metadata.get("char_mappings", {})
                 for k, v in mappings.items():
                     skin.map_char(int(k), v)
                 # Restore palette
-                palette = metadata.get('palette_overrides', {})
+                palette = metadata.get("palette_overrides", {})
                 for k, v in palette.items():
                     skin.set_palette(int(k), v)
 
@@ -272,22 +274,26 @@ class SpoolBridge:
         spool_dir = Path(self._spool_dir)
         for f in sorted(spool_dir.glob("*.spool")):
             try:
-                with open(f, 'r') as fh:
+                with open(f, "r") as fh:
                     data = json.load(fh)
-                header = data.get('header', {})
-                spools.append({
-                    'filename': f.stem,
-                    'timestamp': header.get('timestamp', 0),
-                    'size': f.stat().st_size,
-                    'save_slot': header.get('save_slot', ''),
-                    'player_name': header.get('player_name', ''),
-                })
+                header = data.get("header", {})
+                spools.append(
+                    {
+                        "filename": f.stem,
+                        "timestamp": header.get("timestamp", 0),
+                        "size": f.stat().st_size,
+                        "save_slot": header.get("save_slot", ""),
+                        "player_name": header.get("player_name", ""),
+                    }
+                )
             except Exception:
-                spools.append({
-                    'filename': f.stem,
-                    'timestamp': 0,
-                    'size': f.stat().st_size,
-                })
+                spools.append(
+                    {
+                        "filename": f.stem,
+                        "timestamp": 0,
+                        "size": f.stat().st_size,
+                    }
+                )
         return spools
 
     def delete_spool(self, filename: str) -> bool:
@@ -304,16 +310,16 @@ class SpoolBridge:
         if not os.path.exists(spool_path):
             return None
         try:
-            with open(spool_path, 'r') as f:
+            with open(spool_path, "r") as f:
                 data = json.load(f)
-            header = data.get('header', {})
+            header = data.get("header", {})
             return {
-                'filename': filename,
-                'path': spool_path,
-                'header': header,
-                'variable_count': len(data.get('variables', {})),
-                'event_count': len(data.get('events', [])),
-                'size': os.path.getsize(spool_path),
+                "filename": filename,
+                "path": spool_path,
+                "header": header,
+                "variable_count": len(data.get("variables", {})),
+                "event_count": len(data.get("events", [])),
+                "size": os.path.getsize(spool_path),
             }
         except Exception:
             return None
@@ -343,6 +349,7 @@ class SpoolBridge:
 
 
 # Convenience functions
+
 
 def create_spool_bridge(interpreter=None, spool_dir: Optional[str] = None) -> SpoolBridge:
     """Create and return a new Spool bridge"""

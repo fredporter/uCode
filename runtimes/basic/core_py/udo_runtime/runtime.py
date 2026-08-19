@@ -2,19 +2,19 @@
 UDO Runtime — Core orchestrator that coordinates all UDO subsystems.
 """
 
-import os
 import json
-import time
-import uuid
+import os
 import shlex
 import subprocess
+import time
+import uuid
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from dataclasses import dataclass, field, asdict
-from datetime import datetime
-
 
 # ─── Data Models ───────────────────────────────────────────────────
+
 
 @dataclass
 class UDOSkill:
@@ -26,48 +26,54 @@ class UDOSkill:
     action: str = ""
     enabled: bool = True
 
+
 @dataclass
 class UDOTask:
     id: str
     type: str  # 'agent' | 'workflow' | 'autoloop'
-    status: str = 'pending'  # 'running' | 'completed' | 'failed' | 'pending'
+    status: str = "pending"  # 'running' | 'completed' | 'failed' | 'pending'
     priority: int = 0
     created_at: str = ""
     updated_at: str = ""
+
 
 @dataclass
 class UDOVariable:
     key: str
     value: str
-    scope: str = 'user'  # 'user' | 'workspace' | 'system'
+    scope: str = "user"  # 'user' | 'workspace' | 'system'
     encrypted: bool = False
     used_by: List[str] = field(default_factory=list)
+
 
 @dataclass
 class UDOAgent:
     id: str
     name: str
-    type: str = 'generic'
-    status: str = 'idle'  # 'idle' | 'running' | 'error'
+    type: str = "generic"
+    status: str = "idle"  # 'idle' | 'running' | 'error'
     health: int = 100
     tasks_completed: int = 0
+
 
 @dataclass
 class UDOWorkflow:
     id: str
     name: str
     file: str = ""
-    type: str = 'snack'
-    status: str = 'active'  # 'active' | 'disabled' | 'error'
+    type: str = "snack"
+    status: str = "active"  # 'active' | 'disabled' | 'error'
     runs: int = 0
     last_run: Optional[str] = None
+
 
 @dataclass
 class UDOPublishTarget:
     id: str
     name: str
     type: str  # 'github' | 'wordpress' | 'local'
-    status: str = 'disconnected'  # 'connected' | 'disconnected' | 'error'
+    status: str = "disconnected"  # 'connected' | 'disconnected' | 'error'
+
 
 @dataclass
 class MCPServerStatus:
@@ -78,11 +84,12 @@ class MCPServerStatus:
     error: Optional[str] = None
     started_at: Optional[int] = None
 
+
 @dataclass
 class CheckResult:
     id: str
     name: str
-    status: str = 'running'  # 'pass' | 'fail' | 'running'
+    status: str = "running"  # 'pass' | 'fail' | 'running'
     duration: float = 0.0
     timestamp: str = ""
     output: str = ""
@@ -91,6 +98,7 @@ class CheckResult:
 
 # ─── Runtime ───────────────────────────────────────────────────────
 
+
 class UDORuntime:
     """
     Central UDO runtime that manages all subsystems.
@@ -98,7 +106,8 @@ class UDORuntime:
     """
 
     def __init__(self, data_dir: Optional[str] = None):
-        self.data_dir = Path(data_dir or os.path.expanduser("~/.udos/runtime"))
+        udos_home = Path(os.path.expanduser(os.environ.get("UDOS_HOME", "~/Code/.udos")))
+        self.data_dir = Path(data_dir) if data_dir else udos_home / "runtime"
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
         # In-memory stores
@@ -269,7 +278,9 @@ class UDORuntime:
     def list_variables(self) -> List[UDOVariable]:
         return list(self.variables.values())
 
-    def set_variable(self, key: str, value: str, scope: str = "user", encrypted: bool = False) -> bool:
+    def set_variable(
+        self, key: str, value: str, scope: str = "user", encrypted: bool = False
+    ) -> bool:
         self.variables[key] = UDOVariable(
             key=key,
             value=value,
@@ -355,7 +366,10 @@ class UDORuntime:
             return {"success": False, "url": None}
         target = self.publish_targets[target_id]
         # Placeholder: actual publish logic per target type
-        return {"success": True, "url": f"https://publish.udos/{target.name}/{uuid.uuid4().hex[:8]}"}
+        return {
+            "success": True,
+            "url": f"https://publish.udos/{target.name}/{uuid.uuid4().hex[:8]}",
+        }
 
     # ─── Vault ─────────────────────────────────────────────────────
 
@@ -366,12 +380,14 @@ class UDORuntime:
             return []
         entries = []
         for item in target.iterdir():
-            entries.append({
-                "name": item.name,
-                "type": "dir" if item.is_dir() else "file",
-                "size": item.stat().st_size if item.is_file() else 0,
-                "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat(),
-            })
+            entries.append(
+                {
+                    "name": item.name,
+                    "type": "dir" if item.is_dir() else "file",
+                    "size": item.stat().st_size if item.is_file() else 0,
+                    "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat(),
+                }
+            )
         return sorted(entries, key=lambda e: (e["type"] != "dir", e["name"]))
 
     def read_vault_file(self, path: str) -> Dict[str, Any]:

@@ -80,7 +80,7 @@ export class DOMViewport extends ViewportWidget {
       node.style.color = fg
       node.style.backgroundColor = bg
       node.style.fontWeight = cell.bold ? 'bold' : 'normal'
-      if (cell.flash) {
+      if (cell.blink) {
         ensureBlinkStyle()
         node.style.animation = 'ucode-blink 1s step-start infinite'
       }
