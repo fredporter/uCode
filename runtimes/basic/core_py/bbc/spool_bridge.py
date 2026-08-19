@@ -149,11 +149,11 @@ class SpoolBridge:
                     str(k): v for k, v in skin._palette_overrides.items()
                 }
 
-            # Include MCP state if available
-            if hasattr(self.interpreter, "_mcp_bridge") and self.interpreter._mcp_bridge:
-                mcp = self.interpreter._mcp_bridge
-                envelope.metadata["mcp_responses"] = [
-                    {"success": r.success, "result": r.result} for r in mcp._responses
+            # Include RCP state if available
+            if hasattr(self.interpreter, "_rcp_bridge") and self.interpreter._rcp_bridge:
+                rcp = self.interpreter._rcp_bridge
+                envelope.metadata["rcp_responses"] = [
+                    {"success": r.success, "result": r.result} for r in rcp._responses
                 ]
 
             # Serialize to JSON

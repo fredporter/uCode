@@ -1,15 +1,15 @@
 """
-MCP Bridge — Master Control Protocol for uCode1
+RCP Bridge — Runtime Control Protocol for uCode1
 
-MCP commands control the snack externally (from CLI, another snack, or a UI).
-This bridge allows BBC BASIC programs to poll for and respond to MCP commands.
+RCP commands control the snack externally (from CLI, another snack, or a UI).
+This bridge allows BBC BASIC programs to poll for and respond to RCP commands.
 
 BBC BASIC extensions:
 
-    FN_MCP_Poll()           — Check for pending MCP command, returns string
-    PROC_MCP_Respond(result$) — Send response back to MCP caller
+    FN_RCP_Poll()           — Check for pending RCP command, returns string
+    PROC_RCP_Respond(result$) — Send response back to RCP caller
 
-MCP commands from external sources:
+RCP commands from external sources:
     PAUSE, RESUME, SAVE, RESTORE, EXPORT_SPOOL, INSPECT, EVAL, QUIT
 """
 
@@ -20,8 +20,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 
-class MCPCommandType(Enum):
-    """Standard MCP command types"""
+class RCPCommandType(Enum):
+    """Standard RCP command types"""
     PAUSE = "PAUSE"
     RESUME = "RESUME"
     SAVE = "SAVE"
@@ -37,10 +37,10 @@ class MCPCommandType(Enum):
 
 
 @dataclass
-class MCPCommand:
-    """A parsed MCP command"""
+class RCPCommand:
+    """A parsed RCP command"""
     command: str
-    command_type: MCPCommandType
+    command_type: RCPCommandType
     args: Dict[str, str] = field(default_factory=dict)
     raw: str = ""
     source: str = "external"
@@ -48,49 +48,49 @@ class MCPCommand:
 
 
 @dataclass
-class MCPResponse:
-    """A response to an MCP command"""
+class RCPResponse:
+    """A response to an RCP command"""
     success: bool
     result: str = ""
     error: str = ""
     request_id: str = ""
 
 
-class MCPBridge:
+class RCPBridge:
     """
-    MCP command bridge for BBC BASIC programs.
+    RCP command bridge for BBC BASIC programs.
 
     Provides a polling interface for BASIC programs to check for
-    and respond to external MCP commands.
+    and respond to external RCP commands.
     """
 
-    # Standard MCP commands that can be parsed
+    # Standard RCP commands that can be parsed
     STANDARD_COMMANDS = {
-        "PAUSE": MCPCommandType.PAUSE,
-        "RESUME": MCPCommandType.RESUME,
-        "SAVE": MCPCommandType.SAVE,
-        "RESTORE": MCPCommandType.RESTORE,
-        "EXPORT_SPOOL": MCPCommandType.EXPORT_SPOOL,
-        "INSPECT": MCPCommandType.INSPECT,
-        "EVAL": MCPCommandType.EVAL,
-        "QUIT": MCPCommandType.QUIT,
-        "SKIN": MCPCommandType.SKIN,
-        "STEP": MCPCommandType.STEP,
-        "LIST_SNACKS": MCPCommandType.LIST_SNACKS,
+        "PAUSE": RCPCommandType.PAUSE,
+        "RESUME": RCPCommandType.RESUME,
+        "SAVE": RCPCommandType.SAVE,
+        "RESTORE": RCPCommandType.RESTORE,
+        "EXPORT_SPOOL": RCPCommandType.EXPORT_SPOOL,
+        "INSPECT": RCPCommandType.INSPECT,
+        "EVAL": RCPCommandType.EVAL,
+        "QUIT": RCPCommandType.QUIT,
+        "SKIN": RCPCommandType.SKIN,
+        "STEP": RCPCommandType.STEP,
+        "LIST_SNACKS": RCPCommandType.LIST_SNACKS,
     }
 
     def __init__(self, interpreter=None):
         """
-        Initialize MCP bridge.
+        Initialize RCP bridge.
 
         Args:
             interpreter: Optional BBCBasicInterpreter to attach to
         """
         self.interpreter = interpreter
-        self._pending_commands: List[MCPCommand] = []
-        self._responses: List[MCPResponse] = []
+        self._pending_commands: List[RCPCommand] = []
+        self._responses: List[RCPResponse] = []
         self._external_command_source: Optional[Callable[[], Optional[str]]] = None
-        self._on_command_callbacks: List[Callable[[MCPCommand], Optional[str]]] = []
+        self._on_command_callbacks: List[Callable[[RCPCommand], Optional[str]]] = []
         self._enabled: bool = True
 
         # Auto-attach if interpreter provided
@@ -100,16 +100,16 @@ class MCPBridge:
     # ── Configuration ──────────────────────────────────────────────
 
     def enable(self) -> None:
-        """Enable MCP polling"""
+        """Enable RCP polling"""
         self._enabled = True
 
     def disable(self) -> None:
-        """Disable MCP polling"""
+        """Disable RCP polling"""
         self._enabled = False
 
     def set_external_source(self, source_fn: Callable[[], Optional[str]]) -> None:
         """
-        Set an external function that provides MCP commands.
+        Set an external function that provides RCP commands.
 
         This can be connected to a gRPC server, Unix socket, or stdin.
 
@@ -118,11 +118,11 @@ class MCPBridge:
         """
         self._external_command_source = source_fn
 
-    def add_command_callback(self, callback: Callable[[MCPCommand], Optional[str]]) -> None:
+    def add_command_callback(self, callback: Callable[[RCPCommand], Optional[str]]) -> None:
         """
         Register a callback for when commands are received.
 
-        The callback receives the MCPCommand and can return a response string.
+        The callback receives the RCPCommand and can return a response string.
 
         Args:
             callback: Function that processes a command and returns optional response
@@ -131,23 +131,23 @@ class MCPBridge:
 
     # ── Command Queue ─────────────────────────────────────────────
 
-    def queue_command(self, command_str: str, source: str = "external") -> MCPCommand:
+    def queue_command(self, command_str: str, source: str = "external") -> RCPCommand:
         """
-        Queue an MCP command for the BASIC program to poll.
+        Queue an RCP command for the BASIC program to poll.
 
         Args:
             command_str: Raw command string (e.g., "PAUSE" or "SAVE slot=dungeon1")
             source: Source identifier
 
         Returns:
-            The parsed MCPCommand
+            The parsed RCPCommand
         """
         cmd = self._parse_command(command_str, source)
         self._pending_commands.append(cmd)
         return cmd
 
-    def _parse_command(self, raw: str, source: str = "external") -> MCPCommand:
-        """Parse a raw command string into an MCPCommand"""
+    def _parse_command(self, raw: str, source: str = "external") -> RCPCommand:
+        """Parse a raw command string into an RCPCommand"""
         raw = raw.strip()
         parts = raw.split(None, 1)  # Split on first whitespace
         cmd_name = parts[0].upper() if parts else ""
@@ -164,24 +164,24 @@ class MCPBridge:
                     # Positional argument
                     args["value"] = arg_part
 
-        cmd_type = self.STANDARD_COMMANDS.get(cmd_name, MCPCommandType.UNKNOWN)
+        cmd_type = self.STANDARD_COMMANDS.get(cmd_name, RCPCommandType.UNKNOWN)
 
-        return MCPCommand(
+        return RCPCommand(
             command=cmd_name,
             command_type=cmd_type,
             args=args,
             raw=raw,
             source=source,
-            request_id=f"mcp_{int(time.time() * 1000)}"
+            request_id=f"rcp_{int(time.time() * 1000)}"
         )
 
     # ── Polling (for BBC BASIC) ───────────────────────────────────
 
     def poll(self) -> str:
         """
-        Check for a pending MCP command.
+        Check for a pending RCP command.
 
-        This is the implementation of FN_MCP_Poll.
+        This is the implementation of FN_RCP_Poll.
         Returns the command string if available, or empty string if none.
 
         Returns:
@@ -215,7 +215,7 @@ class MCPBridge:
 
             # If there's a response, queue it
             if response is not None:
-                self._responses.append(MCPResponse(
+                self._responses.append(RCPResponse(
                     success=True,
                     result=response,
                     request_id=cmd.request_id
@@ -227,14 +227,14 @@ class MCPBridge:
 
     def respond(self, result: str) -> None:
         """
-        Send a response back to the MCP caller.
+        Send a response back to the RCP caller.
 
-        This is the implementation of PROC_MCP_Respond.
+        This is the implementation of PROC_RCP_Respond.
 
         Args:
             result: Response string
         """
-        self._responses.append(MCPResponse(
+        self._responses.append(RCPResponse(
             success=True,
             result=result,
             request_id=f"resp_{int(time.time() * 1000)}"
@@ -242,41 +242,41 @@ class MCPBridge:
 
     # ── Command Processing ────────────────────────────────────────
 
-    def process_command(self, cmd: MCPCommand) -> Optional[str]:
+    def process_command(self, cmd: RCPCommand) -> Optional[str]:
         """
         Process a command and return a response.
 
         This handles standard commands that don't need BASIC program involvement.
 
         Args:
-            cmd: The MCP command to process
+            cmd: The RCP command to process
 
         Returns:
             Response string or None if the command needs BASIC handling
         """
-        if cmd.command_type == MCPCommandType.PAUSE:
+        if cmd.command_type == RCPCommandType.PAUSE:
             if self.interpreter:
                 self.interpreter.stop()
             return "OK: paused"
 
-        elif cmd.command_type == MCPCommandType.RESUME:
+        elif cmd.command_type == RCPCommandType.RESUME:
             if self.interpreter:
                 self.interpreter.state.running = True
             return "OK: resumed"
 
-        elif cmd.command_type == MCPCommandType.QUIT:
+        elif cmd.command_type == RCPCommandType.QUIT:
             if self.interpreter:
                 self.interpreter.stop()
             return "OK: quit"
 
-        elif cmd.command_type == MCPCommandType.INSPECT:
+        elif cmd.command_type == RCPCommandType.INSPECT:
             var_name = cmd.args.get("value", "")
             if self.interpreter and var_name:
                 value = self.interpreter.state.variables.get(var_name, "undefined")
                 return f"{var_name} = {value}"
             return "ERROR: variable not found"
 
-        elif cmd.command_type == MCPCommandType.EVAL:
+        elif cmd.command_type == RCPCommandType.EVAL:
             expr = cmd.args.get("value", "")
             if self.interpreter and expr:
                 try:
@@ -286,7 +286,7 @@ class MCPBridge:
                     return f"ERROR: {e}"
             return "ERROR: no expression"
 
-        elif cmd.command_type == MCPCommandType.LIST_SNACKS:
+        elif cmd.command_type == RCPCommandType.LIST_SNACKS:
             return "OK: snack listing not implemented in BASIC mode"
 
         # Commands that need BASIC program handling
@@ -294,7 +294,7 @@ class MCPBridge:
 
     # ── Response Queue ────────────────────────────────────────────
 
-    def get_response(self) -> Optional[MCPResponse]:
+    def get_response(self) -> Optional[RCPResponse]:
         """Get the next pending response"""
         if self._responses:
             return self._responses.pop(0)
@@ -319,28 +319,28 @@ class MCPBridge:
 
     def attach_to_interpreter(self, interpreter) -> None:
         """
-        Attach this MCP bridge to a BBC BASIC interpreter.
+        Attach this RCP bridge to a BBC BASIC interpreter.
 
-        This wires up the FN_MCP_Poll and PROC_MCP_Respond handlers.
+        This wires up the FN_RCP_Poll and PROC_RCP_Respond handlers.
 
         Args:
             interpreter: BBCBasicInterpreter instance
         """
         self.interpreter = interpreter
-        interpreter._mcp_bridge = self
+        interpreter._rcp_bridge = self
 
-        # Add MCP keywords to interpreter's keyword list
-        mcp_keywords = [
-            "FN_MCP_Poll",
-            "PROC_MCP_Respond",
+        # Add RCP keywords to interpreter's keyword list
+        rcp_keywords = [
+            "FN_RCP_Poll",
+            "PROC_RCP_Respond",
         ]
-        for kw in mcp_keywords:
+        for kw in rcp_keywords:
             if kw not in interpreter._keywords:
                 interpreter._keywords.append(kw)
 
 
 # Convenience functions
 
-def create_mcp_bridge(interpreter=None) -> MCPBridge:
-    """Create and return a new MCP bridge"""
-    return MCPBridge(interpreter)
+def create_rcp_bridge(interpreter=None) -> RCPBridge:
+    """Create and return a new RCP bridge"""
+    return RCPBridge(interpreter)

@@ -6,7 +6,7 @@ The SnackLoader is responsible for:
 2. Mounting disk images (read-only for originals)
 3. Injecting LENS memory hooks
 4. Setting up the SKIN pipeline
-5. Creating IPC channels (Feed/Spool/MCP)
+5. Creating IPC channels (Feed/Spool/RCP)
 6. Spawning the snack process with isolation
 """
 
@@ -25,7 +25,7 @@ from .manifest import (
     SnackManifest,
     LensConfig,
     SkinConfig,
-    MCPConfig,
+    RCPConfig,
     load_manifest,
     validate_manifest,
 )
@@ -81,10 +81,10 @@ class MountPoint:
 
 @dataclass
 class IpcChannels:
-    """IPC channels for Feed/Spool/MCP communication."""
+    """IPC channels for Feed/Spool/RCP communication."""
     feed_dir: Path
     spool_dir: Path
-    mcp_dir: Path
+    rcp_dir: Path
 
 
 @dataclass
@@ -186,21 +186,21 @@ class SnackLoader:
     # ── Setup IPC channels ───────────────────
 
     def setup_ipc(self, loaded: LoadedSnack) -> LoadedSnack:
-        """Create IPC channel directories for Feed/Spool/MCP."""
+        """Create IPC channel directories for Feed/Spool/RCP."""
         ipc_root = loaded.sandbox_root / "ipc"
         ipc_root.mkdir(parents=True, exist_ok=True)
 
         feed_dir = ipc_root / "feed"
         spool_dir = ipc_root / "spool"
-        mcp_dir = ipc_root / "mcp"
+        rcp_dir = ipc_root / "rcp"
 
-        for d in (feed_dir, spool_dir, mcp_dir):
+        for d in (feed_dir, spool_dir, rcp_dir):
             d.mkdir(parents=True, exist_ok=True)
 
         loaded.ipc = IpcChannels(
             feed_dir=feed_dir,
             spool_dir=spool_dir,
-            mcp_dir=mcp_dir,
+            rcp_dir=rcp_dir,
         )
 
         return loaded
@@ -259,22 +259,22 @@ class SnackLoader:
 
         return loaded
 
-    # ── Setup MCP ────────────────────────────
+    # ── Setup RCP ────────────────────────────
 
-    def setup_mcp(self, loaded: LoadedSnack) -> LoadedSnack:
-        """Write MCP command configuration into the sandbox."""
-        mcp_config = loaded.manifest.mcp
-        config_dir = loaded.sandbox_root / "mcp"
+    def setup_rcp(self, loaded: LoadedSnack) -> LoadedSnack:
+        """Write RCP command configuration into the sandbox."""
+        rcp_config = loaded.manifest.rcp
+        config_dir = loaded.sandbox_root / "rcp"
         config_dir.mkdir(parents=True, exist_ok=True)
 
         import json
         config = {
             "commands": [
                 {"name": c.name, "description": c.description}
-                for c in mcp_config.commands
+                for c in rcp_config.commands
             ],
         }
-        with open(config_dir / "mcp_config.json", "w") as f:
+        with open(config_dir / "rcp_config.json", "w") as f:
             json.dump(config, f, indent=2)
 
         return loaded
@@ -286,7 +286,7 @@ class SnackLoader:
 
         For uCode1, this runs the BBC BASIC interpreter with the snack's
         entrypoint script. The interpreter is configured to use the LENS,
-        SKIN, MCP, and Spool configs from the sandbox.
+        SKIN, RCP, and Spool configs from the sandbox.
         """
         manifest = loaded.manifest
         entrypoint = loaded.snack_dir / manifest.entrypoint
@@ -305,7 +305,7 @@ class SnackLoader:
         if loaded.ipc:
             env["UDOS_FEED_DIR"] = str(loaded.ipc.feed_dir)
             env["UDOS_SPOOL_DIR"] = str(loaded.ipc.spool_dir)
-            env["UDOS_MCP_DIR"] = str(loaded.ipc.mcp_dir)
+            env["UDOS_RCP_DIR"] = str(loaded.ipc.rcp_dir)
 
         # Determine the interpreter command
         # For uCode1, we use the BBC BASIC interpreter
@@ -351,7 +351,7 @@ class SnackLoader:
         loaded = self.setup_ipc(loaded)
         loaded = self.inject_lens_hooks(loaded)
         loaded = self.setup_skin_pipeline(loaded)
-        loaded = self.setup_mcp(loaded)
+        loaded = self.setup_rcp(loaded)
         loaded = self.spawn(loaded)
         return loaded
 

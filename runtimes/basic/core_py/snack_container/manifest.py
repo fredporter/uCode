@@ -2,7 +2,7 @@
 Snack Manifest — snack.yaml schema and validation
 
 Defines the container manifest format for uCode1 snacks. A snack.yaml
-packages an emulated game with LENS/SKIN/MCP configuration, disk images,
+packages an emulated game with LENS/SKIN/RCP configuration, disk images,
 and metadata.
 """
 
@@ -114,16 +114,16 @@ class SkinConfig:
 
 
 @dataclass
-class MCPCommand:
-    """An MCP command definition."""
+class RCPCommand:
+    """An RCP command definition."""
     name: str = ""
     description: str = ""
 
 
 @dataclass
-class MCPConfig:
-    """MCP command configuration."""
-    commands: List[MCPCommand] = field(default_factory=list)
+class RCPConfig:
+    """RCP command configuration."""
+    commands: List[RCPCommand] = field(default_factory=list)
 
 
 @dataclass
@@ -148,7 +148,7 @@ class SnackManifest:
     runtime: RuntimeSpec = field(default_factory=RuntimeSpec)
     lens: LensConfig = field(default_factory=LensConfig)
     skin: SkinConfig = field(default_factory=SkinConfig)
-    mcp: MCPConfig = field(default_factory=MCPConfig)
+    rcp: RCPConfig = field(default_factory=RCPConfig)
     depends_on: List[Dependency] = field(default_factory=list)
     entrypoint: str = ""
     description: str = ""
@@ -219,12 +219,12 @@ class SnackManifest:
             skin["targets"] = self.skin.targets
         d["skin"] = skin
 
-        # MCP
-        if self.mcp.commands:
-            d["mcp"] = {
+        # RCP
+        if self.rcp.commands:
+            d["rcp"] = {
                 "commands": [
                     {"name": c.name, "description": c.description}
-                    for c in self.mcp.commands
+                    for c in self.rcp.commands
                 ]
             }
 
@@ -309,16 +309,16 @@ class SnackManifest:
                 targets=skin_data.get("targets", ["thinui", "ceefax_thinui"]),
             )
 
-        # MCP
-        mcp_data = data.get("mcp", {})
-        if mcp_data:
+        # RCP
+        rcp_data = data.get("rcp", {})
+        if rcp_data:
             commands = []
-            for c in mcp_data.get("commands", []):
-                commands.append(MCPCommand(
+            for c in rcp_data.get("commands", []):
+                commands.append(RCPCommand(
                     name=c.get("name", ""),
                     description=c.get("description", ""),
                 ))
-            m.mcp = MCPConfig(commands=commands)
+            m.rcp = RCPConfig(commands=commands)
 
         # Dependencies
         deps_data = data.get("depends_on", [])

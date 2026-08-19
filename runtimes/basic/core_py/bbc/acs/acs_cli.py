@@ -15,7 +15,7 @@ Commands:
   load-rom     Load a ROM file
   load-disk    Load a disk image
   debug        Start interactive debugger
-  mcp          Send MCP commands to the emulator
+  rcp          Send RCP commands to the emulator
   info         Show emulator information
   save-state   Save emulator state to file
   load-state   Load emulator state from file
@@ -33,7 +33,7 @@ Examples:
   ucode acs key 65          # Press 'A'
   ucode acs type "HELLO"
   ucode acs export --format html
-  ucode acs mcp send PAUSE
+  ucode acs rcp send PAUSE
   ucode acs debug
 """
 
@@ -48,7 +48,7 @@ from typing import Optional, Dict, Any
 # Add core_py to path
 
 from .acs_cli_other import *  # other
-from acs_cli_mcp import *  # mcp
+from acs_cli_rcp import *  # rcp
 
 # Original file backed up to:
 #   /Users/fredbook/.snackbar/backups/file-splitter/20260618_215559_acs_cli.py

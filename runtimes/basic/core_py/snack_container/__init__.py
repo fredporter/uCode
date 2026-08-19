@@ -9,7 +9,7 @@ that packages:
 - A minimal emulator (BBC BASIC runtime)
 - LENS data extraction rules
 - SKIN visual transformation layers
-- MCP command handlers
+- RCP command handlers
 - Metadata (name, lane, dependencies)
 
 Key principle: The original code runs unchanged. Only the input/output is
@@ -22,8 +22,8 @@ from .manifest import (
     RuntimeSpec,
     LensConfig,
     SkinConfig,
-    MCPConfig,
-    MCPCommand,
+    RCPConfig,
+    RCPCommand,
     MemoryRegion,
     Dependency,
     Lane,
@@ -64,8 +64,8 @@ __all__ = [
     "RuntimeSpec",
     "LensConfig",
     "SkinConfig",
-    "MCPConfig",
-    "MCPCommand",
+    "RCPConfig",
+    "RCPCommand",
     "MemoryRegion",
     "Dependency",
     "Lane",

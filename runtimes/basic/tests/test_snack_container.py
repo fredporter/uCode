@@ -51,7 +51,7 @@ def sample_manifest_dict():
             "available": ["teletext_classic", "paper_retro"],
             "targets": ["thinui", "ceefax_thinui"],
         },
-        "mcp": {
+        "rcp": {
             "commands": [
                 {"name": "pause", "description": "Pause game"},
                 {"name": "save", "description": "Save state"},
@@ -117,9 +117,9 @@ class TestSnackManifest:
         assert sample_manifest.skin.available == (
             ["teletext_classic", "paper_retro"])
 
-    def test_from_dict_mcp(self, sample_manifest):
-        assert len(sample_manifest.mcp.commands) == 2
-        assert sample_manifest.mcp.commands[0].name == "pause"
+    def test_from_dict_rcp(self, sample_manifest):
+        assert len(sample_manifest.rcp.commands) == 2
+        assert sample_manifest.rcp.commands[0].name == "pause"
 
     def test_from_dict_dependencies(self, sample_manifest):
         assert len(sample_manifest.depends_on) == 1
