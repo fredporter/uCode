@@ -27,7 +27,7 @@ programs/<name>/
 │   └── sounds/           # WAV audio files
 ├── lens/                 # LENS extractor modules
 ├── skin/                 # SKIN theme definitions
-├── mcp/                  # MCP command specifications
+├── mcp/                  # control command specifications
 └── test/                 # Integration tests
 ```
 
@@ -49,11 +49,11 @@ All 7 programs now have BBC BASIC skeletons via the Skills Framework pipeline.
 |-------|---------|--------|
 | Source-Miner | Elite, Repton | Built (9 tests) |
 | LENS-Craft | All 7 | Built (8 tests) |
-| MCP-Scribe | All 7 | Built (8 tests) |
+| Command-Scribe | All 7 | Built (8 tests) |
 | SKIN-Weaver | All 7 | Built (8 tests) |
 | Inspire-Engine | Knight Orc, Apple Panic, uConstruct | Built (6 tests) |
 | uCode-Weaver | All 7 | Built (5 tests) |
 
 ## Pipeline
 
-All 6 skills accessible via GridSmith CLI or MCP server. See `docs/learning-pathway/05-skills-framework.md` for tutorial.
+All 6 skills are accessible through the GridSmith CLI or library API. See `docs/learning-pathway/05-skills-framework.md` for tutorial.

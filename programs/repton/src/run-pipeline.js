@@ -1,11 +1,11 @@
 const path = require('path');
 const repoRoot = path.resolve(__dirname, '../../..');
-const { sourceMiner, lensCraft, mcpScribe } = require(path.join(repoRoot, 'agents/gridsmith/dist/index.cjs'));
+const { sourceMiner, lensCraft, commandScribe } = require(path.join(repoRoot, 'agents/gridsmith/dist/index.cjs'));
 const p = __dirname;
 const m = sourceMiner({source:{type:'local_path',url:p,language:['6502']},options:{scan_depth:'full',target_patterns:['*.asm']}});
 const c = lensCraft({source_miner_report:{source:p,findings:{memory_map:m.findings.memory_map,functions:m.findings.functions}},emulator:{type:'6502',endianness:'little'},output:{language:'python',module_name:'repton_lens',path:path.join(repoRoot, 'programs/repton/lens')}});
-const s = mcpScribe({program_name:'Repton',program_type:'adapt-source',game_mechanics:{genre:['puzzle','arcade']},source_miner_report:{findings:{memory_map:m.findings.memory_map,functions:m.findings.functions}}});
+const s = commandScribe({program_name:'Repton',program_type:'adapt-source',game_mechanics:{genre:['puzzle','arcade']},source_miner_report:{findings:{memory_map:m.findings.memory_map,functions:m.findings.functions}}});
 process.stdout.write('Source-Miner: '+m.findings.memory_map.length+' mem, '+m.findings.functions.length+' func\n');
 process.stdout.write('LENS-Craft: '+c.extractors.length+' extractors written to '+c.written_to+'\n');
-process.stdout.write('MCP-Scribe: '+s.commands.length+' commands\n');
+process.stdout.write('Command-Scribe: '+s.commands.length+' commands\n');
 s.commands.forEach(function(cmd){process.stdout.write('  '+cmd.name+' ['+cmd.action+']\n')});

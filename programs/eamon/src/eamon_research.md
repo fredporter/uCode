@@ -99,6 +99,6 @@ Spells: Blast, Heal, Speed, Power
 ### uCode Integration
 - **LENS extractors**: Player HP, room ID, inventory, gold, monster statuses
 - **SKIN**: Dark fantasy teletext theme
-- **MCP**: Save, load, status, room_jump
+- **control**: Save, load, status, room_jump
 
 ## Estimated Effort: 3 weeks

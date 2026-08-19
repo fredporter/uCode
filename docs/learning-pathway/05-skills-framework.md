@@ -11,7 +11,7 @@ The uCode Skills Framework provides 6 automated tools for importing and adapting
 | 1 | **Source-Miner** | 6502 assembly source | Memory map, functions, assets |
 | 2 | **LENS-Craft** | Source-Miner report | Python LENS extractor (.py) |
 | 3 | **SKIN-Weaver** | Asset file paths | .skin.yaml manifest |
-| 4 | **MCP-Scribe** | Source-Miner report | MCP command specs |
+| 4 | **Command-Scribe** | Source-Miner report | control command specs |
 | 5 | **Inspire-Engine** | Game name | Game design document |
 | 6 | **uCode-Weaver** | GDD | BBC BASIC skeleton (.bbc) |
 
@@ -23,7 +23,7 @@ The uCode Skills Framework provides 6 automated tools for importing and adapting
 6502 Assembly (.asm)
   → Source-Miner → memory map + functions + assets
   → LENS-Craft → repton_lens.py (Python extractor)
-  → MCP-Scribe → repton save/load/status commands
+  → Command-Scribe → repton save/load/status commands
   → SKIN-Weaver → repton_classic.skin.yaml
   → uCode-Weaver → repton.bbc (BBC BASIC skeleton)
 ```
@@ -54,8 +54,8 @@ node agents/gridsmith/dist/cli.js skill skin-weaver \
   --assets '[{"path":"ship.bin","type":"sprite_data"}]' \
   --palette bbc_mode7 --output programs/repton/skin/
 
-# MCP-Scribe: Generate command specs
-node agents/gridsmith/dist/cli.js skill mcp-scribe \
+# Command-Scribe: Generate command specs
+node agents/gridsmith/dist/cli.js skill command-scribe \
   --miner-report '{"findings":{...}}' \
   --program Repton --type adapt-source
 
@@ -97,7 +97,7 @@ LENS capture: repton state snapshot taken (31 keys).
 1. Create program scaffold: `programs/<name>/src/`, `lens/`, `mcp/`, `skin/`
 2. Run Source-Miner on assembly source (or Inspire-Engine for rewrites)
 3. Run LENS-Craft to generate extractor
-4. Run MCP-Scribe for commands
+4. Run Command-Scribe for commands
 5. Run SKIN-Weaver for assets
 6. Run uCode-Weaver for BBC BASIC skeleton
 7. Register extractor in runtime bridge

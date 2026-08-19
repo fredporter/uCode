@@ -25,7 +25,7 @@ program:
     default: "retro_pixel"
     alternates: ["teletext_classic"]
 
-  mcp:
+  control:
     commands: ["PAUSE", "RESTART", "LEVEL_SKIP", "STATUS"]
 
   effort: "small"

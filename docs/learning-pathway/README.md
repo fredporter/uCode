@@ -55,7 +55,7 @@ programs to uCode. All six are wired into the GridSmith CLI.
 | Source-Miner | Scan 6502 assembly for LENS-extractable points | 9 |
 | LENS-Craft | Generate Python LENS extractors | 8 |
 | SKIN-Weaver | Convert assets to character maps | 8 |
-| MCP-Scribe | Generate MCP command specs | 8 |
+| Command-Scribe | Generate control command specs | 8 |
 | Inspire-Engine | Generate game design documents | 6 |
 | uCode-Weaver | Generate BBC BASIC skeletons | 5 |
 

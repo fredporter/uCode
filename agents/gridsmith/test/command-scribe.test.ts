@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { mcpScribe } from '../src/tools/mcp-scribe'
+import { commandScribe } from '../src/tools/command-scribe'
 
-describe('MCP-Scribe', () => {
+describe('Command-Scribe', () => {
   const minerReport = {
     findings: {
       memory_map: [
@@ -18,22 +18,22 @@ describe('MCP-Scribe', () => {
     },
   }
 
-  it('generates MCP commands from Source-Miner report', () => {
-    const result = mcpScribe({
+  it('generates control commands from Source-Miner report', () => {
+    const result = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: ['space_trading', 'combat'] },
       source_miner_report: minerReport,
     })
 
-    expect(result.skill).toBe('MCP-Scribe')
+    expect(result.skill).toBe('Command-Scribe')
     expect(result.version).toBe('1.0')
     expect(result.program).toBe('Elite')
     expect(result.commands.length).toBeGreaterThan(0)
   })
 
   it('generates save command with state keys', () => {
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: [] },
@@ -49,7 +49,7 @@ describe('MCP-Scribe', () => {
   })
 
   it('generates load command', () => {
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: [] },
@@ -63,7 +63,7 @@ describe('MCP-Scribe', () => {
   })
 
   it('generates status query command', () => {
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: [] },
@@ -77,7 +77,7 @@ describe('MCP-Scribe', () => {
   })
 
   it('generates pause command', () => {
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: [] },
@@ -91,7 +91,7 @@ describe('MCP-Scribe', () => {
   })
 
   it('generates inject commands for subroutines', () => {
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: [] },
@@ -101,13 +101,13 @@ describe('MCP-Scribe', () => {
     // DockShip should generate an inject command
     const dockCmd = result.commands.find((c) => c.name === 'elite_dockship')
     expect(dockCmd).toBeDefined()
-    expect(dockCmd?.action).toBe('mcp_inject')
+    expect(dockCmd?.action).toBe('control_inject')
     expect(dockCmd?.payload.address).toBe('0x1200')
 
     // JumpWarp should also generate one
     const jumpCmd = result.commands.find((c) => c.name === 'elite_jumpwarp')
     expect(jumpCmd).toBeDefined()
-    expect(jumpCmd?.action).toBe('mcp_inject')
+    expect(jumpCmd?.action).toBe('control_inject')
   })
 
   it('filters out low-confidence state keys', () => {
@@ -121,7 +121,7 @@ describe('MCP-Scribe', () => {
       },
     }
 
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Test',
       program_type: 'adapt-source',
       game_mechanics: { genre: [] },
@@ -135,7 +135,7 @@ describe('MCP-Scribe', () => {
   })
 
   it('sanitizes program name for command prefix', () => {
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: 'Knight Orc',
       program_type: 'rewrite',
       game_mechanics: { genre: ['text_adventure'] },

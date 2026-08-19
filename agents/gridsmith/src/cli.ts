@@ -15,7 +15,7 @@ import {
   lensCraft,
   skinWeaver,
   writeSkinManifest,
-  mcpScribe,
+  commandScribe,
   inspireEngine,
   ucodeWeaver,
 } from './index'
@@ -261,7 +261,7 @@ function main(): void {
     return
   }
 
-  if (section === 'skill' && action === 'mcp-scribe') {
+  if (section === 'skill' && action === 'command-scribe') {
     const minerJson = argValue(args, '--miner-report', '') || ''
     const programName = argValue(args, '--program', 'Unknown') || 'Unknown'
     const programType = (argValue(args, '--type', 'adapt-source') || 'adapt-source') as
@@ -274,7 +274,7 @@ function main(): void {
     }
 
     const report = JSON.parse(minerJson)
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: programName,
       program_type: programType,
       game_mechanics: { genre: [] },

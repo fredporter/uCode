@@ -28,7 +28,7 @@ program:
     default: "elite_classic"
     alternates: ["paper_retro", "dark_mode"]
 
-  mcp:
+  control:
     commands: ["PAUSE", "SAVE", "LOAD", "JUMP", "DOCK", "STATUS"]
 
   effort: "medium"

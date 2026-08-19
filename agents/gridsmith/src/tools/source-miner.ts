@@ -519,12 +519,12 @@ function generateRecommendations(
     })
   }
 
-  // Recommend MCP commands for subroutines
+  // Recommend control commands for subroutines
   const commandLabels = ['MainLoop', 'Dock', 'Jump', 'Launch', 'Start', 'Init', 'Title', 'Death', 'Win', 'Lose', 'Pause', 'Save', 'Load']
   for (const fn of findings.functions) {
     if (commandLabels.some((c) => fn.name.toLowerCase().includes(c.toLowerCase()))) {
       recs.push({
-        action: 'create_mcp_command',
+        action: 'create_control_command',
         target: fn.name,
         priority: 'medium',
         rationale: `${fn.name} is a game event trigger point`,

@@ -32,8 +32,8 @@ import type {
   SkinManifest,
   CharacterMapping,
 } from './tools/skin-weaver'
-import { mcpScribe } from './tools/mcp-scribe'
-import type { McpScribeInput, McpScribeOutput, McpCommand } from './tools/mcp-scribe'
+import { commandScribe } from './tools/command-scribe'
+import type { CommandScribeInput, CommandScribeOutput, ControlCommand } from './tools/command-scribe'
 import { inspireEngine } from './tools/inspire-engine'
 import { ucodeWeaver } from './tools/ucode-weaver'
 import type { UCodeWeaverInput, UCodeWeaverOutput, BbcBasicProcedure } from './tools/ucode-weaver'
@@ -185,8 +185,8 @@ export const GRIDSMITH_TOOLS: GridSmithToolDefinition[] = [
     },
   },
   {
-    name: 'mcp_scribe',
-    description: 'Generate MCP command specifications from Source-Miner report.',
+    name: 'command_scribe',
+    description: 'Generate control command specifications from Source-Miner report.',
     parameters: {
       source_miner_json: { type: 'string', description: 'Source-Miner output as JSON string' },
       program_name: { type: 'string', description: 'Program name (e.g. Elite, Repton)' },
@@ -246,7 +246,7 @@ export {
   lensCraft,
   skinWeaver,
   writeSkinManifest,
-  mcpScribe,
+  commandScribe,
   inspireEngine,
   ucodeWeaver,
 }
@@ -268,9 +268,9 @@ export type {
   SkinWeaverOutput,
   SkinManifest,
   CharacterMapping,
-  McpScribeInput,
-  McpScribeOutput,
-  McpCommand,
+  CommandScribeInput,
+  CommandScribeOutput,
+  ControlCommand,
   InspireEngineInput,
   InspireEngineOutput,
   GameDesignDocument,

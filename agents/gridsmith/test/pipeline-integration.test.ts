@@ -4,13 +4,13 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { sourceMiner } from '../src/tools/source-miner'
 import { lensCraft } from '../src/tools/lens-craft'
-import { mcpScribe } from '../src/tools/mcp-scribe'
+import { commandScribe } from '../src/tools/command-scribe'
 
 const TEST_DIR = join(tmpdir(), 'gridsmith-pipeline-test')
 
 /**
  * End-to-end pipeline test:
- *   6502 Assembly → Source-Miner → LENS-Craft → MCP-Scribe
+ *   6502 Assembly → Source-Miner → LENS-Craft → Command-Scribe
  *
  * Uses a realistic Elite-style 6502 assembly fixture with:
  *   - Memory-mapped hardware registers
@@ -184,7 +184,7 @@ describe('End-to-End Skills Pipeline', () => {
     expect(minerResult.recommendations.length).toBeGreaterThan(0)
     const hasLensRecs = minerResult.recommendations.some((r) => r.action === 'create_lens_extractor')
     expect(hasLensRecs).toBe(true)
-    const hasMcpRecs = minerResult.recommendations.some((r) => r.action === 'create_mcp_command')
+    const hasMcpRecs = minerResult.recommendations.some((r) => r.action === 'create_control_command')
     expect(hasMcpRecs).toBe(true)
     const hasSkinRecs = minerResult.recommendations.some((r) => r.action === 'create_skin_manifest')
     expect(hasSkinRecs).toBe(true)
@@ -240,7 +240,7 @@ describe('End-to-End Skills Pipeline', () => {
     rmSync(TEST_DIR, { recursive: true, force: true })
   })
 
-  it('MCP-Scribe generates commands from Source-Miner output', () => {
+  it('Command-Scribe generates commands from Source-Miner output', () => {
     setupE2eFixture()
 
     // Step 1: Source-Miner
@@ -249,8 +249,8 @@ describe('End-to-End Skills Pipeline', () => {
       options: { scan_depth: 'full', target_patterns: ['*.asm'] },
     })
 
-    // Step 2: MCP-Scribe
-    const scribeResult = mcpScribe({
+    // Step 2: Command-Scribe
+    const scribeResult = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: ['space_trading', 'combat'] },
@@ -286,7 +286,7 @@ describe('End-to-End Skills Pipeline', () => {
     rmSync(TEST_DIR, { recursive: true, force: true })
   })
 
-  it('full pipeline: Source-Miner → LENS-Craft → MCP-Scribe in sequence', () => {
+  it('full pipeline: Source-Miner → LENS-Craft → Command-Scribe in sequence', () => {
     setupE2eFixture()
 
     // Step 1: Mine the assembly source
@@ -316,8 +316,8 @@ describe('End-to-End Skills Pipeline', () => {
     expect(craftResult.skill).toBe('LENS-Craft')
     expect(craftResult.extractors.length).toBeGreaterThan(0)
 
-    // Step 3: Generate MCP command specs
-    const scribeResult = mcpScribe({
+    // Step 3: Generate control command specs
+    const scribeResult = commandScribe({
       program_name: 'Elite',
       program_type: 'adapt-source',
       game_mechanics: { genre: ['space_trading', 'combat'] },
@@ -329,12 +329,12 @@ describe('End-to-End Skills Pipeline', () => {
       },
     })
 
-    expect(scribeResult.skill).toBe('MCP-Scribe')
+    expect(scribeResult.skill).toBe('Command-Scribe')
     expect(scribeResult.commands.length).toBeGreaterThan(4)
 
     // The pipeline produces consistent results:
     // - Memory map from Source-Miner feeds LENS-Craft extractors
-    // - Same memory map feeds MCP-Scribe state keys
+    // - Same memory map feeds Command-Scribe state keys
     const memoryLabels = minerResult.findings.memory_map
       .filter((m) => m.confidence >= 0.7)
       .map((m) => m.label)

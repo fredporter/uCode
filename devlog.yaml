@@ -139,7 +139,7 @@ changes_2026_07_06_s2:
   - "Skills: Source-Miner skill (agents/gridsmith/src/tools/source-miner.ts) — 6502 assembly scanner"
   - "Skills: Scans ORG, EQU, labels, subroutines, data structures, SKIP/RES blocks"
   - "Skills: Asset detection heuristics (gfx, sprites, maps, text, sounds, levels)"
-  - "Skills: Generates LENS extractor + MCP command + SKIN recommendations"
+  - "Skills: Generates LENS extractor + control command + SKIN recommendations"
   - "GridSmith: Tool registry extended to 11 tools with source_miner"
   - "GridSmith: CLI command: gridsmith skill source-miner --source <path>"
   - "GridSmith: MCP handler for source_miner in JSON-RPC server"
@@ -163,18 +163,18 @@ changes_2026_07_06_s4:
   - "Skills: 5 built-in palettes (bbc_mode7, teletext_classic, dark_fantasy, repton_classic, elite_wireframe)"
   - "Skills: Character mapping heuristics for 10 asset types (sprite→*, map→#, audio→~, etc.)"
   - "Skills: YAML + JSON manifest generation, file writing to disk"
-  - "Skills: MCP-Scribe (agents/gridsmith/src/tools/mcp-scribe.ts) — command spec generator"
+  - "Skills: Command-Scribe (agents/gridsmith/src/tools/command-scribe.ts) — command spec generator"
   - "Skills: Generates save/load/status/pause + inject commands from Source-Miner functions"
-  - "GridSmith: Tool registry extended to 14 tools (skin_weaver + mcp_scribe)"
+  - "GridSmith: Tool registry extended to 14 tools (skin_weaver + command_scribe)"
   - "GridSmith: CLI commands for all 4 skills"
   - "GridSmith: MCP JSON-RPC handlers for all 4 skills"
-  - "GridSmith: Test suite 60 tests passing (27 core + 9 source-miner + 8 lens-craft + 8 skin-weaver + 8 mcp-scribe)"
+  - "GridSmith: Test suite 60 tests passing (27 core + 9 source-miner + 8 lens-craft + 8 skin-weaver + 8 command-scribe)"
 
 changes_2026_07_06_s5:
   - "Skills: Inspire-Engine (agents/gridsmith/src/tools/inspire-engine.ts) — GDD generator"
   - "Skills: 3 built-in game templates (Knight Orc, Apple Panic, uConstruct)"
   - "Skills: Genre-driven LENS extractor targets (text_adventure, platformer, construction)"
-  - "Skills: Auto-generates uCode integration spec (LENS extractors + SKIN themes + MCP commands)"
+  - "Skills: Auto-generates uCode integration spec (LENS extractors + SKIN themes + control commands)"
   - "Skills: Effort estimates with breakdown for each game template"
   - "GridSmith: Tool registry extended to 15 tools (inspire_engine)"
   - 'GridSmith: CLI: gridsmith skill inspire-engine --game "Knight Orc"'
@@ -182,7 +182,7 @@ changes_2026_07_06_s5:
   - "GridSmith: Test suite 66 tests passing (27 core + 39 skill tests across 5 skills)"
 
 changes_2026_07_06_s6:
-  - "Pipeline: End-to-end integration test (Source-Miner → LENS-Craft → MCP-Scribe)"
+  - "Pipeline: End-to-end integration test (Source-Miner → LENS-Craft → Command-Scribe)"
   - "Pipeline: Realistic Elite-style 6502 fixture with EQU, subroutines, SKIP, assets"
   - "Pipeline: Verifies bitmask detection from label (SHIP_STATUS) and inline comments"
   - "Source-Miner: Fixed inline comment capture on EQU lines (SHIP_STATUS EQU &0920 ; comment)"

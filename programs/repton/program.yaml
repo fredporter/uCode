@@ -25,7 +25,7 @@ program:
     default: "repton_classic"
     alternates: ["teletext_classic"]
 
-  mcp:
+  control:
     commands: ["LEVEL_SELECT", "PAUSE", "SAVE", "STATUS"]
 
   effort: "small"

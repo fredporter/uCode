@@ -22,7 +22,7 @@ program:
     default: "dark_fantasy"
     alternates: ["teletext_classic"]
 
-  mcp:
+  control:
     commands: ["SAVE", "LOAD", "TIME_SKIP", "STATUS"]
 
   effort: "large"
