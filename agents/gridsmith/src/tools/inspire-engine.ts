@@ -42,7 +42,7 @@ export interface SkinThemeTarget {
   description: string
 }
 
-export interface McpCommandTarget {
+export interface ControlCommandTarget {
   name: string
   description: string
 }
@@ -50,7 +50,7 @@ export interface McpCommandTarget {
 export interface UCodeIntegration {
   lens_extractors: LensExtractorTarget[]
   skin_themes: SkinThemeTarget[]
-  mcp_commands: McpCommandTarget[]
+  control_commands: ControlCommandTarget[]
 }
 
 export interface GameDesignDocument {
@@ -244,7 +244,7 @@ function buildGDD(targetGame: string, template: GameTemplate): GameDesignDocumen
   const uCodeIntegration: UCodeIntegration = {
     lens_extractors: buildLensTargets(template),
     skin_themes: buildSkinThemes(template),
-    mcp_commands: buildMcpCommands(targetGame, template),
+    control_commands: buildControlCommands(targetGame, template),
   }
 
   return {
@@ -311,9 +311,9 @@ function buildSkinThemes(template: GameTemplate): SkinThemeTarget[] {
   return themes
 }
 
-function buildMcpCommands(targetGame: string, template: GameTemplate): McpCommandTarget[] {
+function buildControlCommands(targetGame: string, template: GameTemplate): ControlCommandTarget[] {
   const prefix = targetGame.toLowerCase().replace(/[^a-z]/g, '_')
-  const commands: McpCommandTarget[] = [
+  const commands: ControlCommandTarget[] = [
     { name: `${prefix}_save`, description: 'Save game state' },
     { name: `${prefix}_load`, description: 'Load game state' },
     { name: `${prefix}_status`, description: 'Query current game state' },

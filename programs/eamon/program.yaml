@@ -28,7 +28,7 @@ program:
     default: "teletext_classic"
     alternates: ["dark_mode", "paper_retro"]
 
-  mcp:
+  control:
     commands: ["SAVE", "LOAD", "CHEAT_STATS", "TELEPORT", "STATUS"]
 
   effort: "medium"

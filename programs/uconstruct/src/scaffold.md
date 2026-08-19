@@ -21,7 +21,7 @@ WALL, FLOOR, DOOR, WATER, GRASS, ROAD, WINDOW, STAIRS_UP, STAIRS_DOWN, BRIDGE, G
 ### uCode Integration
 - LENS: stone, wood, gold, food, room_count, castle_score
 - SKIN: repton_classic (warm earth tones)
-- MCP: save, load, export_map, import_blueprint
+- control: save, load, export_map, import_blueprint
 
 ## Grid Specification
 - 64 columns x 48 rows

@@ -270,7 +270,7 @@ interface SkinWeaverOutput {
 declare function skinWeaver(input: SkinWeaverInput): SkinWeaverOutput;
 declare function writeSkinManifest(output: SkinWeaverOutput, outputDir: string, format?: 'yaml' | 'json'): string;
 
-interface McpScribeInput {
+interface CommandScribeInput {
     program_name: string;
     program_type: 'adapt-source' | 'rewrite' | 'port-c-to-basic' | 'rewrite_inspired_by';
     game_mechanics: {
@@ -300,7 +300,7 @@ interface McpScribeInput {
         };
     };
 }
-interface McpCommand {
+interface ControlCommand {
     name: string;
     description: string;
     parameters: Record<string, {
@@ -308,17 +308,17 @@ interface McpCommand {
         description: string;
         default?: string;
     }>;
-    action: 'lens_capture' | 'lens_restore' | 'mcp_inject' | 'emulator_control' | 'lens_query';
+    action: 'lens_capture' | 'lens_restore' | 'control_inject' | 'emulator_control' | 'lens_query';
     payload: Record<string, unknown>;
 }
-interface McpScribeOutput {
-    skill: 'MCP-Scribe';
+interface CommandScribeOutput {
+    skill: 'Command-Scribe';
     version: '1.0';
     executed_at: string;
     program: string;
-    commands: McpCommand[];
+    commands: ControlCommand[];
 }
-declare function mcpScribe(input: McpScribeInput): McpScribeOutput;
+declare function commandScribe(input: CommandScribeInput): CommandScribeOutput;
 
 interface ResearchSource {
     type: 'mobygames' | 'wikipedia' | 'forum_thread' | 'review' | 'wiki' | 'manual' | 'let_s_play';
@@ -363,14 +363,14 @@ interface SkinThemeTarget {
     name: string;
     description: string;
 }
-interface McpCommandTarget {
+interface ControlCommandTarget {
     name: string;
     description: string;
 }
 interface UCodeIntegration {
     lens_extractors: LensExtractorTarget[];
     skin_themes: SkinThemeTarget[];
-    mcp_commands: McpCommandTarget[];
+    control_commands: ControlCommandTarget[];
 }
 interface GameDesignDocument {
     title: string;
@@ -443,4 +443,4 @@ declare function convertUCodeToLatLon(coord: string): {
     lon: number;
 } | null;
 
-export { type AssetReference, type BbcBasicProcedure, type CellPayload, type CharacterMapping, type CoreMechanic, type DataStructure, type ExtractorDefinition, type FunctionEntry, GRIDSMITH_TOOLS, type GameDesignDocument, type GridSmithToolDefinition, type GridSmithToolParameter, type InspireEngineInput, type InspireEngineOutput, type LensCraftInput, type LensCraftOutput, type McpCommand, type McpScribeInput, type McpScribeOutput, type MemoryMapEntry, type Recommendation, type SkinManifest, type SkinWeaverInput, type SkinWeaverOutput, type SourceMinerInput, type SourceMinerOutput, type UCodeWeaverInput, type UCodeWeaverOutput, type WorldCreationOptions, composeGridLayers, convertLatLonToUCode, convertUCodeToLatLon, createGridWorld, createWorld, createWorldManifest, editCell, exportUvox, findPath, importAmosProgram, importBasicProgram, inspireEngine, lensCraft, mcpScribe, skinWeaver, sourceMiner, ucodeWeaver, writeSkinManifest };
+export { type AssetReference, type BbcBasicProcedure, type CellPayload, type CharacterMapping, type CommandScribeInput, type CommandScribeOutput, type ControlCommand, type CoreMechanic, type DataStructure, type ExtractorDefinition, type FunctionEntry, GRIDSMITH_TOOLS, type GameDesignDocument, type GridSmithToolDefinition, type GridSmithToolParameter, type InspireEngineInput, type InspireEngineOutput, type LensCraftInput, type LensCraftOutput, type MemoryMapEntry, type Recommendation, type SkinManifest, type SkinWeaverInput, type SkinWeaverOutput, type SourceMinerInput, type SourceMinerOutput, type UCodeWeaverInput, type UCodeWeaverOutput, type WorldCreationOptions, commandScribe, composeGridLayers, convertLatLonToUCode, convertUCodeToLatLon, createGridWorld, createWorld, createWorldManifest, editCell, exportUvox, findPath, importAmosProgram, importBasicProgram, inspireEngine, lensCraft, skinWeaver, sourceMiner, ucodeWeaver, writeSkinManifest };

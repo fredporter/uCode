@@ -327,7 +327,7 @@ def _dispatch_gridsmith(upper: str) -> Dict[str, Any]:
                 "  create_world, import_basic_program, import_amos_program,",
                 "  create_grid, edit_cell, compose_layers, export_uvox,",
                 "  pathfind, latlon_to_ucode, ucode_to_latlon,",
-                "  source_miner, lens_craft, skin_weaver, mcp_scribe,",
+                "  source_miner, lens_craft, skin_weaver, command_scribe,",
                 "  inspire_engine, ucode_weaver",
             ]
         }

@@ -31,6 +31,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   GRIDSMITH_TOOLS: () => GRIDSMITH_TOOLS,
+  commandScribe: () => commandScribe,
   composeGridLayers: () => composeGridLayers,
   convertLatLonToUCode: () => convertLatLonToUCode,
   convertUCodeToLatLon: () => convertUCodeToLatLon,
@@ -44,7 +45,6 @@ __export(index_exports, {
   importBasicProgram: () => importBasicProgram,
   inspireEngine: () => inspireEngine,
   lensCraft: () => lensCraft,
-  mcpScribe: () => mcpScribe,
   skinWeaver: () => skinWeaver,
   sourceMiner: () => sourceMiner,
   ucodeWeaver: () => ucodeWeaver,
@@ -894,7 +894,7 @@ function generateRecommendations(findings, sourcePath) {
   for (const fn of findings.functions) {
     if (commandLabels.some((c) => fn.name.toLowerCase().includes(c.toLowerCase()))) {
       recs.push({
-        action: "create_mcp_command",
+        action: "create_control_command",
         target: fn.name,
         priority: "medium",
         rationale: `${fn.name} is a game event trigger point`
@@ -1397,7 +1397,7 @@ function writeSkinManifest(output, outputDir, format = "yaml") {
   return outPath;
 }
 
-// src/tools/mcp-scribe.ts
+// src/tools/command-scribe.ts
 function generateStandardCommands(programName, memoryMap, input) {
   const prefix = programName.toLowerCase().replace(/[^a-z]/g, "_");
   const commands = [];
@@ -1464,7 +1464,7 @@ function generateStandardCommands(programName, memoryMap, input) {
       name: `${prefix}_${actionName}`,
       description: fn.description || `Trigger ${fn.name} routine`,
       parameters: {},
-      action: "mcp_inject",
+      action: "control_inject",
       payload: {
         target: "6502_execute",
         address: fn.address,
@@ -1474,11 +1474,11 @@ function generateStandardCommands(programName, memoryMap, input) {
   }
   return commands;
 }
-function mcpScribe(input) {
+function commandScribe(input) {
   const memoryMap = input.source_miner_report.findings.memory_map || [];
   const commands = generateStandardCommands(input.program_name, memoryMap, input);
   return {
-    skill: "MCP-Scribe",
+    skill: "Command-Scribe",
     version: "1.0",
     executed_at: (/* @__PURE__ */ new Date()).toISOString(),
     program: input.program_name,
@@ -1640,7 +1640,7 @@ function buildGDD(targetGame, template) {
   const uCodeIntegration = {
     lens_extractors: buildLensTargets(template),
     skin_themes: buildSkinThemes(template),
-    mcp_commands: buildMcpCommands(targetGame, template)
+    control_commands: buildControlCommands(targetGame, template)
   };
   return {
     title: template.title,
@@ -1698,7 +1698,7 @@ function buildSkinThemes(template) {
   }
   return themes;
 }
-function buildMcpCommands(targetGame, template) {
+function buildControlCommands(targetGame, template) {
   const prefix = targetGame.toLowerCase().replace(/[^a-z]/g, "_");
   const commands = [
     { name: `${prefix}_save`, description: "Save game state" },
@@ -2192,8 +2192,8 @@ var GRIDSMITH_TOOLS = [
     }
   },
   {
-    name: "mcp_scribe",
-    description: "Generate MCP command specifications from Source-Miner report.",
+    name: "command_scribe",
+    description: "Generate control command specifications from Source-Miner report.",
     parameters: {
       source_miner_json: { type: "string", description: "Source-Miner output as JSON string" },
       program_name: { type: "string", description: "Program name (e.g. Elite, Repton)" },
@@ -2239,6 +2239,7 @@ function convertUCodeToLatLon(coord) {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   GRIDSMITH_TOOLS,
+  commandScribe,
   composeGridLayers,
   convertLatLonToUCode,
   convertUCodeToLatLon,
@@ -2252,7 +2253,6 @@ function convertUCodeToLatLon(coord) {
   importBasicProgram,
   inspireEngine,
   lensCraft,
-  mcpScribe,
   skinWeaver,
   sourceMiner,
   ucodeWeaver,

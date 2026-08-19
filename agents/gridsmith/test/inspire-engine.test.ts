@@ -52,7 +52,7 @@ describe('Inspire-Engine', () => {
     const integration = result.game_design_document.uCode_integration
     expect(integration.lens_extractors.length).toBeGreaterThan(0)
     expect(integration.skin_themes.length).toBeGreaterThan(0)
-    expect(integration.mcp_commands.length).toBeGreaterThan(0)
+    expect(integration.control_commands.length).toBeGreaterThan(0)
 
     const lensTargets = integration.lens_extractors.map((l) => l.target)
     expect(lensTargets).toContain('player_location')
@@ -62,7 +62,7 @@ describe('Inspire-Engine', () => {
     const skinNames = integration.skin_themes.map((s) => s.name)
     expect(skinNames).toContain('dark_fantasy')
 
-    const cmdNames = integration.mcp_commands.map((c) => c.name)
+    const cmdNames = integration.control_commands.map((c) => c.name)
     expect(cmdNames).toContain('knight_orc_time_skip')
   })
 
@@ -93,7 +93,7 @@ describe('Inspire-Engine', () => {
     expect(lensTargets).toContain('lives')
     expect(lensTargets).toContain('level')
 
-    const cmdNames = result.game_design_document.uCode_integration.mcp_commands.map((c) => c.name)
+    const cmdNames = result.game_design_document.uCode_integration.control_commands.map((c) => c.name)
     expect(cmdNames).toContain('apple_panic_level_select')
   })
 
@@ -120,7 +120,7 @@ describe('Inspire-Engine', () => {
     expect(lensTargets).toContain('food')
     expect(lensTargets).toContain('room_count')
 
-    const cmdNames = result.game_design_document.uCode_integration.mcp_commands.map((c) => c.name)
+    const cmdNames = result.game_design_document.uCode_integration.control_commands.map((c) => c.name)
     expect(cmdNames).toContain('uconstruct_export_map')
   })
 
@@ -153,7 +153,7 @@ describe('Inspire-Engine', () => {
     const integration = result.game_design_document.uCode_integration
     expect(integration.lens_extractors).toBeDefined()
     expect(integration.skin_themes).toBeDefined()
-    expect(integration.mcp_commands).toBeDefined()
+    expect(integration.control_commands).toBeDefined()
 
     // All lens extractors should have required fields
     for (const lens of integration.lens_extractors) {
@@ -162,8 +162,8 @@ describe('Inspire-Engine', () => {
       expect(lens.description).toBeTruthy()
     }
 
-    // All MCP commands should have name and description
-    for (const cmd of integration.mcp_commands) {
+    // All control commands should have name and description
+    for (const cmd of integration.control_commands) {
       expect(cmd.name).toBeTruthy()
       expect(cmd.description).toBeTruthy()
     }

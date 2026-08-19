@@ -21,6 +21,6 @@ NetHack 3.6.7 source is approximately 300K lines of C across 700+ files.
 ### uCode Integration
 - LENS: player stats, dungeon level, inventory, HP, turn count
 - SKIN: dark fantasy teletext with ASCII roguelike characters
-- MCP: save, load, status, level_teleport
+- control: save, load, status, level_teleport
 
 ## Estimated Effort: 3 weeks

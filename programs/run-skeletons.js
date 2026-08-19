@@ -33,7 +33,7 @@ const nethackGDD = {
       { name: 'dark_fantasy', description: 'Dark background for dungeon atmosphere' },
       { name: 'teletext_classic', description: 'Standard teletext' },
     ],
-    mcp_commands: [
+    control_commands: [
       { name: 'nethack_save', description: 'Save game state' },
       { name: 'nethack_load', description: 'Load game state' },
       { name: 'nethack_status', description: 'Query game state' },
@@ -67,7 +67,7 @@ const eamonGDD = {
     skin_themes: [
       { name: 'dark_fantasy', description: 'Dark medieval atmosphere' },
     ],
-    mcp_commands: [
+    control_commands: [
       { name: 'eamon_save', description: 'Save character' },
       { name: 'eamon_load', description: 'Load character' },
       { name: 'eamon_status', description: 'Character sheet' },
@@ -76,5 +76,5 @@ const eamonGDD = {
 };
 
 generate('NetHack', path.join(repoRoot, 'programs/nethack/src'), nethackGDD);
-generate('uConstruct', path.join(repoRoot, 'programs/uconstruct/src'), { title: 'uConstruct', genre: ['construction', 'simulation'], summary: 'Build a castle.', core_mechanics: [{ name: 'tile_editor', description: 'Place tiles to build' }], uCode_integration: { lens_extractors: [{ target: 'stone', type: 'uint16', description: 'Stone count' }, { target: 'wood', type: 'uint16', description: 'Wood count' }], skin_themes: [{ name: 'repton_classic', description: 'Warm tones' }], mcp_commands: [{ name: 'uconstruct_save', description: 'Save castle' }] } });
+generate('uConstruct', path.join(repoRoot, 'programs/uconstruct/src'), { title: 'uConstruct', genre: ['construction', 'simulation'], summary: 'Build a castle.', core_mechanics: [{ name: 'tile_editor', description: 'Place tiles to build' }], uCode_integration: { lens_extractors: [{ target: 'stone', type: 'uint16', description: 'Stone count' }, { target: 'wood', type: 'uint16', description: 'Wood count' }], skin_themes: [{ name: 'repton_classic', description: 'Warm tones' }], control_commands: [{ name: 'uconstruct_save', description: 'Save castle' }] } });
 generate('Eamon', path.join(repoRoot, 'programs/eamon/src'), eamonGDD);

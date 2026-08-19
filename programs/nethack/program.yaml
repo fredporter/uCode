@@ -22,7 +22,7 @@ program:
     default: "teletext_classic"
     alternates: ["dark_mode"]
 
-  mcp:
+  control:
     commands: ["SAVE", "LOAD", "MOVE", "STATUS"]
 
   effort: "medium"

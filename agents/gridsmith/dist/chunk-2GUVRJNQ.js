@@ -576,10 +576,12 @@ function scanFile(filePath, fileContent, currentOrg) {
       addressCounter = 0;
       continue;
     }
-    const equMatch = line.match(/^(\w+)\s+(?:EQU|=)\s*[$&]?([0-9A-Fa-f]+)/i);
+    const equMatch = line.match(/^(\w+)\s+(?:EQU|=)\s*[$&]?([0-9A-Fa-f]+)\s*(?:[;\\]\s*(.*))?/i);
     if (equMatch) {
       const label = equMatch[1];
       const addr = parseInt(equMatch[2], 16);
+      const inlineComment = equMatch[3]?.trim();
+      if (inlineComment) commentBuffer = inlineComment;
       const addrHex = "0x" + addr.toString(16).padStart(4, "0");
       if (/^(PAGE|OS|VIA|SHEILA|CRTC|ACIA|ADC|TUBE|ULA|USER|INTON|ROMSEL|SYSTEM)/i.test(label)) {
         commentBuffer = "";
@@ -840,7 +842,7 @@ function generateRecommendations(findings, sourcePath) {
   for (const fn of findings.functions) {
     if (commandLabels.some((c) => fn.name.toLowerCase().includes(c.toLowerCase()))) {
       recs.push({
-        action: "create_mcp_command",
+        action: "create_control_command",
         target: fn.name,
         priority: "medium",
         rationale: `${fn.name} is a game event trigger point`
@@ -1020,7 +1022,7 @@ function extractorToProvider(mem, programName) {
     const name = `${programName}_${snaked}`.replace(/^[^a-z_]+/, "");
     switch (entry.type) {
       case "byte":
-        if (entry.description && /stat(e|us)|flag|mode|bit/i.test(entry.description)) {
+        if (entry.description && /stat(e|us)|flag|mode|bit/i.test(entry.description) || /status|flag|mode/i.test(entry.label)) {
           providers.push({
             name,
             type: "bitmask",
@@ -1343,7 +1345,7 @@ function writeSkinManifest(output, outputDir, format = "yaml") {
   return outPath;
 }
 
-// src/tools/mcp-scribe.ts
+// src/tools/command-scribe.ts
 function generateStandardCommands(programName, memoryMap, input) {
   const prefix = programName.toLowerCase().replace(/[^a-z]/g, "_");
   const commands = [];
@@ -1410,7 +1412,7 @@ function generateStandardCommands(programName, memoryMap, input) {
       name: `${prefix}_${actionName}`,
       description: fn.description || `Trigger ${fn.name} routine`,
       parameters: {},
-      action: "mcp_inject",
+      action: "control_inject",
       payload: {
         target: "6502_execute",
         address: fn.address,
@@ -1420,11 +1422,11 @@ function generateStandardCommands(programName, memoryMap, input) {
   }
   return commands;
 }
-function mcpScribe(input) {
+function commandScribe(input) {
   const memoryMap = input.source_miner_report.findings.memory_map || [];
   const commands = generateStandardCommands(input.program_name, memoryMap, input);
   return {
-    skill: "MCP-Scribe",
+    skill: "Command-Scribe",
     version: "1.0",
     executed_at: (/* @__PURE__ */ new Date()).toISOString(),
     program: input.program_name,
@@ -1586,7 +1588,7 @@ function buildGDD(targetGame, template) {
   const uCodeIntegration = {
     lens_extractors: buildLensTargets(template),
     skin_themes: buildSkinThemes(template),
-    mcp_commands: buildMcpCommands(targetGame, template)
+    control_commands: buildControlCommands(targetGame, template)
   };
   return {
     title: template.title,
@@ -1644,7 +1646,7 @@ function buildSkinThemes(template) {
   }
   return themes;
 }
-function buildMcpCommands(targetGame, template) {
+function buildControlCommands(targetGame, template) {
   const prefix = targetGame.toLowerCase().replace(/[^a-z]/g, "_");
   const commands = [
     { name: `${prefix}_save`, description: "Save game state" },
@@ -1679,6 +1681,333 @@ function inspireEngine(input) {
     target_game: input.target_game,
     game_design_document: gdd,
     effort_estimate: template.effort
+  };
+}
+
+// src/tools/ucode-weaver.ts
+function generateInit(mechanics) {
+  const body = [
+    `  510   CLS`,
+    `  520   PRINT "Loading..."`,
+    `  530   REM Initialize game state from LENS variables`
+  ];
+  for (const mech of mechanics) {
+    if (mech.name === "combat_system") {
+      body.push(`  540   player_hp% = 30`);
+      body.push(`  550   player_ac% = 10`);
+    }
+    if (mech.name === "magic_system") {
+      body.push(`  560   mana% = MAX_MANA%`);
+    }
+    if (mech.name === "scoring") {
+      body.push(`  570   score%(0) = 0 : score%(1) = 0`);
+    }
+  }
+  body.push(`  580 ENDPROC`);
+  return {
+    name: "PROCinit",
+    description: "Initialize game state",
+    body: body.join("\n")
+  };
+}
+function generateInput(mechanics) {
+  const isTextAdventure = mechanics.some((m) => m.name === "text_parser");
+  const isPlatformer = mechanics.some((m) => m.name === "digging_system" || m.name === "ladder_movement");
+  if (isTextAdventure) {
+    return {
+      name: "PROCinput",
+      description: "Handle text parser input",
+      body: [
+        `  610   LOCAL K$`,
+        `  620   INPUT "> " K$`,
+        `  630   K$ = FNupper$(K$)`,
+        `  640   PROCparse_command(K$)`,
+        `  650 ENDPROC`
+      ].join("\n")
+    };
+  }
+  if (isPlatformer) {
+    return {
+      name: "PROCinput",
+      description: "Handle keyboard input for movement and actions",
+      body: [
+        `  610   LOCAL K%`,
+        `  620   K% = INKEY(0)`,
+        `  630   IF K% = 138 THEN pd% = 0 : ENDPROC`,
+        `  640   IF K% = 139 THEN pd% = 1 : ENDPROC`,
+        `  650   IF K% = 140 THEN pd% = 2 : ENDPROC`,
+        `  660   IF K% = 137 THEN pd% = 3 : ENDPROC`,
+        `  670   IF K% = 32 THEN PROCaction : ENDPROC`,
+        `  680 ENDPROC`
+      ].join("\n")
+    };
+  }
+  return {
+    name: "PROCinput",
+    description: "Handle cursor-based input",
+    body: [
+      `  610   LOCAL K%`,
+      `  620   K% = INKEY(0)`,
+      `  630   IF K% = 138 THEN cy% = cy% - 1 : ENDPROC`,
+      `  640   IF K% = 139 THEN cx% = cx% + 1 : ENDPROC`,
+      `  650   IF K% = 140 THEN cy% = cy% + 1 : ENDPROC`,
+      `  660   IF K% = 137 THEN cx% = cx% - 1 : ENDPROC`,
+      `  670   IF K% = 32 THEN PROCplace_tile : ENDPROC`,
+      `  680 ENDPROC`
+    ].join("\n")
+  };
+}
+function generateUpdate(mechanics) {
+  const hasEnemies = mechanics.some((m) => m.name === "enemy_ai" || m.name === "combat_system");
+  const hasNpcs = mechanics.some((m) => m.name === "npc_schedules");
+  const hasTimer = mechanics.some((m) => m.name === "digging_system");
+  const body = [
+    `  710   REM Main update loop`
+  ];
+  if (hasEnemies) {
+    body.push(`  720   PROCmove_enemies`);
+  }
+  if (hasNpcs) {
+    body.push(`  730   PROCupdate_npcs`);
+  }
+  if (hasTimer) {
+    body.push(`  740   PROCupdate_timers`);
+  }
+  body.push(`  750 ENDPROC`);
+  return {
+    name: "PROCupdate",
+    description: "Update game state each frame",
+    body: body.join("\n")
+  };
+}
+function generateRender(mechanics) {
+  const isTeletext = true;
+  const hasLocations = mechanics.some((m) => m.name === "world_model");
+  const body = [
+    `  810   LOCAL x%, y%`,
+    `  820   CLS`
+  ];
+  if (hasLocations) {
+    const location = mechanics.find((m) => m.name === "world_model");
+    const firstLoc = location?.locations?.[0];
+    body.push(`  830   PRINT "Location: ${firstLoc?.name || "Unknown"}"`);
+    body.push(`  840   PRINT "Exits: ${firstLoc?.exits?.join(", ") || "none"}"`);
+    body.push(`  850   PRINT`);
+  } else {
+    body.push(`  830   REM Render grid-based display`);
+    body.push(`  840   FOR y% = 0 TO 23`);
+    body.push(`  850     FOR x% = 0 TO 39`);
+    body.push(`  860       PRINT ".";`);
+    body.push(`  870     NEXT`);
+    body.push(`  880     PRINT`);
+    body.push(`  890   NEXT`);
+  }
+  body.push(`  910   PRINT "Score: "; score%(1) * 256 + score%(0)`);
+  body.push(`  920 ENDPROC`);
+  return {
+    name: "PROCrender",
+    description: "Render the display",
+    body: body.join("\n")
+  };
+}
+function generateProcedures(gdd) {
+  const mechanics = gdd.core_mechanics;
+  const procs = [];
+  procs.push(generateInit(mechanics));
+  procs.push(generateInput(mechanics));
+  procs.push(generateUpdate(mechanics));
+  procs.push(generateRender(mechanics));
+  procs.push({
+    name: "FNgame_over",
+    description: "Check if game is over",
+    body: [
+      `   REM Check lives or completion condition`,
+      `   = FALSE`
+    ].join("\n")
+  });
+  procs.push({
+    name: "PROCgame_over",
+    description: "Handle game over sequence",
+    body: [
+      `   CLS`,
+      `   PRINT "GAME OVER"`,
+      `   PRINT "Score: "; score%(1) * 256 + score%(0)`,
+      `   END`,
+      `ENDPROC`
+    ].join("\n")
+  });
+  procs.push({
+    name: "FNupper$",
+    description: "Convert string to uppercase",
+    body: [
+      `   LOCAL i%, c%, s$`,
+      `   s$ = ""`,
+      `   FOR i% = 1 TO LEN(K$)`,
+      `     c% = ASC(MID$(K$, i%, 1))`,
+      `     IF c% >= 97 AND c% <= 122 THEN c% = c% - 32`,
+      `     s$ = s$ + CHR$(c%)`,
+      `   NEXT`,
+      `   = s$`
+    ].join("\n")
+  });
+  return procs;
+}
+function generateBBCBasic(gdd, programName, runtime) {
+  const procs = generateProcedures(gdd);
+  return procs;
+}
+function generateCode(gdd, programName, runtime) {
+  const mechanics = gdd.core_mechanics;
+  const isText = mechanics.some((m) => m.name === "text_parser");
+  const isPlatformer = mechanics.some((m) => m.name === "digging_system");
+  const lines = [];
+  lines.push(`   10 REM ====================================================`);
+  lines.push(`   20 REM ${programName} - uCode Adaptation`);
+  lines.push(`   30 REM BBC BASIC for SDL 2.0 (Generated by uCode-Weaver v1.0)`);
+  lines.push(`   40 REM Runtime: ${runtime}`);
+  lines.push(`   50 REM Genre: ${gdd.genre.join(", ")}`);
+  lines.push(`   60 REM ====================================================`);
+  lines.push("");
+  const integr = gdd.uCode_integration;
+  let lineNum = 100;
+  lines.push(`  ${lineNum} REM ---- Global State (LENS-extractable) ----`);
+  lineNum += 10;
+  for (const lens of integr?.lens_extractors || []) {
+    const n = lens.target;
+    if (lens.type === "string") {
+      lines.push(`  ${lineNum} ${n}$ = ""`);
+    } else if (lens.type === "array") {
+      lines.push(`  ${lineNum} DIM ${n}(10)`);
+    } else {
+      lines.push(`  ${lineNum} ${n}% = 0`);
+    }
+    lineNum += 10;
+  }
+  lines.push("");
+  lines.push(`  ${lineNum} REM ---- Entry Point ----`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} PROCinit`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} REPEAT`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   IF FNgame_over THEN PROCgame_over`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   PROCinput`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   PROCupdate`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   PROCrender`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} UNTIL FALSE`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} END`);
+  lineNum += 10;
+  lines.push("");
+  lines.push(`  ${lineNum} DEF PROCinit`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   CLS : REM Initialize display`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} ENDPROC`);
+  lineNum += 10;
+  lines.push("");
+  lines.push(`  ${lineNum} DEF FNgame_over`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   REM Check win/lose conditions`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   = FALSE`);
+  lineNum += 10;
+  lines.push("");
+  lines.push(`  ${lineNum} DEF PROCinput`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   LOCAL K$`);
+  lineNum += 10;
+  if (isText) {
+    lines.push(`  ${lineNum}   INPUT "> " K$`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   K$ = FNupper$(K$)`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   PROCparse_command(K$)`);
+  } else if (isPlatformer) {
+    lines.push(`  ${lineNum}   K% = INKEY(0)`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   IF K% = 138 THEN pd% = 0 : ENDPROC : REM Up`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   IF K% = 139 THEN pd% = 1 : ENDPROC : REM Right`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   IF K% = 140 THEN pd% = 2 : ENDPROC : REM Down`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   IF K% = 137 THEN pd% = 3 : ENDPROC : REM Left`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   IF K% = 32 THEN PROCaction : ENDPROC : REM Space`);
+  } else {
+    lines.push(`  ${lineNum}   K% = INKEY(0)`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   REM Handle input`);
+  }
+  lineNum += 10;
+  lines.push(`  ${lineNum} ENDPROC`);
+  lineNum += 10;
+  lines.push("");
+  lines.push(`  ${lineNum} DEF PROCupdate`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   REM Update game state each frame`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} ENDPROC`);
+  lineNum += 10;
+  lines.push("");
+  lines.push(`  ${lineNum} DEF PROCrender`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   CLS`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   PRINT "Score: 0"`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} ENDPROC`);
+  lineNum += 10;
+  lines.push("");
+  lines.push(`  ${lineNum} DEF PROCgame_over`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   CLS`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   PRINT "GAME OVER"`);
+  lineNum += 10;
+  lines.push(`  ${lineNum}   END`);
+  lineNum += 10;
+  lines.push(`  ${lineNum} ENDPROC`);
+  if (isText) {
+    lineNum += 10;
+    lines.push("");
+    lines.push(`  ${lineNum} DEF FNupper$(s$)`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   LOCAL i%, c%, r$`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   r$ = ""`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   FOR i% = 1 TO LEN(s$)`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}     c% = ASC(MID$(s$, i%, 1))`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}     IF c% >= 97 AND c% <= 122 THEN c% = c% - 32`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}     r$ = r$ + CHR$(c%)`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   NEXT`);
+    lineNum += 10;
+    lines.push(`  ${lineNum}   = r$`);
+  }
+  return lines.join("\n");
+}
+function ucodeWeaver(input) {
+  const entry = input.entry_file || `${input.program_name.toLowerCase().replace(/[^a-z]/g, "_")}.bbc`;
+  const procedures = generateBBCBasic(input.gdd, input.program_name, input.runtime);
+  const generatedCode = generateCode(input.gdd, input.program_name, input.runtime);
+  return {
+    skill: "uCode-Weaver",
+    version: "1.0",
+    executed_at: (/* @__PURE__ */ new Date()).toISOString(),
+    program_name: input.program_name,
+    entry_file: entry,
+    procedures,
+    generated_code: generatedCode
   };
 }
 
@@ -1811,8 +2140,8 @@ var GRIDSMITH_TOOLS = [
     }
   },
   {
-    name: "mcp_scribe",
-    description: "Generate MCP command specifications from Source-Miner report.",
+    name: "command_scribe",
+    description: "Generate control command specifications from Source-Miner report.",
     parameters: {
       source_miner_json: { type: "string", description: "Source-Miner output as JSON string" },
       program_name: { type: "string", description: "Program name (e.g. Elite, Repton)" },
@@ -1825,6 +2154,16 @@ var GRIDSMITH_TOOLS = [
     parameters: {
       target_game: { type: "string", description: "Game name (e.g. Knight Orc, Apple Panic, uConstruct)" },
       sources_json: { type: "string", description: "JSON array of research sources [{type, url, reliability}]", default: "[]" },
+      runtime: { type: "string", description: "Target runtime", default: "bbc_basic_sdl" },
+      display_mode: { type: "string", description: "Display mode", default: "teletext" }
+    }
+  },
+  {
+    name: "ucode_weaver",
+    description: "Generate BBC BASIC skeleton code from a game design document.",
+    parameters: {
+      gdd_json: { type: "string", description: "Inspire-Engine GDD output as JSON string" },
+      program_name: { type: "string", description: "Program name (e.g. Apple Panic, Knight Orc)" },
       runtime: { type: "string", description: "Target runtime", default: "bbc_basic_sdl" },
       display_mode: { type: "string", description: "Display mode", default: "teletext" }
     }
@@ -1859,8 +2198,9 @@ export {
   lensCraft,
   skinWeaver,
   writeSkinManifest,
-  mcpScribe,
+  commandScribe,
   inspireEngine,
+  ucodeWeaver,
   GRIDSMITH_TOOLS,
   createGridWorld,
   convertLatLonToUCode,

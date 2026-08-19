@@ -1,5 +1,6 @@
 import {
   GRIDSMITH_TOOLS,
+  commandScribe,
   composeGridLayers,
   convertLatLonToUCode,
   convertUCodeToLatLon,
@@ -12,12 +13,11 @@ import {
   importBasicProgram,
   inspireEngine,
   lensCraft,
-  mcpScribe,
   skinWeaver,
   sourceMiner,
   ucodeWeaver,
   writeSkinManifest
-} from "./chunk-4ASG7VW3.js";
+} from "./chunk-2GUVRJNQ.js";
 
 // src/cli.ts
 import { createGrid } from "@udos/gridcore";
@@ -232,7 +232,7 @@ function main() {
     }
     return;
   }
-  if (section === "skill" && action === "mcp-scribe") {
+  if (section === "skill" && action === "command-scribe") {
     const minerJson = argValue(args, "--miner-report", "") || "";
     const programName = argValue(args, "--program", "Unknown") || "Unknown";
     const programType = argValue(args, "--type", "adapt-source") || "adapt-source";
@@ -242,7 +242,7 @@ function main() {
       return;
     }
     const report = JSON.parse(minerJson);
-    const result = mcpScribe({
+    const result = commandScribe({
       program_name: programName,
       program_type: programType,
       game_mechanics: { genre: [] },

@@ -15,7 +15,7 @@ The Skills Framework defines automated tools ("Skills") for importing and adapti
 | `Source-Miner` | Scan codebases for integration points | Repository URL or file path | JSON report of LENS-extractable elements |
 | `LENS-Craft` | Generate LENS extractor code | Source-Miner report + memory map | Python LENS extractor module |
 | `SKIN-Weaver` | Convert original graphics to uCode SKINs | Asset files (.png, .bmp, sprite data) | SKIN manifest + asset files |
-| `MCP-Scribe` | Define MCP command interfaces | Source-Miner report + game mechanics spec | MCP command YAML specification |
+| `Command-Scribe` | Define control command interfaces | Source-Miner report + game mechanics spec | control command YAML specification |
 | `Inspire-Engine` | Generate game design docs for rewrites | Research materials (reviews, wikis) | Structured game design document |
 | `uCode-Weaver` | Generate skeleton code from GDD | Inspire-Engine GDD output | BBC BASIC or Python source with LENS/SKIN/MCP hooks |
 
@@ -147,7 +147,7 @@ The Skills Framework defines automated tools ("Skills") for importing and adapti
       "rationale": "Commodity trading data for external tools"
     },
     {
-      "action": "create_mcp_command",
+      "action": "create_control_command",
       "target": "DockShip",
       "priority": "medium",
       "rationale": "Allow external docking trigger"
@@ -357,9 +357,9 @@ class EliteLensExtractor:
 
 ---
 
-## 4. MCP-Scribe Schema
+## 4. Command-Scribe Schema
 
-**Purpose:** Generate MCP command specifications from game mechanics analysis.
+**Purpose:** Generate control command specifications from game mechanics analysis.
 
 ### Input
 
@@ -381,7 +381,7 @@ class EliteLensExtractor:
 
 ```json
 {
-  "skill": "MCP-Scribe",
+  "skill": "Command-Scribe",
   "version": "1.0",
   "executed_at": "2026-07-06T23:00:00Z",
   "program": "Elite",
@@ -424,7 +424,7 @@ class EliteLensExtractor:
       "name": "elite_dock",
       "description": "Trigger docking sequence",
       "parameters": {},
-      "action": "mcp_inject",
+      "action": "control_inject",
       "payload": {
         "target": "6502_execute",
         "address": "0x1200",
@@ -440,7 +440,7 @@ class EliteLensExtractor:
           "description": "Target system index (0-255)"
         }
       },
-      "action": "mcp_inject",
+      "action": "control_inject",
       "payload": {
         "target": "6502_execute",
         "address": "0x1500",
@@ -563,7 +563,7 @@ class EliteLensExtractor:
         { "name": "dark_fantasy", "description": "Dark background with muted colours" },
         { "name": "teletext_classic", "description": "Standard MODE 7 teletext" }
       ],
-      "mcp_commands": [
+      "control_commands": [
         { "name": "knight_orc_save", "description": "Save game state" },
         { "name": "knight_orc_load", "description": "Load game state" },
         { "name": "knight_orc_time_skip", "description": "Advance game time by N ticks" }
@@ -597,7 +597,7 @@ class EliteLensExtractor:
 ### Phase 2: Core Skills (Week 3-4)
 
 - Build `LENS-Craft` — generates Python extractors
-- Build `MCP-Scribe` — generates MCP command YAML
+- Build `Command-Scribe` — generates control command YAML
 - Test on Elite source (simplest known target)
 
 ### Phase 3: Asset Skills (Week 5-6)
@@ -609,5 +609,5 @@ class EliteLensExtractor:
 ### Phase 4: Integration (Week 7-8)
 
 - Keep skills available through the GridSmith CLI tool registry
-- Create end-to-end pipeline: `Source-Miner → LENS-Craft → MCP-Scribe`
+- Create end-to-end pipeline: `Source-Miner → LENS-Craft → Command-Scribe`
 - Generate Program.yaml from skills pipeline output

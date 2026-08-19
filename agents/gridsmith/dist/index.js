@@ -1,5 +1,6 @@
 import {
   GRIDSMITH_TOOLS,
+  commandScribe,
   composeGridLayers,
   convertLatLonToUCode,
   convertUCodeToLatLon,
@@ -13,14 +14,14 @@ import {
   importBasicProgram,
   inspireEngine,
   lensCraft,
-  mcpScribe,
   skinWeaver,
   sourceMiner,
   ucodeWeaver,
   writeSkinManifest
-} from "./chunk-4ASG7VW3.js";
+} from "./chunk-2GUVRJNQ.js";
 export {
   GRIDSMITH_TOOLS,
+  commandScribe,
   composeGridLayers,
   convertLatLonToUCode,
   convertUCodeToLatLon,
@@ -34,7 +35,6 @@ export {
   importBasicProgram,
   inspireEngine,
   lensCraft,
-  mcpScribe,
   skinWeaver,
   sourceMiner,
   ucodeWeaver,

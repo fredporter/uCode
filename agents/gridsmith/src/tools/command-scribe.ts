@@ -2,7 +2,7 @@
 // Types (aligned with SKILLS_FRAMEWORK.md §4)
 // ---------------------------------------------------------------------------
 
-export interface McpScribeInput {
+export interface CommandScribeInput {
   program_name: string
   program_type: 'adapt-source' | 'rewrite' | 'port-c-to-basic' | 'rewrite_inspired_by'
   game_mechanics: {
@@ -30,20 +30,20 @@ export interface McpScribeInput {
   }
 }
 
-export interface McpCommand {
+export interface ControlCommand {
   name: string
   description: string
   parameters: Record<string, { type: string; description: string; default?: string }>
-  action: 'lens_capture' | 'lens_restore' | 'mcp_inject' | 'emulator_control' | 'lens_query'
+  action: 'lens_capture' | 'lens_restore' | 'control_inject' | 'emulator_control' | 'lens_query'
   payload: Record<string, unknown>
 }
 
-export interface McpScribeOutput {
-  skill: 'MCP-Scribe'
+export interface CommandScribeOutput {
+  skill: 'Command-Scribe'
   version: '1.0'
   executed_at: string
   program: string
-  commands: McpCommand[]
+  commands: ControlCommand[]
 }
 
 // ---------------------------------------------------------------------------
@@ -52,11 +52,11 @@ export interface McpScribeOutput {
 
 function generateStandardCommands(
   programName: string,
-  memoryMap: McpScribeInput['source_miner_report']['findings']['memory_map'],
-  input: McpScribeInput,
-): McpCommand[] {
+  memoryMap: CommandScribeInput['source_miner_report']['findings']['memory_map'],
+  input: CommandScribeInput,
+): ControlCommand[] {
   const prefix = programName.toLowerCase().replace(/[^a-z]/g, '_')
-  const commands: McpCommand[] = []
+  const commands: ControlCommand[] = []
 
   // Collect game state keys for save/load
   const stateKeys = memoryMap
@@ -130,7 +130,7 @@ function generateStandardCommands(
   })
 
   // Inject commands for key subroutines (from functions array, filtered from source_miner_report)
-  const functions = (input as McpScribeInput).source_miner_report?.findings?.functions || []
+  const functions = (input as CommandScribeInput).source_miner_report?.findings?.functions || []
   const injectableFunctions = functions
     .filter(
       (f: { name: string; address: string; description: string }) =>
@@ -145,7 +145,7 @@ function generateStandardCommands(
       name: `${prefix}_${actionName}`,
       description: fn.description || `Trigger ${fn.name} routine`,
       parameters: {},
-      action: 'mcp_inject',
+      action: 'control_inject',
       payload: {
         target: '6502_execute',
         address: fn.address,
@@ -158,16 +158,16 @@ function generateStandardCommands(
 }
 
 // ---------------------------------------------------------------------------
-// Main MCP-Scribe entry point
+// Main Command-Scribe entry point
 // ---------------------------------------------------------------------------
 
-export function mcpScribe(input: McpScribeInput): McpScribeOutput {
+export function commandScribe(input: CommandScribeInput): CommandScribeOutput {
   const memoryMap = input.source_miner_report.findings.memory_map || []
 
   const commands = generateStandardCommands(input.program_name, memoryMap, input)
 
   return {
-    skill: 'MCP-Scribe',
+    skill: 'Command-Scribe',
     version: '1.0',
     executed_at: new Date().toISOString(),
     program: input.program_name,

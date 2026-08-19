@@ -30,7 +30,7 @@ program:
     default: "teletext_classic"
     alternates: ["pixel_art", "paper_retro"]
 
-  mcp:
+  control:
     commands: ["SAVE", "LOAD", "EXPORT_TAILWIND", "EXPORT_MARP", "DEBUG"]
 
   effort: "large"

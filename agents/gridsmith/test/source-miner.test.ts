@@ -237,9 +237,9 @@ describe('SourceMiner', () => {
     const lensRecs = result.recommendations.filter((r) => r.action === 'create_lens_extractor')
     expect(lensRecs.length).toBeGreaterThan(0)
 
-    // Should recommend MCP command for subroutines
-    const mcpRecs = result.recommendations.filter((r) => r.action === 'create_mcp_command')
-    expect(mcpRecs.length).toBeGreaterThan(0)
+    // Should recommend control command for subroutines
+    const controlRecs = result.recommendations.filter((r) => r.action === 'create_control_command')
+    expect(controlRecs.length).toBeGreaterThan(0)
 
     // Should recommend SKIN for assets
     const skinRec = result.recommendations.find((r) => r.action === 'create_skin_manifest')
