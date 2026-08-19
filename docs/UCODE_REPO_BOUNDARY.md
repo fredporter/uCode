@@ -40,11 +40,11 @@ The system has **two separate lanes**, kept apart on purpose:
 | ---------------------------- | ------------------------------------------------------ |
 | `packages/gridcore`          | Grid algebra, code addressing, cell/layer model        |
 | `packages/viewport-renderer` | Browser render surfaces, Terminal/Teletext widgets     |
-| `agents/gridsmith`           | CLI/MCP/import/export/build tooling                    |
+| `agents/gridsmith`           | CLI/import/export/build tooling                        |
 | `runtimes/basic`             | BASIC runtime bridge/package                           |
 | `runtimes/amos`              | AMOS runtime bridge/package                            |
 | `shared`                     | Cross-runtime support (not host-app-specific)          |
-| `config/`                    | AI model routing, MCP server definitions, vault config |
+| `config/`                    | Runtime and development configuration                  |
 | `docs/`                      | Specs, boundary docs, workflows                        |
 | `tests/`                     | Integration tests                                      |
 
@@ -64,13 +64,13 @@ These belong to host applications (e.g., uCore).
 ```
 uCore / host app
     |
-    | consumes (packages, CLI, MCP, artifacts)
+    | consumes (packages, CLI, artifacts)
     v
 uCode
     |
     | exposes
     v
-Runtime + algebra + widgets + CLI/MCP
+Runtime + algebra + widgets + CLI
     |
     | renders/inspects through
     v
@@ -87,7 +87,7 @@ uCore owns:
   - user-facing developer view
   - orchestration UI
   - snackbar daemon
-  - Hivemind MCP server
+  - external MCP gateway and client configuration
   - Ollama lifecycle management
 
 uCode owns:
@@ -97,7 +97,6 @@ uCode owns:
   - BASIC/AMOS bridges
   - GridSmith agent
   - CLI
-  - MCP tools
   - terminal/teletext render surfaces
 ```
 
@@ -139,26 +138,13 @@ No package should depend on uCore or any host application.
 > **uCode must be installable, buildable, testable, and packageable from this
 > repo alone. It must not depend on implementation code from uCore.**
 
-## AI Integration Surface
+## External Tool Surface
 
-uCode provides MCP tooling (via GridSmith) that can be consumed by AI agents.
-For full AI provider routing (Ollama, OpenRouter, Hivemind), uCode delegates to
-uCore's snackbar daemon:
-
-```
-GridSmith MCP  →  uCore Snackbar (port 8484)  →  LiteLLM → Ollama/OpenRouter
-```
-
-Configuration for this lives in:
-
-- `config/hivemind.env` — API keys
-- `config/openrouter.yaml` — Model routing tiers
-- `config/mcp_config.json` — MCP server definitions
-- `config/vault.yaml` — Vault/secret paths
+uCode owns deterministic package, CLI, and runtime contracts. uCore may adapt a
+bounded subset through its `udos-mcp` gateway. uCode does not implement or
+configure an external MCP server.
 
 ## Related Documents
 
 - `docs/GRID_ALGEBRA_RELEASE_COLLATION.md`
 - `docs/UCODE_RUNTIME_SPEC.md`
-- `config/openrouter.yaml`
-- `config/mcp_config.json`

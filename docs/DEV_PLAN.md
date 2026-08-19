@@ -39,7 +39,7 @@ source .venv/bin/activate
 
 ```bash
 # Self-check before commit
-./scripts/setup-ai-integration.sh config
+npm run build && npm test
 
 # Or use PyCharm Run Config → "uCode: self-check"
 ```
@@ -75,11 +75,11 @@ Priority: basic runtime → amos runtime → shared
 ### Phase 3: Integration (COMPLETE)
 
 ```
-uCode packages → GridSmith MCP → uCore consumption
+uCode packages → GridSmith CLI → uCore consumption
 ```
 
 - GridSmith CLI works standalone (16 tools)
-- GridSmith MCP tools registered with uCore (JSON-RPC on port 8670)
+- GridSmith CLI tools consumed by uCore's owned API bridge
 - uCore can import `@udos/viewport-renderer` widgets
 - LENS program registry wired (Repton + Elite + NetHack + Eamon)
 
@@ -216,7 +216,6 @@ ollama run qwen2.5-coder:3b --keep-alive -1  # keep forever
 | `config/ollama-models.yaml`   | Ollama model tiers, routing, costs             |
 | `config/openrouter.yaml`      | OpenRouter model tiers, fallback chain         |
 | `config/hivemind.env`         | API keys, default provider/model               |
-| `config/mcp_config.json`      | MCP server definitions                         |
 
 ### Env Variables
 
@@ -272,10 +271,6 @@ ollama list                           # Show pulled models
 ollama ps                             # Show running models
 ollama stop qwen2.5-coder:7b          # Free RAM
 ollama rm qwen2.5-coder:14b           # Delete model
-
-# ── Config ─────────────────────────────────────────────────────
-cp config/hivemind.env "${UDOS_HOME:-$HOME/Code/.udos}/config/"
-./scripts/setup-ai-integration.sh     # Full AI setup
 
 # ── Health ──────────────────────────────────────────────────────
 curl http://localhost:11434/api/tags  # Ollama health
