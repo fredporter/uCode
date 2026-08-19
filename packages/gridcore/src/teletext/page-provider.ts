@@ -193,7 +193,7 @@ export class TeletextPageProvider {
         '  CEEFAX numeric navigation.',
         '',
         '  GridSmith Agent v0.2.0 with',
-        '  10 MCP tools now available.',
+        '  6 workflow skills available.',
         '  BBCSDL engine bridge mock',
         '  mode operational.',
       ],
