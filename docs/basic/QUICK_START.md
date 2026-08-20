@@ -52,6 +52,6 @@ ucode1 --help
 
 ## Next Steps
 
-- Read the [User Guide](USER_GUIDE.md) for comprehensive documentation
+- Read the [User Guide](UCODE1_USER_GUIDE.md) for comprehensive documentation
 - Browse [examples](../examples/) for sample programs
 - Try the [lessons](../lessons/) to learn BBC BASIC

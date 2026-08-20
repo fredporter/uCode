@@ -14,7 +14,7 @@ intent_classifier = IntentClassifier()
 
 
 def execute_dev_action(tool, args):
-    """Execute DevOnly MCP actions."""
+    """Execute an internal development action."""
     from .mistral import edit_mistral_prompt, get_mistral_config, reset_mistral_config
     
     dev_actions = {

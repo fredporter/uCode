@@ -4,10 +4,9 @@
 
 | File                                                                   | Domain                                    |
 | ---------------------------------------------------------------------- | ----------------------------------------- |
-| [DEV_PLAN.md](DEV_PLAN.md)                                             | Development plan, 6 phases, package order |
 | [GRIDSMITH_DEV_PLAN.md](GRIDSMITH_DEV_PLAN.md)                         | GridSmith agent build-out plan            |
 | [UCODE_RUNTIME_SPEC.md](UCODE_RUNTIME_SPEC.md)                         | BBC BASIC for SDL 2.0 runtime             |
-| [INTEGRATION.md](INTEGRATION.md)                                       | uCore, Hivemind, MCP, Vault, OpenRouter   |
+| [INTEGRATION.md](INTEGRATION.md)                                       | uCore ownership and runtime integration    |
 | [GRID_ALGEBRA_RELEASE_COLLATION.md](GRID_ALGEBRA_RELEASE_COLLATION.md) | Grid algebra release notes                |
 
 ## specs/ — Canonical Specifications
@@ -40,14 +39,10 @@
 | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | [GRID_ALGEBRA_COLUMN_SPECS.md](gridcore/GRID_ALGEBRA_COLUMN_SPECS.md)                                     | Grid Algebra column-width system (canonical spec)    |
 | [GRID_ALGEBRA_COLUMN_SPECS_DRAFT_2026-07-01.md](gridcore/GRID_ALGEBRA_COLUMN_SPECS_DRAFT_2026-07-01.md)   | Draft: new column algebra with breakpoint tables     |
-| [GRIDSMITH_WORKSPACE_ACTUAL_PATHS_PLAN.md](gridcore/GRIDSMITH_WORKSPACE_ACTUAL_PATHS_PLAN.md)             | GridSmith workspace actual paths vs planned          |
 | [GRIDUI_GRIDCORE_EXTRACTION_PLAN.md](gridcore/GRIDUI_GRIDCORE_EXTRACTION_PLAN.md)                         | Extracting GridCore library from GridUI surface      |
-| [HANDOVER_UCODE_GRIDSMITH_BUILDOUT.md](gridcore/HANDOVER_UCODE_GRIDSMITH_BUILDOUT.md)                     | Handover notes: uCode GridSmith build                |
 | [TERMINAL_TELETEXT_GRID_WORK_TAG.md](gridcore/TERMINAL_TELETEXT_GRID_WORK_TAG.md)                         | Terminal teletext grid work tag (Ceefax integration) |
 | [12_v2_render_theme_and_gui_pipeline.md](gridcore/12_v2_render_theme_and_gui_pipeline.md)                 | v2 render themes and GUI pipeline                    |
-| [13_v2_workflow_automation_runtime_split.md](gridcore/13_v2_workflow_automation_runtime_split.md)         | v2 workflow automation and runtime split             |
 | [2026-03-16-core-spatial-vocabulary-planning.md](gridcore/2026-03-16-core-spatial-vocabulary-planning.md) | Core spatial vocabulary planning                     |
-| [2026-03-16-wizard-core-grid-v2-specs.md](gridcore/2026-03-16-wizard-core-grid-v2-specs.md)               | Wizard Core Grid v2 specifications                   |
 
 ---
 

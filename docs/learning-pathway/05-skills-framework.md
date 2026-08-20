@@ -94,7 +94,7 @@ LENS capture: repton state snapshot taken (31 keys).
 
 ## Building Your First Program
 
-1. Create program scaffold: `programs/<name>/src/`, `lens/`, `mcp/`, `skin/`
+1. Create program scaffold: `programs/<name>/src/`, `lens/`, `control/`, `skin/`
 2. Run Source-Miner on assembly source (or Inspire-Engine for rewrites)
 3. Run LENS-Craft to generate extractor
 4. Run Command-Scribe for commands

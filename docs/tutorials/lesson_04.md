@@ -220,5 +220,5 @@ Create your own world:
 
 - **Contribute** — fix a doc, add an example, write a tutorial
 - **Publish** — release your snack to the community
-- **Build tools** — extend GridSmith with new MCP tools
+- **Build tools** — extend GridSmith with new deterministic workflow skills
 - **Teach** — help new students through the pathway
