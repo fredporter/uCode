@@ -355,7 +355,7 @@ The feed system provides a universal JSON feed transport. Every event, email, ta
 ~/.local/share/udos/feeds/
 ├── system/     (events, hardware, security)
 ├── user/       (notify, sessions, preferences)
-├── mcp/        (messages, tools, resources)
+├── control/    (runtime commands and responses)
 ├── network/    (family, nas, sync)
 └── spool/      (compress, archive, vector)
 ```

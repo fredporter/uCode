@@ -33,7 +33,7 @@ approach and exercises at the end of each chapter.
    - programs in ~/Vault/programs/
    - snacks in ~/Vault/snacks/
    - assets in ~/Vault/assets/
-5. BBC lineage with modern integrations (LENS, SKIN, MCP).
+5. BBC lineage with modern integrations (LENS, SKIN, RCP).
 
 ### Manual Structure
 

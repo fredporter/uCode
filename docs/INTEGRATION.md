@@ -30,8 +30,8 @@ the product repositories.
 - Hivemind decomposes governed task envelopes; it is not a provider or task store.
 - The provider router selects Ollama, OpenRouter, or OpenAI according to privacy,
   capability, health, and budget policy.
-- GridSmith exposes deterministic CLI/library contracts and an optional MCP
-  server. Any external client connects to that server from its own configuration.
+- GridSmith exposes deterministic CLI/library contracts. uCore may adapt a
+  bounded read-only subset through its canonical `udos-mcp` gateway.
 - Vault content is referenced through approved workspace roots; API keys never
   belong in a vault or this repository.
 

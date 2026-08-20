@@ -14,7 +14,7 @@ uCode is **not** a full application GUI. It provides:
 - Runtime packages
 - Grid/code algebra
 - Import/export tooling
-- CLI/MCP surfaces
+- CLI and runtime surfaces
 - Inspectable render targets (terminal & teletext widgets)
 
 ## Lanes: Prose vs GridCore

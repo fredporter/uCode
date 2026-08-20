@@ -133,15 +133,6 @@
         "notes": "Draft of new column algebra with breakpoint tables"
       },
       {
-        "file": "GRIDSMITH_WORKSPACE_ACTUAL_PATHS_PLAN.md",
-        "title": "GridSmith Workspace Actual Paths Plan",
-        "completeness": 70,
-        "level": "average",
-        "relevance": 85,
-        "topics": ["gridsmith", "workspace", "paths", "planning"],
-        "notes": "Maps actual vs planned workspace paths"
-      },
-      {
         "file": "GRIDUI_GRIDCORE_EXTRACTION_PLAN.md",
         "title": "GridUI GridCore Extraction Plan",
         "completeness": 60,
@@ -149,15 +140,6 @@
         "relevance": 80,
         "topics": ["gridui", "gridcore", "extraction", "architecture"],
         "notes": "Plan for extracting GridCore from GridUI — partially complete"
-      },
-      {
-        "file": "HANDOVER_UCODE_GRIDSMITH_BUILDOUT.md",
-        "title": "Handover: uCode GridSmith Buildout",
-        "completeness": 75,
-        "level": "average",
-        "relevance": 90,
-        "topics": ["handover", "gridsmith", "buildout", "planning"],
-        "notes": "Handover notes for GridSmith build — useful context"
       },
       {
         "file": "TERMINAL_TELETEXT_GRID_WORK_TAG.md",
@@ -178,15 +160,6 @@
         "notes": "v2 rendering pipeline and theme system design"
       },
       {
-        "file": "13_v2_workflow_automation_runtime_split.md",
-        "title": "v2 Workflow Automation Runtime Split",
-        "completeness": 60,
-        "level": "advanced",
-        "relevance": 80,
-        "topics": ["workflow", "automation", "runtime", "split"],
-        "notes": "v2 workflow automation and runtime architecture split"
-      },
-      {
         "file": "2026-03-16-core-spatial-vocabulary-planning.md",
         "title": "Core Spatial Vocabulary Planning",
         "completeness": 60,
@@ -194,15 +167,6 @@
         "relevance": 85,
         "topics": ["spatial", "vocabulary", "planning", "algebra"],
         "notes": "Planning doc for spatial vocabulary — useful reference"
-      },
-      {
-        "file": "2026-03-16-wizard-core-grid-v2-specs.md",
-        "title": "Wizard Core Grid v2 Specs",
-        "completeness": 70,
-        "level": "advanced",
-        "relevance": 90,
-        "topics": ["grid", "v2", "wizard", "spec"],
-        "notes": "Wizard Core Grid v2 specifications"
       }
     ],
     "spatial": [
@@ -456,14 +420,6 @@
         "topics": ["troubleshooting", "debug"]
       },
       {
-        "file": "LEARNING-PATHS.md",
-        "title": "Learning Paths (DevStudio)",
-        "completeness": 60,
-        "level": "beginner",
-        "relevance": 65,
-        "topics": ["learning", "paths", "DevStudio"]
-      },
-      {
         "file": "Education-Pathways.md",
         "title": "Education Pathways",
         "completeness": 55,
@@ -540,8 +496,8 @@
         "completeness": 80,
         "level": "average",
         "relevance": 100,
-        "topics": ["integration", "uCore", "Hivemind", "MCP", "OpenRouter", "Vault"],
-        "notes": "Integration reference for uCode ecosystem"
+        "topics": ["integration", "uCore", "ownership", "GridSmith", "Vault"],
+        "notes": "Current ownership and runtime integration reference"
       },
       {
         "file": "GRID_ALGEBRA_RELEASE_COLLATION.md",
