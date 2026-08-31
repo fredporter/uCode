@@ -14,15 +14,16 @@ from typing import Any
 from aiohttp import web
 
 log = logging.getLogger("ucode_runtime.bbcsdl")
-DEFAULT_BRIDGE_PATH = "~/Code/uCode1/core_py/bbc/bbcsdl_bridge.py"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_BRIDGE_PATH = REPO_ROOT / "runtimes/basic/bridge/gridcore_adapter.py"
 
 PAGE_COLS = 48
 PAGE_ROWS = 36
 
 
 def _resolve_bridge_path() -> Path:
-    configured = os.environ.get("UCORE_BBCSDL_BRIDGE_PATH", DEFAULT_BRIDGE_PATH)
-    return Path(os.path.expanduser(configured))
+    configured = os.environ.get("UCORE_BBCSDL_BRIDGE_PATH")
+    return Path(configured).expanduser() if configured else DEFAULT_BRIDGE_PATH
 
 
 def _convert_grid_to_ceefax(

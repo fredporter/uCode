@@ -6,12 +6,17 @@ Date: 2026-07-31
 
 ## Platform Naming Clarification
 
-uCode is one platform with profile modes, not separate product stacks.
+This section is superseded by
+[`../UCODE_ARCHITECTURE.md`](../UCODE_ARCHITECTURE.md).
 
-1. uCode1 = teletext-first profile (MODE 7 foundation)
-2. uCode2 = sprite/BOB-capable profile enabled through AMOS shim compatibility
+1. uCode 1 (product name: uCode) is the compatible BBCSDL-based 2D runtime.
+2. Teletext, Terminal, GridCore, sprites, BOBs, LENS, SKIN, capsules, and the
+   optional AMOS compatibility shim all belong to uCode 1.
+3. uCode 2 is the experimental 3D/spatial generation and consumes stable,
+   versioned uCode 1 artifacts.
 
-In GridCore-era architecture, both run inside the same uCode runtime boundary.
+Display choices are called registers or presentation modes, not product
+versions.
 
 ## Final Program Adaptation Strategy
 

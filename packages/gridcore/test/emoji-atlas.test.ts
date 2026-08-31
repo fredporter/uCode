@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { getPixel, measureInkBounds } from "../src/pixel/pixel-buffer";
+import { EMOJI_ATLAS } from "../src/seeds/emoji-atlas";
 import {
   emojiAtlasSize,
   getEmojiGlyph,
   loadEmojiAtlas,
 } from "../src/seeds/emoji";
+import atlasReference from "../../../seeds/gridcore/glyph-atlas.emoji.json";
 
 describe("emoji atlas", () => {
   const atlas = loadEmojiAtlas();
@@ -12,6 +14,14 @@ describe("emoji atlas", () => {
   it("bakes the curated set deterministically", () => {
     // 8 solid squares + 9 geometric glyphs
     expect(emojiAtlasSize(atlas)).toBe(17);
+  });
+
+  it("matches its JSON reference with valid fixed-size palette buffers", () => {
+    expect(EMOJI_ATLAS).toEqual(atlasReference);
+    for (const pixels of Object.values(EMOJI_ATLAS.glyphs)) {
+      expect(pixels).toHaveLength(EMOJI_ATLAS.cellW * EMOJI_ATLAS.cellH);
+      expect(pixels.every((pixel) => Number.isInteger(pixel) && pixel >= 0 && pixel <= 31)).toBe(true);
+    }
   });
 
   it("renders the red heart as red ink on a transparent background", () => {

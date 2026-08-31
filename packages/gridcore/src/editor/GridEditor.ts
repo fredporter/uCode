@@ -24,6 +24,8 @@ export class GridEditor {
   private redoStack: GridBuffer[] = []
   private selection: GridSelection | null = null
   private clipboard: GridBuffer | null = null
+  private revision = 0
+  private savedRevision = 0
 
   constructor(initial: GridBuffer) {
     this.state = cloneBuffer(initial)
@@ -39,6 +41,40 @@ export class GridEditor {
 
   get rows(): number {
     return this.state.length
+  }
+
+  get canUndo(): boolean {
+    return this.undoStack.length > 0
+  }
+
+  get canRedo(): boolean {
+    return this.redoStack.length > 0
+  }
+
+  get dirty(): boolean {
+    return this.revision !== this.savedRevision
+  }
+
+  get hasClipboard(): boolean {
+    return this.clipboard !== null
+  }
+
+  markSaved(): void {
+    this.savedRevision = this.revision
+  }
+
+  /** Apply an arbitrary buffer mutation as one undoable transaction. */
+  mutate(operation: (draft: GridBuffer) => void): void {
+    const draft = cloneBuffer(this.state)
+    operation(draft)
+    this.commit()
+    this.state = draft
+  }
+
+  /** Replace the document buffer as one undoable transaction. */
+  replace(buffer: GridBuffer): void {
+    this.commit()
+    this.state = cloneBuffer(buffer)
   }
 
   // ── cell editing ───────────────────────────────────────────────
@@ -135,6 +171,7 @@ export class GridEditor {
     if (!prev) return
     this.redoStack.push(cloneBuffer(this.state))
     this.state = prev
+    this.revision--
   }
 
   redo(): void {
@@ -142,6 +179,7 @@ export class GridEditor {
     if (!next) return
     this.undoStack.push(cloneBuffer(this.state))
     this.state = next
+    this.revision++
   }
 
   // ── internal ───────────────────────────────────────────────────
@@ -150,10 +188,10 @@ export class GridEditor {
     this.undoStack.push(cloneBuffer(this.state))
     if (this.undoStack.length > 100) this.undoStack.shift()
     this.redoStack = []
+    this.revision++
   }
 
   private inBounds(x: number, y: number): boolean {
     return y >= 0 && y < this.state.length && x >= 0 && x < this.state[y].length
   }
 }
-

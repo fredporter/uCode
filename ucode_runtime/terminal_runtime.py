@@ -8,13 +8,14 @@ import json
 import os
 import pty
 import shlex
+import shutil
 import signal
 import struct
 import subprocess
 import tempfile
 import termios
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping, Sequence
 
 from aiohttp import WSMsgType, web
 
@@ -22,6 +23,25 @@ DEFAULT_COLS = 40
 DEFAULT_ROWS = 25
 DEFAULT_SHELL = os.environ.get("SHELL", "/bin/zsh")
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def resolve_terminal_basic_command(env: dict[str, str] | None = None) -> Path | None:
+    """Find the BBC BASIC Console executable exposed as `basic` in the PTY."""
+    resolved_env = os.environ if env is None else env
+    configured = resolved_env.get("UCODE_BBC_BASIC_CONSOLE_PATH", "").strip()
+    if configured:
+        candidate = Path(configured).expanduser()
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return candidate.resolve()
+        return None
+    for candidate in (
+        REPO_ROOT / "runtimes/basic/console/bbcbasic",
+        REPO_ROOT / "runtimes/basic/console/bbcbasic.exe",
+    ):
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return candidate.resolve()
+    located = shutil.which("bbcbasic")
+    return Path(located).resolve() if located else None
 
 
 def _minimal_prompt_env() -> dict[str, str]:
@@ -33,14 +53,38 @@ def _minimal_prompt_env() -> dict[str, str]:
     zsh_dir = Path(tempfile.gettempdir()) / "ucode-shell"
     zsh_dir.mkdir(parents=True, exist_ok=True)
     rc_file = zsh_dir / ".zshrc"
-    if not rc_file.exists():
-        rc_file.write_text('PROMPT="> " RPROMPT=""\n', encoding="utf-8")
+    basic_command = resolve_terminal_basic_command()
+    if basic_command:
+        quoted_command = shlex.quote(str(basic_command))
+        basic_function = (
+            f"basic() {{ command {quoted_command} \"$@\" }}\n"
+            'bbcbasic() { basic "$@" }\n'
+        )
+    else:
+        basic_function = (
+            "basic() { print -u2 'BBC BASIC Console is not installed; "
+            "set UCODE_BBC_BASIC_CONSOLE_PATH'; return 127 }\n"
+            'bbcbasic() { basic "$@" }\n'
+        )
+    rc_file.write_text(
+        'PROMPT="> " RPROMPT=""\n' + basic_function,
+        encoding="utf-8",
+    )
     return {"ZDOTDIR": str(zsh_dir), "PS1": "> "}
 
 
 class LocalPtySession:
-    def __init__(self, output_queue: asyncio.Queue[str]) -> None:
+    def __init__(
+        self,
+        output_queue: asyncio.Queue[str],
+        command: Sequence[str] | None = None,
+        cwd: Path | None = None,
+        env_overrides: Mapping[str, str] | None = None,
+    ) -> None:
         self.output_queue = output_queue
+        self.command = list(command) if command else None
+        self.cwd = cwd or REPO_ROOT
+        self.env_overrides = dict(env_overrides or {})
         self.master_fd: int | None = None
         self.process: subprocess.Popen[bytes] | None = None
 
@@ -52,16 +96,20 @@ class LocalPtySession:
         self.master_fd = master_fd
         self._set_window_size(cols, rows)
 
-        shell_parts = shlex.split(DEFAULT_SHELL) or ["/bin/zsh"]
+        shell_parts = self.command or shlex.split(DEFAULT_SHELL) or ["/bin/zsh"]
+        inherited_term = os.environ.get("TERM", "xterm-256color")
+        if inherited_term in {"", "dumb", "unknown"}:
+            inherited_term = "xterm-256color"
         env = {
             **os.environ,
-            "TERM": os.environ.get("TERM", "xterm-256color"),
+            "TERM": inherited_term,
             "COLORTERM": os.environ.get("COLORTERM", "truecolor"),
             **_minimal_prompt_env(),
+            **self.env_overrides,
         }
         self.process = subprocess.Popen(
             shell_parts,
-            cwd=REPO_ROOT,
+            cwd=self.cwd,
             env=env,
             stdin=slave_fd,
             stdout=slave_fd,
@@ -128,6 +176,21 @@ class LocalPtySession:
         fcntl.ioctl(self.master_fd, termios.TIOCSWINSZ, packed_size)
 
 
+async def _send_terminal_output(
+    ws: web.WebSocketResponse,
+    output_queue: asyncio.Queue[str],
+) -> None:
+    """Forward PTY output until a browser closes or loses its transport."""
+    while not ws.closed:
+        data = await output_queue.get()
+        if ws.closed:
+            return
+        try:
+            await ws.send_json({"type": "output", "data": data})
+        except (ConnectionResetError, RuntimeError):
+            return
+
+
 async def handle_terminal_runtime_ws(request: web.Request) -> web.WebSocketResponse:
     ws = web.WebSocketResponse(heartbeat=20)
     await ws.prepare(request)
@@ -138,18 +201,13 @@ async def handle_terminal_runtime_ws(request: web.Request) -> web.WebSocketRespo
     await ws.send_json(
         {
             "type": "ready",
-            "runtime": "shell-pty",
+            "runtime": "shell+bbc-basic",
             "cols": DEFAULT_COLS,
             "rows": DEFAULT_ROWS,
         },
     )
 
-    async def send_output() -> None:
-        while not ws.closed:
-            data = await output_queue.get()
-            await ws.send_json({"type": "output", "data": data})
-
-    sender = asyncio.create_task(send_output())
+    sender = asyncio.create_task(_send_terminal_output(ws, output_queue))
     try:
         async for message in ws:
             if message.type == WSMsgType.TEXT:

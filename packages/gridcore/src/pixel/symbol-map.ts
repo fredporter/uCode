@@ -15,6 +15,7 @@ import {
  * pixel definition.
  */
 export type SymbolMap = Map<number, PixelBuffer>;
+export const MAX_SYMBOL_MAP_GLYPHS = 4_096;
 
 export function createSymbolMap(): SymbolMap {
   return new Map();
@@ -23,10 +24,10 @@ export function createSymbolMap(): SymbolMap {
 /**
  * Scale a native glyph bitmap (gw×gh of 0/1 bits) into the pixel cell.
  *
- * The glyph's full em box is scaled by the largest uniform integer factor that
- * fits the target cell and placed at its natural origin — the glyph FILLS the
- * cell (terminal 8×8→24×24 @3×, teletext 12×20→24×40 @2×). No ink cropping,
- * no re-centring, so cells tile edge-to-edge with no gaps.
+ * The glyph's full em box determines its integer scale, then the actual ink
+ * bounds are centred inside the target cell. This preserves the font's native
+ * pixel size while correcting asymmetric side bearings and baselines in the
+ * Pixel editor. Blank glyphs remain blank.
  */
 export function glyphBitmapToPixelBuffer(
   bitmap: Uint8Array,
@@ -43,18 +44,36 @@ export function glyphBitmapToPixelBuffer(
     1,
     Math.min(Math.floor(cellW / gw), Math.floor(cellH / gh)),
   );
-  const ox = Math.floor((cellW - gw * scale) / 2);
-  const oy = Math.floor((cellH - gh * scale) / 2);
 
+  let minX = gw;
+  let minY = gh;
+  let maxX = -1;
+  let maxY = -1;
   for (let y = 0; y < gh; y++) {
     for (let x = 0; x < gw; x++) {
+      if (bitmap[y * gw + x] !== 1) continue;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+  if (maxX < minX || maxY < minY) return out;
+
+  const inkW = maxX - minX + 1;
+  const inkH = maxY - minY + 1;
+  const ox = Math.floor((cellW - inkW * scale) / 2);
+  const oy = Math.floor((cellH - inkH * scale) / 2);
+
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
       if (bitmap[y * gw + x] === 1) {
         for (let dy = 0; dy < scale; dy++) {
           for (let dx = 0; dx < scale; dx++) {
             setPixel(
               out,
-              ox + x * scale + dx,
-              oy + y * scale + dy,
+              ox + (x - minX) * scale + dx,
+              oy + (y - minY) * scale + dy,
               colour,
               cellW,
               cellH,
@@ -82,21 +101,37 @@ export function serializeSymbolMap(map: SymbolMap): {
 
 /** Deserialise a plain object into a symbol map. */
 export function deserializeSymbolMap(data: unknown): SymbolMap {
-  const map = createSymbolMap();
-  if (!data || typeof data !== "object") return map;
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Invalid symbol map");
+  }
   const obj = data as { format?: string; glyphs?: Record<string, unknown> };
-  if (obj.format !== "ucode-symbol-map-v1" || !obj.glyphs) return map;
+  if (obj.format !== "ucode-symbol-map-v1") {
+    throw new Error("Unsupported symbol map format");
+  }
+  if (!obj.glyphs || typeof obj.glyphs !== "object" || Array.isArray(obj.glyphs)) {
+    throw new Error("Invalid symbol map glyphs");
+  }
+  const glyphs = Object.entries(obj.glyphs);
+  if (glyphs.length > MAX_SYMBOL_MAP_GLYPHS) {
+    throw new Error(`Symbol map exceeds ${MAX_SYMBOL_MAP_GLYPHS} glyph limit`);
+  }
 
-  for (const [key, value] of Object.entries(obj.glyphs)) {
-    const code = parseInt(key.replace(/^U\+/, ""), 16);
-    if (Number.isNaN(code) || !Array.isArray(value)) continue;
-    const buf = createPixelBuffer(0);
-    for (let i = 0; i < Math.min(value.length, buf.length); i++) {
-      const n = Number(value[i]);
-      buf[i] = Number.isFinite(n)
-        ? Math.max(0, Math.min(PIXEL_COLOURS - 1, n))
-        : 0;
+  const decodedGlyphs = glyphs.map(([key, value]) => {
+    const match = /^U\+([0-9A-F]{4,6})$/.exec(key);
+    const code = match ? Number.parseInt(match[1], 16) : Number.NaN;
+    const validScalar = Number.isInteger(code) && code <= 0x10ffff &&
+      (code < 0xd800 || code > 0xdfff);
+    if (!validScalar || !Array.isArray(value) || value.length !== PIXEL_WIDTH * PIXEL_HEIGHT ||
+        !value.every(pixel => Number.isInteger(pixel) && pixel >= 0 && pixel < PIXEL_COLOURS)) {
+      throw new Error(`Invalid symbol map glyph: ${key}`);
     }
+    return { code, pixels: value };
+  });
+
+  const map = createSymbolMap();
+  for (const { code, pixels } of decodedGlyphs) {
+    const buf = createPixelBuffer(0);
+    buf.set(pixels);
     map.set(code, buf);
   }
   return map;

@@ -1,0 +1,5 @@
+REM uCode Sprint 1 real-engine smoke fixture
+out%=OPENOUT("/private/tmp/ucode-bbcsdl-smoke.txt")
+PRINT#out%, "UCODE_BBCSDL_SMOKE_OK"
+CLOSE#out%
+QUIT

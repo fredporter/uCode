@@ -1,8 +1,15 @@
 # uCode Runtime Specification — BBC BASIC for SDL 2.0
 
-**Status:** 🔒 LOCKED
+**Status:** Active runtime baseline; architecture naming superseded by
+[`UCODE_ARCHITECTURE.md`](UCODE_ARCHITECTURE.md)
 **Version:** 2.0
 **Imported:** 2026-07-01
+
+> Compatibility rule (2026-08-20): BBCSDL remains the execution authority.
+> Sprites, BOBs, and the optional AMOS compatibility shim belong to uCode 1
+> (product name: uCode). uCode 2 begins at the experimental 3D/spatial
+> handoff. Storage paths in this imported specification are illustrative;
+> active code resolves configured Vault roots and `UDOS_HOME`.
 
 ## Summary
 
@@ -35,7 +42,8 @@ Replace the current `runtimes/basic/` with:
 2. Python bridge (`runtimes/basic/bridge/`) — bbcsdl_bridge.py, lens.py, skin.py, variables.py
 3. AMOS shim (`runtimes/amos/shim/amos_shim.bbc`) — keep, already built
 4. Snack container format (keep `runtimes/basic/snacks/`, align with new spec)
-5. Vault at `~/.local/share/udos/Vault/`
+5. Configured Vault roots for user programs/assets and `UDOS_HOME` for mutable
+   runtime state
 
 ### Keep from Current Runtime
 - AMOS shim (`runtimes/amos/shim/amos_shim.bbc`)

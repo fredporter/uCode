@@ -1,0 +1,21 @@
+format: ucode-program/1
+id: basic-lab
+title: BBC BASIC Lab
+status: verified
+treatment: authentic
+runtime: bbc-console
+entry: src/basic_lab.bbc
+licence: CC0-1.0
+media_policy: catalogue-owned
+controls:
+  - keyboard
+  - pointer
+  - touch-equivalent
+lens:
+  coverage: input-aware
+skin:
+  default: teletext-classic
+  available:
+    - teletext-classic
+    - terminal-green
+evidence: evidence/compatibility.json
