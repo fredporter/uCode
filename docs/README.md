@@ -4,6 +4,13 @@
 
 | File                                                                   | Domain                                    |
 | ---------------------------------------------------------------------- | ----------------------------------------- |
+| [UCODE_ARCHITECTURE.md](UCODE_ARCHITECTURE.md)                         | Canonical two-generation architecture     |
+| [SOFTWARE_LIBRARY_CAPSULE_SPEC.md](SOFTWARE_LIBRARY_CAPSULE_SPEC.md)   | Software Library and Runtime Capsules     |
+| [UCODE_DELIVERY_SPRINTS_2026.md](UCODE_DELIVERY_SPRINTS_2026.md)       | Active implementation sprint sequence     |
+| [UCODE1_COMPLETION_LONG_SPRINT_2026-08.md](UCODE1_COMPLETION_LONG_SPRINT_2026-08.md) | Long-running uCode 1 completion sprint |
+| [BBCSDL_SESSION_PROTOCOL.md](BBCSDL_SESSION_PROTOCOL.md)               | Host/runtime session message contract      |
+| [GRID_CELL_ALGEBRA.md](GRID_CELL_ALGEBRA.md)                           | Lattice and cell-register algebra          |
+| [TELETEXT_ARCHITECTURE.md](TELETEXT_ARCHITECTURE.md)                   | Modern 16:9 vault-reader architecture      |
 | [GRIDSMITH_DEV_PLAN.md](GRIDSMITH_DEV_PLAN.md)                         | GridSmith agent build-out plan            |
 | [UCODE_RUNTIME_SPEC.md](UCODE_RUNTIME_SPEC.md)                         | BBC BASIC for SDL 2.0 runtime             |
 | [INTEGRATION.md](INTEGRATION.md)                                       | uCore ownership and runtime integration    |

@@ -1,6 +1,7 @@
 # uCode — Runtime & GridCore/Display Sprint Series
 
-**Status:** COMPLETE (all 8 sprints done, 2026-08-14)
+**Status:** Historical implementation record; completion claim superseded by
+`GRIDCORE_COMPLETION_MACRO_SPRINTS.md` (2026-08-27)
 **Started:** 2026-08-14
 **Goal:** Advance uCode from its current state to a fully working runtime and
 GridCore/display system, with every tab fully functional and wired up.

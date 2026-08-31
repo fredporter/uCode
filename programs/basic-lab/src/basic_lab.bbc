@@ -1,0 +1,14 @@
+10 REM uCode Software Library verified learning fixture
+20 CLS
+30 PRINT "=== UCODE BBC BASIC LAB ==="
+40 PRINT "BBC BASIC CONSOLE CAPSULE"
+50 PRINT
+60 PRINT "This capsule preserves a small BBC BASIC program"
+70 PRINT "and exposes its source for learning."
+80 PRINT
+90 INPUT "YOUR NAME: " name$
+100 PRINT
+110 PRINT "HELLO ";name$
+120 PRINT "2 + 2 = ";2+2
+130 PRINT "CAPSULE_SMOKE_OK"
+140 END

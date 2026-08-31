@@ -3,6 +3,21 @@ import { createBuffer, createBufferCell } from '../src/buffer/cell'
 import { GridEditor } from '../src/editor/GridEditor'
 
 describe('GridEditor', () => {
+  it('commits an arbitrary multi-cell mutation as one undoable transaction', () => {
+    const editor = new GridEditor(createBuffer(3, 2))
+    editor.mutate((draft) => {
+      draft[0][0].char = 'A'
+      draft[1][2].char = 'B'
+    })
+    expect(editor.canUndo).toBe(true)
+    expect(editor.dirty).toBe(true)
+    expect(editor.buffer[1][2].char).toBe('B')
+    editor.undo()
+    expect(editor.buffer[0][0].char).toBe(' ')
+    expect(editor.canRedo).toBe(true)
+    expect(editor.dirty).toBe(false)
+  })
+
   it('places characters with correct undo/redo', () => {
     const e = new GridEditor(createBuffer(4, 2))
     e.placeCharacter(1, 0, 'A')

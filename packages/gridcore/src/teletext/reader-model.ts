@@ -6,6 +6,7 @@
 // ────────────────────────────────────────────────────────────────────
 
 import { patternToChar } from "../seeds";
+import { segmentGraphemes } from "../characters/grapheme";
 
 // ── Constants ─────────────────────────────────────────────────────
 
@@ -16,10 +17,12 @@ export const TELETEXT_FASTEXT = [
   { label: "Help", color: 4, page: 888 },
 ];
 
-export const DOCS_PER_LIST_PAGE = 14;
+/** Seven two-line entries fit between the title block and FASTEXT rows. */
+export const DOCS_PER_LIST_PAGE = 7;
 export const MAX_DOCS_PER_LIBRARY = 48;
 export const DOC_PAGE_OFFSET = 50;
-export const DOC_SCREEN_LINES = 15;
+/** Thirteen body lines leave room for source metadata and navigation. */
+export const DOC_SCREEN_LINES = 13;
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -61,6 +64,8 @@ export interface ReaderTeletextPage {
   flash?: boolean;
   colour?: number;
   subpages?: number;
+  /** Optional structured editorial composition rendered over the text grid. */
+  composition?: "data" | "map" | "graphics";
 }
 
 /** A minimal GridBuffer-like interface that the renderers target. */
@@ -83,9 +88,30 @@ export function docTitle(doc: VaultDoc): string {
   return title || doc.filename;
 }
 
+/** Reduce common Markdown constructs to readable MODE 7-era plain text. */
+export function teletextPlainText(source: string): string {
+  return source
+    .replace(/^---\s*$[\s\S]*?^---\s*$/m, "")
+    .replace(/```[^\n]*\n?/g, "")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/^\s*>\s?/gm, "")
+    .replace(/^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/gm, "")
+    .replace(/(^|\s|\|)[*_~]{1,2}([^\n*_~]+)[*_~]{1,2}(?=\s|[|.,:;!?)]|$)/g, "$1$2")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/[ \t]*\|[ \t]*/g, "  ")
+    .replace(/^\s*[-*+]\s+/gm, "• ")
+    .replace(/^\s*\d+[.)]\s+/gm, "• ")
+    .replace(/\r/g, "")
+    .replace(/^[ \t]+|[ \t]+$/gm, "")
+    .trim();
+}
+
 export function wrapText(text: string, width: number): string[] {
   const out: string[] = [];
-  for (const raw of text.split("\n")) {
+  for (const raw of teletextPlainText(text).split("\n")) {
     const line = raw.replace(/\s+/g, " ").trim();
     if (!line) {
       out.push("");
@@ -137,11 +163,12 @@ export function ceefaxClock(): string {
 /** Write a double-height string: top half in row y, bottom half in row y+1. */
 export function writeDoubleHeight(buf: ReaderBuffer, x: number, y: number, text: string, fg: number, bg: number): void {
   const cols = buf[0]?.length ?? 0;
-  for (let i = 0; i < text.length && x + i < cols; i++) {
+  const graphemes = segmentGraphemes(text);
+  for (let i = 0; i < graphemes.length && x + i < cols; i++) {
     if (y >= 0 && y < buf.length)
-      buf[y][x + i] = { char: text[i], fg, bg, dh: "top" };
+      buf[y][x + i] = { char: graphemes[i].text, fg, bg, dh: "top" };
     if (y + 1 >= 0 && y + 1 < buf.length)
-      buf[y + 1][x + i] = { char: text[i], fg, bg, dh: "bottom" };
+      buf[y + 1][x + i] = { char: graphemes[i].text, fg, bg, dh: "bottom" };
   }
 }
 
@@ -236,6 +263,8 @@ export function mainIndexPage(ctx: BuilderContext): ReaderTeletextPage {
         "  NEWS ............... 101",
         "  HELP ............... 888",
         "  INDEX .............. 199",
+        "",
+        "  Press R to retry vault content",
       ],
     };
   }
@@ -280,16 +309,18 @@ export function docListPage(
     "",
   ];
   if (pageDocs.length === 0) {
-    lines.push("  No documents indexed yet.");
-    lines.push("  Add files under the Public");
-    lines.push("  vault and rebuild the index.");
+    lines.push("  This shelf is empty.");
+    lines.push("  Published vault documents will");
+    lines.push("  appear here automatically.");
+    lines.push("");
+    lines.push("  Back: 100  ·  Index: 199");
   } else {
     pageDocs.forEach((doc, i) => {
       const readPage = lib.page + DOC_PAGE_OFFSET + start + i;
       lines.push(
         `  ${String(readPage).padStart(3, " ")}  ${docTitle(doc).slice(0, 29)}`,
       );
-      lines.push(`       ${doc.preview.slice(0, 32)}`);
+      lines.push(`       ${teletextPlainText(doc.preview).slice(0, 32)}`);
     });
   }
   const nextStart = start + DOCS_PER_LIST_PAGE;
@@ -334,8 +365,7 @@ export function docContentPage(
       ? Math.min(ctx.teletextSubpage, total - 1)
       : 0;
   const lines: string[] = [
-    `  ${docTitle(doc).slice(0, 36)}`,
-    `  ${doc.filename.slice(0, 36)}`,
+    `  SOURCE ${(doc.binder || doc.filename).slice(0, 29)}`,
     "",
   ];
   for (const line of screens[subpage]) lines.push(`  ${line.slice(0, 38)}`);
@@ -361,9 +391,61 @@ export function newsPage(): ReaderTeletextPage {
       "  DOCUMENTATION ....... 200",
       "  GLOBAL KNOWLEDGE .... 300",
       "  LEARNING ............ 400",
+      "  DATA DASHBOARD ...... 102",
+      "  NETWORK MAP ......... 103",
+      "  GRAPHICS SHOWCASE ... 104",
       "",
       "  Type a 3-digit page number",
       "  to browse published content.",
+    ],
+  };
+}
+
+export function dataPage(): ReaderTeletextPage {
+  return {
+    title: "DATA",
+    colour: 3,
+    composition: "data",
+    lines: [
+      "  GRIDCORE SIGNAL",
+      "",
+      "  TERMINAL ............. ONLINE",
+      "  TELETEXT ............. ONLINE",
+      "  VAULT ................. READY",
+      "",
+      "  ACTIVITY — LAST 7 CYCLES",
+    ],
+  };
+}
+
+export function mapPage(): ReaderTeletextPage {
+  return {
+    title: "MAP",
+    colour: 6,
+    composition: "map",
+    lines: [
+      "  THE uCODE NETWORK",
+      "",
+      "  VAULT      LIBRARY      BASIC",
+      "",
+      "  Select a numbered service",
+      "  or use FASTEXT below.",
+    ],
+  };
+}
+
+export function graphicsPage(): ReaderTeletextPage {
+  return {
+    title: "GRAPHICS",
+    colour: 2,
+    composition: "graphics",
+    lines: [
+      "  MODERN MOSAIC WORKSHOP",
+      "",
+      "  2x3 DOTS PER READING CELL",
+      "  POINTER · TOUCH · PEN · KEYS",
+      "",
+      "  Open Graphics mode to remix.",
     ],
   };
 }
@@ -375,6 +457,9 @@ export function subIndexPage(): ReaderTeletextPage {
     lines: [
       "  100  Main Index",
       "  101  News Headlines",
+      "  102  Data Dashboard",
+      "  103  Network Map",
+      "  104  Graphics Showcase",
       "  200  Documentation",
       "  300  Global Knowledge",
       "  400  Learning",
@@ -422,6 +507,12 @@ export function teletextContent(
       return mainIndexPage(ctx);
     case 101:
       return newsPage();
+    case 102:
+      return dataPage();
+    case 103:
+      return mapPage();
+    case 104:
+      return graphicsPage();
     case 199:
       return subIndexPage();
     case 888:

@@ -15,8 +15,11 @@ export type {
 // Reader teletext model (E1: extracted from UCodeSurface.vue)
 // This is the Ceefax-style vault reader model (ReaderTeletextPage, builders, renderers)
 export * from './reader-model'
+export * from './reader-interaction'
+export * from './reader-state'
+export * from './graphics'
+export * from './reader-renderer'
 
 // Page provider (new)
 export { TeletextPageProvider } from './page-provider'
 export type { CourseRegistry, FeedCourse, FeedLesson, VaultConfig } from './page-provider'
-

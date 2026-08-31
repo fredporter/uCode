@@ -4,7 +4,9 @@ import {
   DOC_PAGE_OFFSET,
   docScreens,
   docTitle,
+  DOCS_PER_LIST_PAGE,
   libraryForPage,
+  teletextPlainText,
   teletextContent,
   type BuilderContext,
   type VaultDoc,
@@ -50,6 +52,40 @@ describe('reader teletext model', () => {
     expect(docScreens(document)).toEqual([['Preview fallback']])
   })
 
+  it('keeps article subpages within the visible reader body', () => {
+    const body = Array.from({ length: 14 }, (_, index) => `Line ${index + 1}`).join('\n')
+    const screens = docScreens(document, new Map([[document.path, body]]))
+    expect(screens).toHaveLength(2)
+    expect(screens[0]).toHaveLength(13)
+    const page = teletextContent(
+      library.page + DOC_PAGE_OFFSET,
+      context({ vaultDocCache: new Map([[document.path, body]]) }),
+    )
+    expect(page.lines).toHaveLength(17)
+    expect(page.lines.at(-1)).toContain('Back: 200')
+  })
+
+  it('converts common Markdown into readable teletext text', () => {
+    const markdown = `---\ntitle: Hidden\n---\n# Status **Update**\n\n- Read [the plan](https://example.test)\n- Run \`basic\`\n\n| Skill | Status |\n| --- | --- |\n| **Vault** | Ready |`
+    expect(teletextPlainText(markdown)).toBe(
+      'Status Update\n• Read the plan\n• Run basic\n\nSkill  Status\n\nVault  Ready',
+    )
+  })
+
+  it('paginates document indexes to the visible two-line capacity', () => {
+    expect(DOCS_PER_LIST_PAGE).toBe(7)
+    const docs = Array.from({ length: 8 }, (_, index) => ({
+      ...document,
+      path: `docs/${index}.md`,
+      filename: `document-${index}.md`,
+    }))
+    const first = teletextContent(200, context({
+      vaultLibraries: [{ ...library, docs }],
+    }))
+    expect(first.lines.filter((line) => /^\s+2\d\d\s/.test(line))).toHaveLength(7)
+    expect(first.lines.join('\n')).toContain('MORE')
+  })
+
   it('maps a page to its library by hundred block', () => {
     expect(libraryForPage(250, [library])).toBe(library)
     expect(libraryForPage(888, [library])).toBeUndefined()
@@ -73,5 +109,21 @@ describe('reader teletext model', () => {
     expect(
       teletextContent(100, context({ vaultError: 'offline' })).lines.join(' '),
     ).toContain('Vault unavailable: offline')
+  })
+
+  it('exposes deterministic editorial reference pages', () => {
+    expect([102, 103, 104].map((page) => teletextContent(page, context()).composition))
+      .toEqual(['data', 'map', 'graphics'])
+    expect(teletextContent(102, context()).lines).toMatchInlineSnapshot(`
+      [
+        "  GRIDCORE SIGNAL",
+        "",
+        "  TERMINAL ............. ONLINE",
+        "  TELETEXT ............. ONLINE",
+        "  VAULT ................. READY",
+        "",
+        "  ACTIVITY — LAST 7 CYCLES",
+      ]
+    `)
   })
 })

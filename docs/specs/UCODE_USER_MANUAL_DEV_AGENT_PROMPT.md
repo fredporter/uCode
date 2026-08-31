@@ -1,7 +1,7 @@
 # Dev Agent Prompt - uCode User Manual
 
 Agent: Cline Dev Agent
-Task: Write User Manual for uCode Runtime (BBC BASIC for SDL 2.0 + AMOS shim)
+Task: Write User Manual for uCode 1 (BBC BASIC for SDL 2.0 + optional AMOS shim)
 Style: BBC Micro User Manual (1980s) - clear, educational, example-driven
 Audience: Beginners to intermediate programmers, educators, retro computing enthusiasts
 Language: uCode (BBC BASIC + AMOS extensions)
@@ -10,10 +10,12 @@ Output: Markdown document with code examples in BBC BASIC syntax
 ## Scope and Naming Clarification
 
 1. Use uCode as the platform name.
-2. Use uCode1 and uCode2 only as capability profiles:
-   - uCode1 = teletext-first profile (MODE 7 foundation)
-   - uCode2 = sprite/BOB-capable profile via AMOS shim
-3. Do not present uCode2 as a separate repo or separate runtime stack.
+2. Follow `docs/UCODE_ARCHITECTURE.md`:
+   - uCode 1 (product name: uCode) owns the compatible 2D runtime, Teletext,
+     sprites, BOBs, LENS, SKIN, capsules, and the Software Library.
+   - uCode 2 begins with experimental 3D/spatial work and is outside this
+     introductory runtime manual.
+3. Do not use uCode1/uCode2 as capability-profile names.
 4. Align examples with GridCore-era uCode architecture and Vault workflows.
 
 ## Prompt
@@ -28,9 +30,10 @@ approach and exercises at the end of each chapter.
 
 1. No line numbers required by default.
 2. MODE 7 teletext is foundational.
-3. Sprites and BOBs are extensions through AMOS shim compatibility.
+3. Sprites and BOBs are uCode 1 capabilities. Teach native BBCSDL libraries
+   first and the AMOS shim as an optional compatibility vocabulary.
 4. Vault-first workflows:
-   - programs in ~/Vault/programs/
+   - programs in the configured Vault programs collection
    - snacks in ~/Vault/snacks/
    - assets in ~/Vault/assets/
 5. BBC lineage with modern integrations (LENS, SKIN, RCP).
@@ -43,9 +46,9 @@ approach and exercises at the end of each chapter.
 | 2. Getting Started                    | Install, first run, first program                      |
 | 3. The Vault                          | Programs, snacks, assets, variables                    |
 | 4. BASIC Fundamentals                 | Variables, loops, conditionals, procedures/functions   |
-| 5. Teletext Graphics (uCode1 profile) | MODE 7, colors, attributes                             |
-| 6. Sprites (uCode2 profile)           | Sprite banks, placement, animation, collision          |
-| 7. BOBs (uCode2 profile)              | GIF animation, transparency, layered objects           |
+| 5. Teletext Graphics                  | Modern reader plus MODE 7 compatibility                 |
+| 6. Sprites (uCode 1)                  | Sprite banks, placement, animation, collision            |
+| 7. BOBs (uCode 1)                     | Animation, transparency, layered objects                 |
 | 8. The AMOS Shim                      | Compatibility layer commands and mapping               |
 | 9. Working with Assets                | Loading sprites/GIF/sound from Vault                   |
 | 10. LENS and SKIN                     | State extraction and theme application                 |
@@ -78,7 +81,7 @@ END
 ### Vault References
 
 ```bash
-~/Vault/programs/
+<configured-vault>/programs/
 ~/Vault/snacks/
 ~/Vault/assets/
 ```
@@ -87,7 +90,7 @@ END
 
 1. Include comparison tables (BBC BASIC vs AMOS shim commands).
 2. Include a practical cheat sheet.
-3. Include side-by-side uCode1/uCode2 profile examples.
+3. Include side-by-side native BBCSDL and optional AMOS-shim examples.
 4. Explain AMOS shim as compatibility layer, not separate language.
 5. Include GridCore-aware terminology for visual/cell mapping where relevant.
 

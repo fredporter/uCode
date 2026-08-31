@@ -1,0 +1,21 @@
+{
+  "format": "ucode-compatibility-evidence/1",
+  "titleId": "basic-lab",
+  "edition": "1.0.0",
+  "engine": "BBC BASIC Console Mode",
+  "entrySha256": "c448660e5509095f130b2ceaadc84c37f252aac4bf241bca7b9c53f46401aa18",
+  "licence": "CC0-1.0",
+  "redistribution": "catalogue-owned",
+  "smoke": {
+    "input": "CODEX",
+    "assertions": ["HELLO CODEX", "2 + 2 = 4", "CAPSULE_SMOKE_OK"]
+  },
+  "input": {
+    "keyboard": "verified",
+    "pointer": "terminal-key mapping",
+    "touch": "terminal-key mapping"
+  },
+  "knownLimitations": [
+    "Pointer and touch are translated to terminal keyboard actions rather than exposed as native BASIC mouse events."
+  ]
+}

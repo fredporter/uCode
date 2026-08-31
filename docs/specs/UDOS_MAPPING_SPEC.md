@@ -1,19 +1,20 @@
 # uDos Mapping Specification
 
-Status: LOCKED - Development Baseline
+Status: Legacy geographic adapter; native editor model superseded by
+`../GRID_WORLD_STACK_SPEC.md`
 Version: 1.0
 Date: 2026-07-31
 Legacy alias: uPlace (historical name in older docs)
 
 ## 1. Purpose
 
-Define a geographic mapping system for uCode that converts between WGS84
+Define an optional geographic import adapter that converts between WGS84
 latitude/longitude and uCode grid coordinates, supports layered world cells,
 and feeds both interactive and static renderers.
 
 Primary near-term target:
 
-1. GridCore/uCode runtime integration for 2D map workflows.
+1. Import into GridCore's native addressed World stack.
 
 Future target:
 

@@ -4,6 +4,7 @@ import {
   getBufferDimensions,
   type GridBuffer,
 } from "./cell";
+import { segmentGraphemes } from "../characters/grapheme";
 
 export function resizeBuffer(
   buf: GridBuffer,
@@ -87,10 +88,11 @@ export function writeBufferString(
   const { cols, rows } = getBufferDimensions(out);
   if (y < 0 || y >= rows) return out;
 
-  for (let i = 0; i < text.length; i++) {
+  const graphemes = segmentGraphemes(text);
+  for (let i = 0; i < graphemes.length; i++) {
     const dx = x + i;
     if (dx < 0 || dx >= cols) continue;
-    out[y][dx] = { char: text[i], fg, bg, bold };
+    out[y][dx] = { char: graphemes[i].text, fg, bg, bold };
   }
 
   return out;
