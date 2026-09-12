@@ -44,7 +44,7 @@ export interface VaultConfig {
 function defaultVaultConfig(): VaultConfig {
   return {
     vault: {
-      path: '~/.local/share/udos/Vault/',
+      path: '~/Vault/',
       variables: {
         user: { description: 'User-level variables (persistent)', file: 'variables/user.yaml', examples: ['theme: dark', 'editor_font_size: 14'] },
         global: { description: 'System-wide variables', file: 'variables/global.yaml', examples: ['runtime_version: 2.0'] },
@@ -52,11 +52,11 @@ function defaultVaultConfig(): VaultConfig {
         system: { description: 'Runtime-only state (not persisted)', file: null, examples: [] },
       },
       secrets: { description: 'Sensitive values (API keys, tokens)', store: 'macOS Keychain / file-encrypted', keys: ['OPENROUTER_API_KEY', 'ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'GITHUB_TOKEN'] },
-      programs: { path: '~/.local/share/udos/programs/', description: 'User .ucode scripts' },
-      snacks: { path: '~/.local/share/udos/snacks/', description: 'Self-contained program + assets bundles' },
-      stories: { path: '~/.local/share/udos/stories/', description: 'Marp story forms' },
-      assets: { path: '~/.local/share/udos/assets/', subdirs: ['sprites', 'bobs', 'sounds', 'maps'] },
-      config: { path: '~/.local/share/udos/.config/', files: ['ucode.yaml', 'skins/classic.yaml', 'skins/dark.yaml', 'skins/retro.yaml'] },
+      programs: { path: '~/Code/uCode/programs/', description: 'User .ucode scripts' },
+      snacks: { path: '~/Code/.udos/snacks/', description: 'Self-contained program + assets bundles' },
+      stories: { path: '~/Vault/Stories/', description: 'Marp story forms' },
+      assets: { path: '~/Code/.udos/assets/', subdirs: ['sprites', 'bobs', 'sounds', 'maps'] },
+      config: { path: '~/Code/.udos/config/', files: ['ucode.yaml', 'skins/classic.yaml', 'skins/dark.yaml', 'skins/retro.yaml'] },
     },
   }
 }
