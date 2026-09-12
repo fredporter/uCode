@@ -59,4 +59,59 @@ describe('RuntimeBridge', () => {
   it('reports in-process mode by default', () => {
     expect(new RuntimeBridge().getMode()).toBe('in-process')
   })
+
+  describe('defaultDispatcher BBC BASIC extended syntax', () => {
+    it('handles TELETEXT.PAGE navigation', async () => {
+      const bridge = new RuntimeBridge()
+      let nav: unknown = null
+      let output: unknown = null
+      bridge.on('teletext-navigate', (p) => { nav = p })
+      bridge.on('command-output', (o) => { output = o })
+
+      await bridge.sendCommand('TELETEXT.PAGE 300')
+      expect(nav).toBe(300)
+      expect(output).toBe('Loading page 300...')
+
+      await bridge.sendCommand('TELETEXT.PAGE')
+      expect(output).toBe('Usage: TELETEXT.PAGE <page number>')
+    })
+
+    it('handles VAULT.OPEN and VAULT.LIST verbs', async () => {
+      const bridge = new RuntimeBridge()
+      let output: unknown = null
+      bridge.on('command-output', (o) => { output = o })
+
+      await bridge.sendCommand('VAULT.LIST')
+      expect(Array.isArray(output)).toBe(true)
+      expect(output).toContain('Vault Documents & Keys:')
+
+      await bridge.sendCommand('VAULT.OPEN notes/tasks.md')
+      expect(output).toBe('Opened vault document: notes/tasks.md')
+
+      await bridge.sendCommand('VAULT.OPEN')
+      expect(output).toBe('Usage: VAULT.OPEN <path>')
+    })
+
+    it('handles CAPSULE.LIST, CAPSULE.GET, and CAPSULE.RUN verbs', async () => {
+      const bridge = new RuntimeBridge()
+      let output: unknown = null
+      bridge.on('command-output', (o) => { output = o })
+
+      await bridge.sendCommand('CAPSULE.LIST')
+      expect(Array.isArray(output)).toBe(true)
+      expect((output as string[]).some((line) => line.includes('nethack'))).toBe(true)
+
+      await bridge.sendCommand('CAPSULE.GET hero_x')
+      expect(output).toBe('CAPSULE symbol hero_x = 0')
+
+      await bridge.sendCommand('CAPSULE.GET nethack hero_hp')
+      expect(output).toBe('CAPSULE [nethack] symbol hero_hp = 0')
+
+      await bridge.sendCommand('CAPSULE.RUN nethack')
+      expect(output).toBe("Launching capsule 'nethack'...")
+
+      await bridge.sendCommand('CAPSULE.RUN')
+      expect(output).toBe('Usage: CAPSULE.RUN <capsule_id>')
+    })
+  })
 })

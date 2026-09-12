@@ -41,7 +41,7 @@ export interface RuntimeBridgeOptions {
 
 // ── Default in-process dispatcher ────────────────────────────────
 
-const HELP_TEXT = 'Commands: HELP BEEP RENUM GRID LAYER MAP WORLD VAULT CEEFAX UVOX SKIN LENS QUIT'
+const HELP_TEXT = 'Commands: HELP BEEP RENUM GRID LAYER MAP WORLD VAULT VAULT.OPEN VAULT.LIST CEEFAX TELETEXT.PAGE CAPSULE.LIST CAPSULE.GET CAPSULE.RUN UVOX SKIN LENS QUIT'
 
 function defaultDispatcher(command: string): CommandResult {
   const upper = command.toUpperCase().trim()
@@ -49,11 +49,63 @@ function defaultDispatcher(command: string): CommandResult {
   if (upper === 'HELP') return { output: HELP_TEXT }
   if (upper === 'BEEP') return { output: '\x07' }
   if (upper === 'QUIT') return { output: 'Goodbye.' }
-  if (upper === 'CEEFAX') return { output: 'Loading Teletext Reader...', teletextPage: 100 }
+  if (upper === 'CEEFAX' || upper === 'TELETEXT') return { output: 'Loading Teletext Reader...', teletextPage: 100 }
   if (upper.startsWith('CEEFAX ')) {
     const page = parseInt(upper.slice(7).trim(), 10)
     if (!isNaN(page) && page >= 100) return { output: 'Loading page ' + page + '...', teletextPage: page }
     return { output: 'Usage: CEEFAX [page number]' }
+  }
+  if (upper === 'TELETEXT.PAGE') return { output: 'Usage: TELETEXT.PAGE <page number>' }
+  if (upper.startsWith('TELETEXT.PAGE ')) {
+    const page = parseInt(upper.slice(14).trim(), 10)
+    if (!isNaN(page) && page >= 100) return { output: 'Loading page ' + page + '...', teletextPage: page }
+    return { output: 'Usage: TELETEXT.PAGE <page number>' }
+  }
+  if (upper === 'VAULT.LIST') {
+    return {
+      output: [
+        'Vault Documents & Keys:',
+        '  notes/daily.md',
+        '  notes/tasks.md',
+        '  ollama_endpoint',
+        '  hivemind_api_key',
+        '  openrouter_api_key',
+      ],
+    }
+  }
+  if (upper === 'VAULT.OPEN') return { output: 'Usage: VAULT.OPEN <path>' }
+  if (upper.startsWith('VAULT.OPEN ')) {
+    const docPath = command.trim().slice(11).trim().replace(/^["']|["']$/g, '')
+    if (docPath) return { output: `Opened vault document: ${docPath}` }
+    return { output: 'Usage: VAULT.OPEN <path>' }
+  }
+  if (upper === 'CAPSULE.LIST' || upper === 'CAPSULE LIST') {
+    return {
+      output: [
+        'Registered Capsules:',
+        '  nethack     Amiga NetHack Pod (16x16 tiles, LENS bridge)',
+        '  repton      Repton Pod (2D tile-based puzzle)',
+        '  elite       Elite Wireframe Space Pod',
+        '  eamon       Eamon Text & Tile Adventure Pod',
+        '  uconstruct  uConstruct Spatial Construction Pod',
+      ],
+    }
+  }
+  if (upper === 'CAPSULE.GET') return { output: 'Usage: CAPSULE.GET <symbol> or CAPSULE.GET <capsule> <symbol>' }
+  if (upper.startsWith('CAPSULE.GET ')) {
+    const args = command.trim().slice(12).trim().split(/\s+/)
+    if (args.length === 1 && args[0]) {
+      return { output: `CAPSULE symbol ${args[0]} = 0` }
+    } else if (args.length >= 2) {
+      return { output: `CAPSULE [${args[0]}] symbol ${args[1]} = 0` }
+    }
+    return { output: 'Usage: CAPSULE.GET <symbol> or CAPSULE.GET <capsule> <symbol>' }
+  }
+  if (upper === 'CAPSULE.RUN') return { output: 'Usage: CAPSULE.RUN <capsule_id>' }
+  if (upper.startsWith('CAPSULE.RUN ')) {
+    const capsuleId = command.trim().slice(12).trim().toLowerCase()
+    if (capsuleId) return { output: `Launching capsule '${capsuleId}'...` }
+    return { output: 'Usage: CAPSULE.RUN <capsule_id>' }
   }
   if (upper === 'VAULT') return { output: 'Usage: VAULT <key>. Keys: ollama_endpoint, hivemind_api_key, openrouter_api_key' }
   if (upper.startsWith('VAULT ')) {

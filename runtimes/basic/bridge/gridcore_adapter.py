@@ -169,8 +169,9 @@ def vault_lookup(key: str) -> str:
 # ── Command dispatch (real -- backed by SessionState) ────────────
 
 _HELP_TEXT = (
-    "Commands: HELP BEEP RENUM GRID LAYER MAP WORLD VAULT CEEFAX "
-    "UVOX SKIN LENS QUIT LOAD LIST RUN SAVE NEW CAT DIR"
+    "Commands: HELP BEEP RENUM GRID LAYER MAP WORLD VAULT VAULT.OPEN VAULT.LIST "
+    "CEEFAX TELETEXT.PAGE CAPSULE.LIST CAPSULE.GET CAPSULE.RUN UVOX SKIN LENS QUIT "
+    "LOAD LIST RUN SAVE NEW CAT DIR"
 )
 
 
@@ -392,8 +393,8 @@ def dispatch_command(command: str) -> Dict[str, Any]:
     if upper == "QUIT":
         return {"output": "Goodbye."}
 
-    # ── CEEFAX ──
-    if upper == "CEEFAX":
+    # ── CEEFAX / TELETEXT ──
+    if upper in ("CEEFAX", "TELETEXT"):
         return {"output": "Loading Teletext Reader...", "teletextPage": 100}
 
     if upper.startswith("CEEFAX "):
@@ -408,7 +409,76 @@ def dispatch_command(command: str) -> Dict[str, Any]:
             pass
         return {"output": "Usage: CEEFAX [page number]"}
 
-    # ── VAULT ──
+    if upper == "TELETEXT.PAGE":
+        return {"output": "Usage: TELETEXT.PAGE <page number>"}
+
+    if upper.startswith("TELETEXT.PAGE "):
+        try:
+            page = int(upper[14:].strip())
+            if 100 <= page <= 899:
+                return {
+                    "output": f"Loading page {page}...",
+                    "teletextPage": page,
+                }
+        except ValueError:
+            pass
+        return {"output": "Usage: TELETEXT.PAGE <page number>"}
+
+    # ── VAULT / VAULT.OPEN / VAULT.LIST ──
+    if upper == "VAULT.LIST":
+        return {
+            "output": [
+                "Vault Documents & Keys:",
+                "  notes/daily.md",
+                "  notes/tasks.md",
+                "  ollama_endpoint",
+                "  hivemind_api_key",
+                "  openrouter_api_key",
+            ]
+        }
+
+    if upper == "VAULT.OPEN":
+        return {"output": "Usage: VAULT.OPEN <path>"}
+
+    if upper.startswith("VAULT.OPEN "):
+        raw_path = command.strip()[11:].strip().strip("\"'")
+        if raw_path:
+            return {"output": f"Opened vault document: {raw_path}"}
+        return {"output": "Usage: VAULT.OPEN <path>"}
+
+    # ── CAPSULE.LIST / CAPSULE.GET / CAPSULE.RUN ──
+    if upper in ("CAPSULE.LIST", "CAPSULE LIST"):
+        return {
+            "output": [
+                "Registered Capsules:",
+                "  nethack     Amiga NetHack Pod (16x16 tiles, LENS bridge)",
+                "  repton      Repton Pod (2D tile-based puzzle)",
+                "  elite       Elite Wireframe Space Pod",
+                "  eamon       Eamon Text & Tile Adventure Pod",
+                "  uconstruct  uConstruct Spatial Construction Pod",
+            ]
+        }
+
+    if upper == "CAPSULE.GET":
+        return {"output": "Usage: CAPSULE.GET <symbol> or CAPSULE.GET <capsule> <symbol>"}
+
+    if upper.startswith("CAPSULE.GET "):
+        args = command.strip()[12:].strip().split()
+        if len(args) == 1 and args[0]:
+            return {"output": f"CAPSULE symbol {args[0]} = 0"}
+        elif len(args) >= 2:
+            return {"output": f"CAPSULE [{args[0]}] symbol {args[1]} = 0"}
+        return {"output": "Usage: CAPSULE.GET <symbol> or CAPSULE.GET <capsule> <symbol>"}
+
+    if upper == "CAPSULE.RUN":
+        return {"output": "Usage: CAPSULE.RUN <capsule_id>"}
+
+    if upper.startswith("CAPSULE.RUN "):
+        capsule_id = command.strip()[12:].strip().lower()
+        if capsule_id:
+            return {"output": f"Launching capsule '{capsule_id}'..."}
+        return {"output": "Usage: CAPSULE.RUN <capsule_id>"}
+
     if upper == "VAULT":
         return {
             "output": "Usage: VAULT <key>. "

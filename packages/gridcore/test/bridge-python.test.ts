@@ -25,6 +25,18 @@ describeBridge('PythonProcessBridge (integration)', () => {
     const getResult = await dispatch('GRID GET 2 2')
     expect(getResult.output).toContain("(2,2) = '#'")
 
+    const teleResult = await dispatch('TELETEXT.PAGE 200')
+    expect(teleResult.teletextPage).toBe(200)
+
+    const vaultResult = await dispatch('VAULT.LIST')
+    expect(Array.isArray(vaultResult.output)).toBe(true)
+
+    const capsuleResult = await dispatch('CAPSULE.LIST')
+    expect(Array.isArray(capsuleResult.output)).toBe(true)
+
+    const capRunResult = await dispatch('CAPSULE.RUN nethack')
+    expect(capRunResult.output).toContain("Launching capsule 'nethack'...")
+
     const page = await proc.teletextPage(100)
     expect(page?.page).toBe(100)
     expect(page?.title).toContain('Main Index')
