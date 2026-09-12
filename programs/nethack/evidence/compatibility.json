@@ -1,0 +1,26 @@
+{
+  "format": "ucode-compatibility-evidence/1",
+  "titleId": "nethack",
+  "edition": "1.0.0",
+  "engine": "BBC BASIC Console Mode",
+  "entrySha256": "643275a7ebc3cdcc2b99f55faabf8f2bd57f84a91bc530bc073fd9de084f148e",
+  "licence": "NetHack-General-Public-License",
+  "redistribution": "catalogue-owned",
+  "smoke": {
+    "input": "STATUS",
+    "assertions": ["Welcome to NetHack (uCode)", "Dungeon", "CAPSULE_SMOKE_OK"]
+  },
+  "input": {
+    "keyboard": "verified",
+    "pointer": "terminal-key mapping",
+    "touch": "terminal-key mapping"
+  },
+  "lens": {
+    "coverage": "state-observed",
+    "variables": ["HACK.LEVEL%", "HACK.HP%", "HACK.GOLD%", "HACK.TURN%", "HACK.INV%"],
+    "progressionGating": true
+  },
+  "knownLimitations": [
+    "Tile graphics utilize GridCore 16x16 sprite atlas and fall back to Mode 7 character glyphs in text terminals."
+  ]
+}

@@ -69,17 +69,18 @@
     {
       "id": "nethack",
       "title": "NetHack",
-      "summary": "An experimental BBC BASIC roguelike adaptation, not the original NetHack runtime.",
+      "summary": "The classic dungeon crawler with Amiga 16x16 tile graphics and bidirectional LENS state bridge.",
       "year": 1987,
-      "platform": "uCode / BBC BASIC",
-      "status": "configured",
-      "treatment": "adapted",
+      "platform": "uCode / Amiga Hack",
+      "status": "verified",
+      "treatment": "enhanced",
       "runtime": "bbc-console",
       "entry": "programs/nethack/src/nethack.bbc",
+      "evidence": "programs/nethack/evidence/compatibility.json",
       "learning": ["programs/nethack/src/port_research.md"],
       "mediaPolicy": "catalogue-owned",
       "lensCoverage": "state-observed",
-      "skins": ["teletext-classic", "dark-mode"],
+      "skins": ["amiga-tiles", "teletext-classic", "dark-mode"],
       "controls": ["keyboard", "pointer", "touch-equivalent"]
     },
     {

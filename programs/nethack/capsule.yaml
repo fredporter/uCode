@@ -1,0 +1,46 @@
+format: ucode-capsule/1
+id: nethack
+treatment: enhanced
+
+runtime:
+  type: polyglot-pod
+  engine: bbc-console
+  engine_version: pinned
+  entry: src/nethack.bbc
+
+media:
+  policy: catalogue-owned
+  verification: evidence/compatibility.json
+
+display:
+  source: gridcore-2d
+  register: square
+  aspect: 4:3
+  compatibility_viewport: [320, 240]
+  tiles:
+    dimensions: [16, 16]
+    palette: amiga-classic
+
+input:
+  profile: roguelike-keyboard
+  pointer: optional
+  gamepad: optional
+  touch: equivalent
+
+lens:
+  connector: lens/nethack_lens.py
+  coverage: state-observed
+  export_symbols:
+    dungeon_level: "HACK.LEVEL%"
+    player_hp: "HACK.HP%"
+    max_hp: "HACK.MAXHP%"
+    gold: "HACK.GOLD%"
+    turn_count: "HACK.TURN%"
+    inventory_count: "HACK.INV%"
+
+skin:
+  default: amiga-tiles
+  available: [amiga-tiles, teletext-classic, dark-mode]
+
+storage:
+  saves: program-state

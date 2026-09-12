@@ -1,0 +1,86 @@
+# Amiga NetHack 16x16 Tile Skin Definition
+skin:
+  name: "amiga_tiles (GridCore 16x16)"
+  version: "1.0"
+
+palette:
+  '0': '#000000' # Black
+  '1': '#cc2222' # Dungeon Red
+  '2': '#22aa22' # Poison Green
+  '3': '#eebb22' # Gold Yellow
+  '4': '#2255cc' # Deep Blue
+  '5': '#9933cc' # Magic Violet
+  '6': '#22bbaa' # Mithril Cyan
+  '7': '#eeeeee' # Stone White
+
+tile_mappings:
+  - char: "@"
+    sprite: "player_valkyrie"
+    fg: 7
+    bg: 0
+    description: "Player character"
+  - char: "#"
+    sprite: "stone_wall"
+    fg: 7
+    bg: 0
+    description: "Dungeon wall"
+  - char: "."
+    sprite: "flagstone_floor"
+    fg: 7
+    bg: 0
+    description: "Room floor"
+  - char: "+"
+    sprite: "wooden_door_closed"
+    fg: 3
+    bg: 0
+    description: "Closed wooden door"
+  - char: "<"
+    sprite: "stairs_up"
+    fg: 7
+    bg: 0
+    description: "Stairs up"
+  - char: ">"
+    sprite: "stairs_down"
+    fg: 7
+    bg: 0
+    description: "Stairs down"
+  - char: "$"
+    sprite: "gold_pile"
+    fg: 3
+    bg: 0
+    description: "Gold coins"
+  - char: "!"
+    sprite: "magic_potion"
+    fg: 5
+    bg: 0
+    description: "Healing/Magic potion"
+  - char: "?"
+    sprite: "spell_scroll"
+    fg: 6
+    bg: 0
+    description: "Scroll of identify/teleport"
+  - char: ")"
+    sprite: "broadsword"
+    fg: 6
+    bg: 0
+    description: "Weapon"
+  - char: "["
+    sprite: "dragon_scale_mail"
+    fg: 2
+    bg: 0
+    description: "Armor"
+  - char: "d"
+    sprite: "jackal"
+    fg: 3
+    bg: 0
+    description: "Canine monster"
+  - char: "o"
+    sprite: "orc_warrior"
+    fg: 1
+    bg: 0
+    description: "Orc warrior"
+  - char: "D"
+    sprite: "red_dragon"
+    fg: 1
+    bg: 0
+    description: "Red dragon"
