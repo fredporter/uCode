@@ -14,3 +14,6 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["ucode_runtime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
