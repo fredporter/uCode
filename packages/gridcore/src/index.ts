@@ -2,6 +2,7 @@ export * from "./bridge/runtime-bridge";
 export * from "./buffer";
 export * from "./characters";
 export * from "./coordinates/dot";
+export * from "./coordinates/bob";
 export * from "./coordinates/latLon";
 export * from "./coordinates/uCode";
 export * from "./editor";
