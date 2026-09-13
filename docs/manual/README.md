@@ -27,6 +27,7 @@ Whether you are writing your very first line of code or integrating external C g
 | **[Part 4: GridCore Algebra](04-gridcore-algebra.md)** | GridCore Spatial Algebra & Surfaces | `GRID SET/GET`, multilayer composition, coordinate systems, world spaces | Intermediate |
 | **[Part 5: Capsules & LENS](05-capsules-and-lens.md)** | Capsule Pods & the LENS Memory Bridge | Polyglot execution, NetHack Amiga pod, `CAPSULE.GET`, state extraction | Advanced |
 | **[Part 6: Game Development](06-game-development.md)** | Interactive Game Development & Vault Publishing | Complete game loop, keyboard polling, `VAULT.OPEN`, dungeon crawler project | Advanced |
+| **[Part 7: Physical Computing & Robotics](07-physical-computing-robotics.md)** | Physical Computing & Recycled Robotics | Hardware streams (`OPENUP`, `BPUT#`, `BGET#`), sensor telemetry, stepper motors | Intermediate |
 
 ---
 
