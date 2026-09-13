@@ -80,3 +80,43 @@ def test_bob_step_and_collision_detection():
     collisions = runtime.check_collisions()
     assert len(collisions) == 1
     assert (collisions[0][0].id, collisions[0][1].id) == (1, 2)
+
+
+def test_bob_parade_demo_script():
+    from pathlib import Path
+    demo_path = Path(__file__).resolve().parent.parent / "programs" / "demos" / "bob_parade.bas"
+    assert demo_path.exists(), f"Demo script missing: {demo_path}"
+
+    runtime = BobBlitterRuntime()
+    parsed_commands = []
+
+    for line in demo_path.read_text().splitlines():
+        res = runtime.parse_basic_bob_line(line)
+        if res:
+            parsed_commands.append(res)
+
+    # bob_parade.bas contains:
+    # BOB 1, 10, 15, 0
+    # BOB 2, 60, 30, 0
+    # BOB 1, 14, 17, 1
+    # BOB 2, 56, 27, 1
+    # BOB 1, 18, 19, 2
+    # BOB 2, 52, 24, 2
+    # BOB 1, 22, 21, 3
+    # BOB 2, 48, 21, 3
+    # BOB 1, 76, 46, 0
+    # BOB 2, 2, 2, 0
+    # BOB OFF 1
+    # BOB OFF 2
+    assert len(parsed_commands) == 12
+    assert parsed_commands[0]["action"] == "bob"
+    assert parsed_commands[0]["id"] == 1
+    assert parsed_commands[0]["x_dots"] == 10
+    assert parsed_commands[0]["y_dots"] == 15
+
+    # Check that both BOBs were tracked and finally turned off
+    assert 1 in runtime.instances
+    assert 2 in runtime.instances
+    assert runtime.instances[1].visible is False
+    assert runtime.instances[2].visible is False
+

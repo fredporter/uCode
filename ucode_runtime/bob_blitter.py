@@ -231,6 +231,8 @@ class BobBlitterRuntime:
     def parse_basic_bob_line(self, line: str) -> Optional[Dict[str, Any]]:
         """Parse BASIC / AMOS BOB instruction."""
         trimmed = line.strip()
+        # Strip optional leading line numbers (e.g. '100 BOB 1, 10, 20, 0')
+        trimmed = re.sub(r"^\d+\s+", "", trimmed)
         # BOB OFF id
         m_off = re.match(r"^BOB\s+OFF\s+(\d+|[a-zA-Z0-9_]+)", trimmed, re.IGNORECASE)
         if m_off:
