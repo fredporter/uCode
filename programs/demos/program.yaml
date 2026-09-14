@@ -1,0 +1,19 @@
+format: ucode-program/1
+id: bob-parade
+title: BBC BASIC BOB Parade (4×4 Dot Lattice)
+status: verified
+treatment: authentic
+runtime: bbc-console
+entry: bob_parade.bas
+licence: CC0-1.0
+media_policy: catalogue-owned
+controls:
+  - keyboard
+lens:
+  coverage: input-aware
+skin:
+  default: teletext-classic
+  available:
+    - teletext-classic
+    - terminal-green
+description: "Reference demonstration of Blitter Objects (BOBs) moving over the sovereign 4×4 dot lattice with edge bouncing and bounding-box collision detection."
