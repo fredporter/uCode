@@ -1,4 +1,4 @@
-"""Acceptance coverage for the unified shell and BBC BASIC Terminal PTY."""
+"""Native BBC BASIC Terminal acceptance and legacy shell compatibility coverage."""
 
 from __future__ import annotations
 
@@ -164,3 +164,120 @@ def test_terminal_missing_language_does_not_fall_back_to_shell(monkeypatch):
     asyncio.run(runtime.handle_terminal_runtime_ws(object()))
     assert messages[0]['type'] == 'error'
     assert messages[1]['code'] == 1008
+
+
+def test_native_program_list_run_and_fresh_session(tmp_path):
+    engine = resolve_terminal_basic_command()
+    assert engine is not None, 'Packaged BASIC engine required for native acceptance'
+
+    async def exercise():
+        async def collect(queue, session, seconds=0.25):
+            output = ''
+            deadline = asyncio.get_running_loop().time() + seconds
+            while asyncio.get_running_loop().time() < deadline:
+                try:
+                    data = await asyncio.wait_for(queue.get(), timeout=0.03)
+                    output += data
+                    if '\x1b[6n' in data:
+                        session.write('\x1b[1;1R')
+                except TimeoutError:
+                    continue
+            return re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', output)
+        for reconnect in (False, True):
+            queue = asyncio.Queue()
+            session = LocalPtySession(queue, command=[str(engine)], cwd=tmp_path)
+            await session.start()
+            try:
+                await collect(queue, session)
+                session.write('PRINT "ANSWER=";83+7\r')
+                immediate = await collect(queue, session)
+                assert 'ANSWER=90' in re.sub(r'\s+', '', immediate)
+                if not reconnect:
+                    session.write('10 PRINT "PROGRAM=";6*7\r20 END\r')
+                    await collect(queue, session)
+                session.write('LIST\r')
+                listing = await collect(queue, session)
+                compact_listing = re.sub(r'\s+', '', listing)
+                if reconnect:
+                    assert '10PRINT' not in compact_listing
+                else:
+                    assert '10PRINT' in compact_listing
+                    assert '20END' in compact_listing
+                    session.write('RUN\r')
+                    result = await collect(queue, session)
+                    assert 'PROGRAM=42' in re.sub(r'\s+', '', result)
+            finally:
+                process = session.process
+                await session.stop()
+                assert process.poll() is not None
+                assert session.master_fd is None
+    asyncio.run(exercise())
+
+
+def test_failed_process_start_releases_pty(tmp_path):
+    async def exercise():
+        session = LocalPtySession(asyncio.Queue(), command=[str(tmp_path / 'missing-engine')])
+        try:
+            await session.start()
+        except FileNotFoundError:
+            pass
+        else:
+            raise AssertionError('Missing binary started')
+        assert session.master_fd is None
+        assert session.process is None
+    asyncio.run(exercise())
+
+
+def test_malformed_events_do_not_reach_native_session():
+    from unittest.mock import Mock
+    from ucode_runtime.terminal_runtime import _handle_runtime_message
+    async def exercise():
+        messages = []
+        class Socket:
+            async def send_json(self, payload): messages.append(payload)
+        session = Mock()
+        for raw in ('[]', 'null', '{"type":"input","data":[]}', '{"type":"resize","cols":true}', '{"type":"resize","cols":0}', '{"type":"resize","rows":"25"}'):
+            await _handle_runtime_message(raw, session, Socket())
+        assert len(messages) == 6
+        assert all(message['type'] == 'error' for message in messages)
+        session.write.assert_not_called()
+        session.resize.assert_not_called()
+    asyncio.run(exercise())
+
+
+def test_native_process_exit_closes_transport_for_reconnect():
+    from unittest.mock import Mock, AsyncMock
+    from ucode_runtime.terminal_runtime import _close_on_process_exit
+    async def exercise():
+        process = Mock()
+        process.wait.return_value = 0
+        session = Mock(process=process)
+        socket = Mock(closed=False)
+        socket.close = AsyncMock()
+        await _close_on_process_exit(session, socket)
+        process.wait.assert_called_once()
+        socket.close.assert_awaited_once_with(code=1000, message=b'uCode language session ended')
+    asyncio.run(exercise())
+
+
+def test_disconnect_during_ready_stops_language_session(monkeypatch):
+    import ucode_runtime.terminal_runtime as runtime
+    from unittest.mock import AsyncMock
+    class Socket:
+        async def prepare(self, request): pass
+        async def send_json(self, value): raise ConnectionResetError('disconnected')
+    stopped = AsyncMock()
+    class Session:
+        def __init__(self, queue, **kwargs): pass
+        async def start(self): pass
+        stop = stopped
+    monkeypatch.setattr(runtime.web, 'WebSocketResponse', lambda **kwargs: Socket())
+    monkeypatch.setattr(runtime, 'LocalPtySession', Session)
+    monkeypatch.setattr(runtime, 'resolve_terminal_basic_command', lambda: Path('/packaged/bbcbasic'))
+    async def exercise():
+        try:
+            await runtime.handle_terminal_runtime_ws(object())
+        except ConnectionResetError:
+            pass
+        stopped.assert_awaited_once()
+    asyncio.run(exercise())

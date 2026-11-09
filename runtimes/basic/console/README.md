@@ -13,3 +13,18 @@ The local macOS ARM64 build was produced from:
 Release packaging must build the matching official Console target for each
 host platform and place the executable here. The binary is a generated runtime
 artifact, not a fork of the BBC BASIC language or interpreter.
+
+The host exposes the installed language reference and capability inventory at
+`GET /api/ucode/language`. BASIC syntax is validated by the native engine.
+Vault and workflow language bridges are not registered; the inventory reports
+these integrations as unavailable rather than supplying guessed keywords.
+
+The Terminal transport accepts text input, integer resize dimensions from 1 to
+512, and stop. Closing the connection stops the owned process. Leaving BASIC
+closes the connection, and reconnecting creates a fresh in-memory program;
+unsaved programs are not restored automatically. Startup failures release PTY
+resources and never fall back to a shell.
+
+Native acceptance covers `PRINT 83+7`, a numbered program with `LIST` and `RUN`,
+and a fresh session. Compatibility shell tests are separate from the public
+Terminal's language route.

@@ -94,32 +94,37 @@ class LocalPtySession:
 
         master_fd, slave_fd = pty.openpty()
         self.master_fd = master_fd
-        self._set_window_size(cols, rows)
+        try:
+            self._set_window_size(cols, rows)
 
-        shell_parts = self.command or shlex.split(DEFAULT_SHELL) or ["/bin/zsh"]
-        inherited_term = os.environ.get("TERM", "xterm-256color")
-        if inherited_term in {"", "dumb", "unknown"}:
-            inherited_term = "xterm-256color"
-        env = {
-            **os.environ,
-            "TERM": inherited_term,
-            "COLORTERM": os.environ.get("COLORTERM", "truecolor"),
-            **(_minimal_prompt_env() if not self.command else {}),
-            **self.env_overrides,
-        }
-        self.process = subprocess.Popen(
-            shell_parts,
-            cwd=self.cwd,
-            env=env,
-            stdin=slave_fd,
-            stdout=slave_fd,
-            stderr=slave_fd,
-            start_new_session=True,
-            close_fds=True,
-        )
-        os.close(slave_fd)
-        os.set_blocking(master_fd, False)
-        asyncio.get_running_loop().add_reader(master_fd, self._read_ready)
+            shell_parts = self.command or shlex.split(DEFAULT_SHELL) or ["/bin/zsh"]
+            inherited_term = os.environ.get("TERM", "xterm-256color")
+            if inherited_term in {"", "dumb", "unknown"}:
+                inherited_term = "xterm-256color"
+            env = {
+                **os.environ,
+                "TERM": inherited_term,
+                "COLORTERM": os.environ.get("COLORTERM", "truecolor"),
+                **(_minimal_prompt_env() if not self.command else {}),
+                **self.env_overrides,
+            }
+            self.process = subprocess.Popen(
+                shell_parts,
+                cwd=self.cwd,
+                env=env,
+                stdin=slave_fd,
+                stdout=slave_fd,
+                stderr=slave_fd,
+                start_new_session=True,
+                close_fds=True,
+            )
+            os.set_blocking(master_fd, False)
+            asyncio.get_running_loop().add_reader(master_fd, self._read_ready)
+        except BaseException:
+            await self.stop()
+            raise
+        finally:
+            os.close(slave_fd)
 
     def write(self, data: str) -> None:
         if self.master_fd is None:
@@ -145,6 +150,7 @@ class LocalPtySession:
                     os.killpg(self.process.pid, signal.SIGKILL)
                 except Exception:
                     pass
+                await asyncio.to_thread(self.process.wait)
 
         if self.master_fd is not None:
             try:
@@ -208,31 +214,37 @@ async def handle_terminal_runtime_ws(request: web.Request) -> web.WebSocketRespo
         await ws.send_json({"type": "error", "message": "The installed uCode runtime could not start. Check its host/CPU compatibility in Server."})
         await ws.close(code=1008, message=b"uCode runtime failed")
         return ws
-    await ws.send_json(
-        {
-            "type": "ready",
-            "runtime": "ucode-bbc-basic",
-            "cols": DEFAULT_COLS,
-            "rows": DEFAULT_ROWS,
-        },
-    )
-
-    sender = asyncio.create_task(_send_terminal_output(ws, output_queue))
+    sender = None
+    exit_watcher = None
     try:
+        await ws.send_json({
+            "type": "ready", "runtime": "ucode-bbc-basic",
+            "cols": DEFAULT_COLS, "rows": DEFAULT_ROWS,
+        })
+        sender = asyncio.create_task(_send_terminal_output(ws, output_queue))
+        exit_watcher = asyncio.create_task(_close_on_process_exit(session, ws))
         async for message in ws:
             if message.type == WSMsgType.TEXT:
                 await _handle_runtime_message(message.data, session, ws)
             elif message.type == WSMsgType.ERROR:
                 break
     finally:
-        sender.cancel()
+        tasks = [task for task in (sender, exit_watcher) if task is not None]
+        for task in tasks:
+            task.cancel()
         await session.stop()
-        try:
-            await sender
-        except asyncio.CancelledError:
-            pass
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     return ws
+
+
+async def _close_on_process_exit(session: LocalPtySession, ws: web.WebSocketResponse) -> None:
+    process = getattr(session, "process", None)
+    if process is None:
+        return
+    await asyncio.to_thread(process.wait)
+    if not ws.closed:
+        await ws.close(code=1000, message=b"uCode language session ended")
 
 
 async def _handle_runtime_message(
@@ -246,11 +258,22 @@ async def _handle_runtime_message(
         await ws.send_json({"type": "error", "message": "Invalid terminal runtime message"})
         return
 
+    if not isinstance(payload, dict):
+        await ws.send_json({"type": "error", "message": "Terminal events must be objects"})
+        return
     event_type = payload.get("type")
     if event_type == "input":
-        session.write(str(payload.get("data", "")))
+        data = payload.get("data")
+        if not isinstance(data, str):
+            await ws.send_json({"type": "error", "message": "Terminal input must be text"})
+            return
+        session.write(data)
     elif event_type == "resize":
-        session.resize(int(payload.get("cols", DEFAULT_COLS)), int(payload.get("rows", DEFAULT_ROWS)))
+        cols, rows = payload.get("cols", DEFAULT_COLS), payload.get("rows", DEFAULT_ROWS)
+        if any(type(value) is not int or not 1 <= value <= 512 for value in (cols, rows)):
+            await ws.send_json({"type": "error", "message": "Terminal dimensions must be integers from 1 to 512"})
+            return
+        session.resize(cols, rows)
     elif event_type == "stop":
         await ws.close(code=1000, message=b"Terminal runtime stopped")
     else:

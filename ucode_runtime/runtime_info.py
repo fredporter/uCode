@@ -8,7 +8,7 @@ from aiohttp import web
 
 
 RUNTIME_CONTRACT = "ucode-runtime/1"
-RUNTIME_REVISION = "2026-11-09.1"
+RUNTIME_REVISION = "2026-11-10.1"
 
 
 def runtime_info() -> dict[str, object]:
@@ -39,6 +39,15 @@ def language_reference() -> dict[str, object]:
     for path in sorted((REPO_ROOT / "runtimes/basic/examples").glob("[0-9]*.bas"))[:3]:
         examples.append({"name": path.name, "source": path.read_text(encoding="utf-8")[:3000]})
     return {"language": "uCode / BBC BASIC", "authority": "official-bbc-basic-console", "available": resolve_terminal_basic_command() is not None, "examples": examples,
+            "capability_inventory": {
+                "owner": "ucode", "format": "ucode-language-capabilities/1",
+                "language_execution": "native-bbc-basic",
+                "language_validation": "native-engine",
+                "registered_bridges": [],
+                "unavailable_integrations": ["vault", "workflow"],
+                "terminal_events": ["input", "resize", "stop"],
+                "resize_limits": {"minimum": 1, "maximum": 512},
+            },
             "boundary": "BASIC syntax runs in the language engine. Vault/workflow capabilities require registered, documented bridges; host shell commands are not uCode statements."}
 
 
