@@ -10,4 +10,6 @@ def test_runtime_info_declares_current_contract_and_library_detail() -> None:
     assert "ucode-session/1" in info["protocols"]
     assert "software-library.title-detail" in info["capabilities"]
     assert info["provider"] == "ucode"
+    assert "terminal.basic-immediate" in info["capabilities"]
+    assert "terminal.shell" not in info["capabilities"]
 

@@ -104,7 +104,7 @@ class LocalPtySession:
             **os.environ,
             "TERM": inherited_term,
             "COLORTERM": os.environ.get("COLORTERM", "truecolor"),
-            **_minimal_prompt_env(),
+            **(_minimal_prompt_env() if not self.command else {}),
             **self.env_overrides,
         }
         self.process = subprocess.Popen(
@@ -196,12 +196,22 @@ async def handle_terminal_runtime_ws(request: web.Request) -> web.WebSocketRespo
     await ws.prepare(request)
 
     output_queue: asyncio.Queue[str] = asyncio.Queue()
-    session = LocalPtySession(output_queue)
-    await session.start()
+    basic = resolve_terminal_basic_command()
+    if basic is None:
+        await ws.send_json({"type": "error", "message": "uCode language runtime is not installed. Install BBC BASIC Console in Server; Terminal will not fall back to a host shell."})
+        await ws.close(code=1008, message=b"uCode runtime unavailable")
+        return ws
+    session = LocalPtySession(output_queue, command=[str(basic)])
+    try:
+        await session.start()
+    except OSError:
+        await ws.send_json({"type": "error", "message": "The installed uCode runtime could not start. Check its host/CPU compatibility in Server."})
+        await ws.close(code=1008, message=b"uCode runtime failed")
+        return ws
     await ws.send_json(
         {
             "type": "ready",
-            "runtime": "shell+bbc-basic",
+            "runtime": "ucode-bbc-basic",
             "cols": DEFAULT_COLS,
             "rows": DEFAULT_ROWS,
         },

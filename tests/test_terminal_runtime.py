@@ -128,3 +128,39 @@ def test_basic_command_resolves_canonical_engine(
     zshrc = (Path(prompt_env["ZDOTDIR"]) / ".zshrc").read_text(encoding="utf-8")
     assert "basic()" in zshrc
     assert str(engine.resolve()) in zshrc
+
+
+def test_terminal_route_launches_language_not_host_shell(monkeypatch):
+    import ucode_runtime.terminal_runtime as runtime
+    captured = {}
+    class Socket:
+        closed = False
+        async def prepare(self, request): pass
+        async def send_json(self, value): captured.setdefault('messages', []).append(value)
+        async def close(self, **kwargs): self.closed = True
+        def __aiter__(self): return self
+        async def __anext__(self): raise StopAsyncIteration
+    class Session:
+        def __init__(self, queue, **kwargs): captured.update(kwargs)
+        async def start(self): pass
+        async def stop(self): pass
+    monkeypatch.setattr(runtime.web, 'WebSocketResponse', lambda **kwargs: Socket())
+    monkeypatch.setattr(runtime, 'LocalPtySession', Session)
+    monkeypatch.setattr(runtime, 'resolve_terminal_basic_command', lambda: Path('/packaged/bbcbasic'))
+    asyncio.run(runtime.handle_terminal_runtime_ws(object()))
+    assert captured['command'] == ['/packaged/bbcbasic']
+    assert captured['messages'][0]['runtime'] == 'ucode-bbc-basic'
+
+
+def test_terminal_missing_language_does_not_fall_back_to_shell(monkeypatch):
+    import ucode_runtime.terminal_runtime as runtime
+    messages = []
+    class Socket:
+        async def prepare(self, request): pass
+        async def send_json(self, value): messages.append(value)
+        async def close(self, **kwargs): messages.append(kwargs)
+    monkeypatch.setattr(runtime.web, 'WebSocketResponse', lambda **kwargs: Socket())
+    monkeypatch.setattr(runtime, 'resolve_terminal_basic_command', lambda: None)
+    asyncio.run(runtime.handle_terminal_runtime_ws(object()))
+    assert messages[0]['type'] == 'error'
+    assert messages[1]['code'] == 1008
